@@ -1,0 +1,558 @@
+-- ============================================================
+-- Vidyavardhini Classes — Initial Schema
+-- Migration: 001
+-- Run this in Supabase SQL Editor
+-- ============================================================
+
+-- ── Enums ──────────────────────────────────────────────────
+CREATE TYPE user_role AS ENUM ('admin', 'teacher', 'student');
+CREATE TYPE gender_type AS ENUM ('male', 'female', 'other');
+CREATE TYPE board_type AS ENUM ('SSC', 'CBSE');
+CREATE TYPE standard_type AS ENUM ('1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th');
+CREATE TYPE student_status AS ENUM ('pending','active','inactive','archived','banned','rejected');
+CREATE TYPE attendance_status AS ENUM ('present','absent','holiday','leave');
+CREATE TYPE absence_reason_type AS ENUM ('sick','family_function','travel','personal','other');
+CREATE TYPE fee_status AS ENUM ('pending','partially_paid','paid','waived');
+CREATE TYPE payment_method AS ENUM ('cash','upi','bank_transfer','cheque');
+CREATE TYPE salary_status AS ENUM ('pending','paid');
+CREATE TYPE announcement_type AS ENUM ('general','staff','emergency');
+CREATE TYPE announcement_priority AS ENUM ('normal','high','urgent');
+CREATE TYPE file_type AS ENUM ('image','pdf','text','video');
+CREATE TYPE backup_status AS ENUM ('pending','success','failed');
+
+-- ── Sequences ──────────────────────────────────────────────
+CREATE SEQUENCE student_id_seq START 1;
+CREATE SEQUENCE teacher_id_seq START 1;
+
+-- ── users ──────────────────────────────────────────────────
+CREATE TABLE users (
+  id         UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  phone      VARCHAR(15) UNIQUE NOT NULL,
+  role       user_role NOT NULL,
+  fcm_token  TEXT,
+  is_active  BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "users: own read" ON users FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "users: admin read all" ON users FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "users: insert own" ON users FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "users: update own" ON users FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+-- ── admin_profiles ─────────────────────────────────────────
+CREATE TABLE admin_profiles (
+  id                UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  full_name         VARCHAR(100) NOT NULL,
+  email             VARCHAR(255),
+  access_code_hash  VARCHAR(255) NOT NULL,
+  password_hash     VARCHAR(255) NOT NULL,
+  profile_photo_url TEXT,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "admin_profiles: admin only" ON admin_profiles FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── teacher_profiles ───────────────────────────────────────
+CREATE TABLE teacher_profiles (
+  id                UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  teacher_id        VARCHAR(10) UNIQUE NOT NULL,
+  full_name         VARCHAR(100) NOT NULL,
+  gender            gender_type,
+  dob               DATE,
+  email             VARCHAR(255),
+  joining_date      DATE,
+  profile_photo_url TEXT,
+  monthly_salary    NUMERIC(10,2) NOT NULL DEFAULT 0,
+  access_code_hash  VARCHAR(255) NOT NULL,
+  is_active         BOOLEAN NOT NULL DEFAULT true,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE teacher_profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "teacher_profiles: own read" ON teacher_profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "teacher_profiles: admin all" ON teacher_profiles FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── student_profiles ───────────────────────────────────────
+CREATE TABLE student_profiles (
+  id                UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  student_id        VARCHAR(10) UNIQUE,
+  full_name         VARCHAR(100) NOT NULL,
+  gender            gender_type NOT NULL,
+  dob               DATE NOT NULL,
+  parent_name       VARCHAR(100) NOT NULL,
+  parent_phone      VARCHAR(15) NOT NULL,
+  whatsapp_number   VARCHAR(15) NOT NULL,
+  email             VARCHAR(255),
+  school_name       VARCHAR(150) NOT NULL,
+  board             board_type NOT NULL,
+  standard          standard_type NOT NULL,
+  profile_photo_url TEXT,
+  status            student_status NOT NULL DEFAULT 'pending',
+  rejection_reason  TEXT,
+  approved_by       UUID REFERENCES users(id),
+  approved_at       TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE student_profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "student_profiles: own read" ON student_profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "student_profiles: own insert" ON student_profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "student_profiles: admin all" ON student_profiles FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "student_profiles: teacher read assigned" ON student_profiles FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM teacher_assignments ta
+    JOIN academic_years ay ON ay.id = ta.academic_year_id AND ay.is_current = true
+    WHERE ta.teacher_id = auth.uid() AND ta.board = student_profiles.board AND ta.standard = student_profiles.standard
+  )
+);
+
+-- ── academic_years ─────────────────────────────────────────
+CREATE TABLE academic_years (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  year_label VARCHAR(10) NOT NULL UNIQUE,
+  start_date DATE NOT NULL,
+  end_date   DATE NOT NULL,
+  is_current BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE UNIQUE INDEX academic_years_one_current ON academic_years (is_current) WHERE is_current = true;
+ALTER TABLE academic_years ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "academic_years: all read" ON academic_years FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "academic_years: admin write" ON academic_years FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── student_enrollments ────────────────────────────────────
+CREATE TABLE student_enrollments (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id       UUID NOT NULL REFERENCES student_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  board            board_type NOT NULL,
+  standard         standard_type NOT NULL,
+  is_promoted      BOOLEAN NOT NULL DEFAULT false,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (student_id, academic_year_id)
+);
+ALTER TABLE student_enrollments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "student_enrollments: own read" ON student_enrollments FOR SELECT USING (auth.uid() = student_id);
+CREATE POLICY "student_enrollments: admin all" ON student_enrollments FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "student_enrollments: teacher read" ON student_enrollments FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'teacher'));
+
+-- ── teacher_assignments ────────────────────────────────────
+CREATE TABLE teacher_assignments (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_id       UUID NOT NULL REFERENCES teacher_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  board            board_type NOT NULL,
+  standard         standard_type NOT NULL,
+  subject          VARCHAR(50) NOT NULL,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (teacher_id, academic_year_id, board, standard, subject)
+);
+ALTER TABLE teacher_assignments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "teacher_assignments: own read" ON teacher_assignments FOR SELECT USING (auth.uid() = teacher_id);
+CREATE POLICY "teacher_assignments: admin all" ON teacher_assignments FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── student_attendance ─────────────────────────────────────
+CREATE TABLE student_attendance (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id       UUID NOT NULL REFERENCES student_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  date             DATE NOT NULL,
+  status           attendance_status NOT NULL,
+  marked_by        UUID NOT NULL REFERENCES users(id),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (student_id, date)
+);
+CREATE INDEX student_attendance_idx ON student_attendance (student_id, date DESC);
+ALTER TABLE student_attendance ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "student_attendance: own read" ON student_attendance FOR SELECT USING (auth.uid() = student_id);
+CREATE POLICY "student_attendance: admin all" ON student_attendance FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "student_attendance: teacher write" ON student_attendance FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'teacher'));
+CREATE POLICY "student_attendance: teacher read" ON student_attendance FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'teacher'));
+
+-- ── absence_reasons ────────────────────────────────────────
+CREATE TABLE absence_reasons (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  attendance_id UUID NOT NULL REFERENCES student_attendance(id) ON DELETE CASCADE,
+  reason        absence_reason_type NOT NULL,
+  description   TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE absence_reasons ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "absence_reasons: student own read" ON absence_reasons FOR SELECT USING (
+  EXISTS (SELECT 1 FROM student_attendance sa WHERE sa.id = attendance_id AND sa.student_id = auth.uid())
+);
+CREATE POLICY "absence_reasons: teacher/admin write" ON absence_reasons FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('teacher','admin'))
+);
+CREATE POLICY "absence_reasons: admin all" ON absence_reasons FOR ALL USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- ── teacher_attendance ─────────────────────────────────────
+CREATE TABLE teacher_attendance (
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_id           UUID NOT NULL REFERENCES teacher_profiles(id),
+  date                 DATE NOT NULL,
+  status               attendance_status NOT NULL DEFAULT 'absent',
+  check_in_time        TIMESTAMPTZ,
+  latitude             NUMERIC(10,7),
+  longitude            NUMERIC(10,7),
+  is_manual_correction BOOLEAN NOT NULL DEFAULT false,
+  corrected_by         UUID REFERENCES users(id),
+  correction_reason    TEXT,
+  created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (teacher_id, date)
+);
+CREATE INDEX teacher_attendance_idx ON teacher_attendance (teacher_id, date DESC);
+ALTER TABLE teacher_attendance ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "teacher_attendance: own read" ON teacher_attendance FOR SELECT USING (auth.uid() = teacher_id);
+CREATE POLICY "teacher_attendance: self insert" ON teacher_attendance FOR INSERT WITH CHECK (auth.uid() = teacher_id);
+CREATE POLICY "teacher_attendance: admin all" ON teacher_attendance FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── homework ───────────────────────────────────────────────
+CREATE TABLE homework (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_id       UUID NOT NULL REFERENCES teacher_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  board            board_type NOT NULL,
+  standard         standard_type NOT NULL,
+  subject          VARCHAR(50) NOT NULL,
+  title            VARCHAR(200) NOT NULL,
+  description      TEXT,
+  due_date         DATE NOT NULL,
+  is_active        BOOLEAN NOT NULL DEFAULT true,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX homework_class_idx ON homework (academic_year_id, board, standard, created_at DESC);
+ALTER TABLE homework ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "homework: teacher own" ON homework FOR ALL USING (auth.uid() = teacher_id);
+CREATE POLICY "homework: student read" ON homework FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM student_enrollments se
+    JOIN academic_years ay ON ay.id = se.academic_year_id AND ay.is_current = true
+    WHERE se.student_id = auth.uid() AND se.board = board AND se.standard = standard
+  )
+);
+CREATE POLICY "homework: admin all" ON homework FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── homework_attachments ───────────────────────────────────
+CREATE TABLE homework_attachments (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  homework_id UUID NOT NULL REFERENCES homework(id) ON DELETE CASCADE,
+  file_url    TEXT NOT NULL,
+  file_type   file_type NOT NULL,
+  file_name   VARCHAR(255) NOT NULL,
+  file_size   INTEGER,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE homework_attachments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "homework_attachments: teacher insert" ON homework_attachments FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM homework h WHERE h.id = homework_id AND h.teacher_id = auth.uid())
+);
+CREATE POLICY "homework_attachments: read with homework" ON homework_attachments FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM homework h WHERE h.id = homework_id AND (
+      h.teacher_id = auth.uid() OR
+      EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin') OR
+      EXISTS (
+        SELECT 1 FROM student_enrollments se
+        JOIN academic_years ay ON ay.id = se.academic_year_id AND ay.is_current = true
+        WHERE se.student_id = auth.uid() AND se.board = h.board AND se.standard = h.standard
+      )
+    )
+  )
+);
+
+-- ── classwork ──────────────────────────────────────────────
+CREATE TABLE classwork (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_id       UUID NOT NULL REFERENCES teacher_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  board            board_type NOT NULL,
+  standard         standard_type NOT NULL,
+  subject          VARCHAR(50) NOT NULL,
+  title            VARCHAR(200) NOT NULL,
+  description      TEXT,
+  is_active        BOOLEAN NOT NULL DEFAULT true,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE classwork ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "classwork: teacher own" ON classwork FOR ALL USING (auth.uid() = teacher_id);
+CREATE POLICY "classwork: student read" ON classwork FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM student_enrollments se
+    JOIN academic_years ay ON ay.id = se.academic_year_id AND ay.is_current = true
+    WHERE se.student_id = auth.uid() AND se.board = board AND se.standard = standard
+  )
+);
+CREATE POLICY "classwork: admin all" ON classwork FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── classwork_attachments ──────────────────────────────────
+CREATE TABLE classwork_attachments (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  classwork_id UUID NOT NULL REFERENCES classwork(id) ON DELETE CASCADE,
+  file_url     TEXT NOT NULL,
+  file_type    file_type NOT NULL,
+  file_name    VARCHAR(255) NOT NULL,
+  file_size    INTEGER,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE classwork_attachments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "classwork_attachments: same as classwork" ON classwork_attachments FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM classwork c WHERE c.id = classwork_id AND (
+      c.teacher_id = auth.uid() OR
+      EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin') OR
+      EXISTS (
+        SELECT 1 FROM student_enrollments se
+        JOIN academic_years ay ON ay.id = se.academic_year_id AND ay.is_current = true
+        WHERE se.student_id = auth.uid() AND se.board = c.board AND se.standard = c.standard
+      )
+    )
+  )
+);
+CREATE POLICY "classwork_attachments: teacher insert" ON classwork_attachments FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM classwork c WHERE c.id = classwork_id AND c.teacher_id = auth.uid())
+);
+
+-- ── chat_rooms ─────────────────────────────────────────────
+CREATE TABLE chat_rooms (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id UUID NOT NULL REFERENCES student_profiles(id),
+  teacher_id UUID NOT NULL REFERENCES teacher_profiles(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (student_id, teacher_id)
+);
+ALTER TABLE chat_rooms ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "chat_rooms: member read" ON chat_rooms FOR SELECT USING (auth.uid() = student_id OR auth.uid() = teacher_id);
+CREATE POLICY "chat_rooms: student create" ON chat_rooms FOR INSERT WITH CHECK (auth.uid() = student_id);
+CREATE POLICY "chat_rooms: admin read all" ON chat_rooms FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── messages ───────────────────────────────────────────────
+CREATE TABLE messages (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id    UUID NOT NULL REFERENCES chat_rooms(id) ON DELETE CASCADE,
+  sender_id  UUID NOT NULL REFERENCES users(id),
+  content    TEXT,
+  file_url   TEXT,
+  file_type  file_type,
+  is_read    BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX messages_room_idx ON messages (room_id, created_at DESC);
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "messages: room member" ON messages FOR ALL USING (
+  EXISTS (SELECT 1 FROM chat_rooms cr WHERE cr.id = room_id AND (cr.student_id = auth.uid() OR cr.teacher_id = auth.uid()))
+);
+CREATE POLICY "messages: admin read all" ON messages FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── announcements ──────────────────────────────────────────
+CREATE TABLE announcements (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_by      UUID NOT NULL REFERENCES users(id),
+  title           VARCHAR(200) NOT NULL,
+  content         TEXT NOT NULL,
+  type            announcement_type NOT NULL DEFAULT 'general',
+  priority        announcement_priority NOT NULL DEFAULT 'normal',
+  target_board    board_type,
+  target_standard standard_type,
+  is_active       BOOLEAN NOT NULL DEFAULT true,
+  expires_at      TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "announcements: general read" ON announcements FOR SELECT USING (
+  is_active = true AND (
+    type IN ('general','emergency') OR
+    (type = 'staff' AND EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('teacher','admin')))
+  )
+);
+CREATE POLICY "announcements: admin write" ON announcements FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── announcement_seen ──────────────────────────────────────
+CREATE TABLE announcement_seen (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  announcement_id UUID NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
+  user_id         UUID NOT NULL REFERENCES users(id),
+  seen_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (announcement_id, user_id)
+);
+ALTER TABLE announcement_seen ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "announcement_seen: own" ON announcement_seen FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "announcement_seen: admin read all" ON announcement_seen FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── fee_structure ──────────────────────────────────────────
+CREATE TABLE fee_structure (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id       UUID NOT NULL REFERENCES student_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  monthly_fee      NUMERIC(10,2) NOT NULL DEFAULT 0,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (student_id, academic_year_id)
+);
+ALTER TABLE fee_structure ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "fee_structure: own read" ON fee_structure FOR SELECT USING (auth.uid() = student_id);
+CREATE POLICY "fee_structure: admin all" ON fee_structure FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── monthly_fees ───────────────────────────────────────────
+CREATE TABLE monthly_fees (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id       UUID NOT NULL REFERENCES student_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  month            SMALLINT NOT NULL CHECK (month BETWEEN 1 AND 12),
+  year             SMALLINT NOT NULL,
+  expected_amount  NUMERIC(10,2) NOT NULL,
+  paid_amount      NUMERIC(10,2) NOT NULL DEFAULT 0,
+  remaining_amount NUMERIC(10,2) GENERATED ALWAYS AS (expected_amount - paid_amount) STORED,
+  status           fee_status NOT NULL DEFAULT 'pending',
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (student_id, month, year)
+);
+CREATE INDEX monthly_fees_student_idx ON monthly_fees (student_id, year DESC, month DESC);
+CREATE INDEX monthly_fees_status_idx ON monthly_fees (status, year, month);
+ALTER TABLE monthly_fees ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "monthly_fees: own read" ON monthly_fees FOR SELECT USING (auth.uid() = student_id);
+CREATE POLICY "monthly_fees: admin all" ON monthly_fees FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── fee_payments ───────────────────────────────────────────
+CREATE TABLE fee_payments (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  monthly_fee_id   UUID NOT NULL REFERENCES monthly_fees(id),
+  amount           NUMERIC(10,2) NOT NULL CHECK (amount > 0),
+  payment_method   payment_method NOT NULL,
+  payment_date     DATE NOT NULL,
+  reference_number VARCHAR(100),
+  collected_by     UUID NOT NULL REFERENCES users(id),
+  notes            TEXT,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE fee_payments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "fee_payments: own read" ON fee_payments FOR SELECT USING (
+  EXISTS (SELECT 1 FROM monthly_fees mf WHERE mf.id = monthly_fee_id AND mf.student_id = auth.uid())
+);
+CREATE POLICY "fee_payments: admin all" ON fee_payments FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── teacher_salary ─────────────────────────────────────────
+CREATE TABLE teacher_salary (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_id     UUID NOT NULL REFERENCES teacher_profiles(id),
+  month          SMALLINT NOT NULL CHECK (month BETWEEN 1 AND 12),
+  year           SMALLINT NOT NULL,
+  monthly_salary NUMERIC(10,2) NOT NULL,
+  working_days   SMALLINT NOT NULL,
+  present_days   SMALLINT NOT NULL DEFAULT 0,
+  absent_days    SMALLINT GENERATED ALWAYS AS (working_days - present_days) STORED,
+  daily_salary   NUMERIC(10,2) GENERATED ALWAYS AS (CASE WHEN working_days > 0 THEN ROUND(monthly_salary / working_days, 2) ELSE 0 END) STORED,
+  earned_salary  NUMERIC(10,2) GENERATED ALWAYS AS (CASE WHEN working_days > 0 THEN ROUND((monthly_salary / working_days) * present_days, 2) ELSE 0 END) STORED,
+  status         salary_status NOT NULL DEFAULT 'pending',
+  payment_date   DATE,
+  payment_method VARCHAR(50),
+  notes          TEXT,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (teacher_id, month, year)
+);
+ALTER TABLE teacher_salary ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "teacher_salary: own read" ON teacher_salary FOR SELECT USING (auth.uid() = teacher_id);
+CREATE POLICY "teacher_salary: admin all" ON teacher_salary FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── notifications ──────────────────────────────────────────
+CREATE TABLE notifications (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID NOT NULL REFERENCES users(id),
+  title      VARCHAR(200) NOT NULL,
+  body       TEXT NOT NULL,
+  type       VARCHAR(50) NOT NULL,
+  data       JSONB,
+  is_read    BOOLEAN NOT NULL DEFAULT false,
+  sent_at    TIMESTAMPTZ,
+  read_at    TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX notifications_user_idx ON notifications (user_id, created_at DESC);
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "notifications: own all" ON notifications FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "notifications: admin insert" ON notifications FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── geofence_settings ──────────────────────────────────────
+CREATE TABLE geofence_settings (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  latitude      NUMERIC(10,7) NOT NULL,
+  longitude     NUMERIC(10,7) NOT NULL,
+  radius_meters INTEGER NOT NULL DEFAULT 100,
+  updated_by    UUID NOT NULL REFERENCES users(id),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE geofence_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "geofence_settings: teacher read" ON geofence_settings FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('teacher','admin')));
+CREATE POLICY "geofence_settings: admin write" ON geofence_settings FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── teacher_timetable ──────────────────────────────────────
+CREATE TABLE teacher_timetable (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_id       UUID NOT NULL REFERENCES teacher_profiles(id),
+  academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  day_of_week      SMALLINT NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
+  start_time       TIME NOT NULL,
+  end_time         TIME NOT NULL,
+  board            board_type NOT NULL,
+  standard         standard_type NOT NULL,
+  subject          VARCHAR(50) NOT NULL,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE teacher_timetable ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "teacher_timetable: own read" ON teacher_timetable FOR SELECT USING (auth.uid() = teacher_id);
+CREATE POLICY "teacher_timetable: admin all" ON teacher_timetable FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── audit_logs ─────────────────────────────────────────────
+CREATE TABLE audit_logs (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  performed_by UUID NOT NULL REFERENCES users(id),
+  action       VARCHAR(100) NOT NULL,
+  entity_type  VARCHAR(50),
+  entity_id    UUID,
+  old_value    JSONB,
+  new_value    JSONB,
+  ip_address   VARCHAR(45),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX audit_logs_time_idx ON audit_logs (created_at DESC);
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "audit_logs: admin read" ON audit_logs FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "audit_logs: insert only" ON audit_logs FOR INSERT WITH CHECK (auth.uid() = performed_by);
+
+-- ── promotion_history ──────────────────────────────────────
+CREATE TABLE promotion_history (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  from_academic_year_id UUID NOT NULL REFERENCES academic_years(id),
+  to_academic_year_id   UUID NOT NULL REFERENCES academic_years(id),
+  promoted_by           UUID NOT NULL REFERENCES users(id),
+  students_promoted     INTEGER NOT NULL DEFAULT 0,
+  otp_verified          BOOLEAN NOT NULL DEFAULT false,
+  promoted_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE promotion_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "promotion_history: admin all" ON promotion_history FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- ── backup_logs ────────────────────────────────────────────
+CREATE TABLE backup_logs (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  initiated_by UUID NOT NULL REFERENCES users(id),
+  status       backup_status NOT NULL DEFAULT 'pending',
+  storage_path TEXT,
+  size_bytes   BIGINT,
+  error_msg    TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
+);
+ALTER TABLE backup_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "backup_logs: admin all" ON backup_logs FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
