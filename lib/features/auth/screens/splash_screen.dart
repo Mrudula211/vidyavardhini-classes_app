@@ -97,7 +97,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   AppConstants.appTaglineEnglish,
                   style: AppTypography.poppins(
                     fontSize: 12,
-                    color: AppColors.parchment.withOpacity(0.7),
+                    color: AppColors.parchment.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 48),
@@ -108,7 +108,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: AppColors.gold.withOpacity(0.8),
+                    color: AppColors.gold.withValues(alpha: 0.8),
                   ),
                 ),
               ],

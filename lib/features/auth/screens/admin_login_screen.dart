@@ -60,7 +60,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                 const SizedBox(height: 32),
                 const AppLogoHeader(),
                 const SizedBox(height: 40),
-
                 Text(
                   'Admin Login',
                   style: AppTypography.cinzel(
@@ -72,10 +71,12 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Enter your admin credentials',
-                  style: AppTypography.poppins(fontSize: 14, color: AppColors.brown),
+                  style: AppTypography.poppins(
+                    fontSize: 14,
+                    color: AppColors.brown,
+                  ),
                 ),
                 const SizedBox(height: 32),
-
                 TextFormField(
                   controller: _accessCodeController,
                   keyboardType: TextInputType.number,
@@ -94,7 +95,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
                 TextFormField(
                   controller: _passwordController,
                   obscureText: !_passwordVisible,
@@ -102,9 +102,11 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                     labelText: 'Password',
                     prefixIcon: const Icon(Icons.key_rounded),
                     suffixIcon: IconButton(
-                      icon: Icon(_passwordVisible
-                          ? Icons.visibility_off_rounded
-                          : Icons.visibility_rounded),
+                      icon: Icon(
+                        _passwordVisible
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                      ),
                       onPressed: () =>
                           setState(() => _passwordVisible = !_passwordVisible),
                     ),
@@ -117,7 +119,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
-
                 PrimaryButton(
                   label: 'Login',
                   isLoading: _isLoading,

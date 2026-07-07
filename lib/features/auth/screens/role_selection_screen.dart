@@ -26,10 +26,8 @@ class RoleSelectionScreen extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 48),
-
                 Image.asset('images/logo.png', width: 120, height: 120),
                 const SizedBox(height: 16),
-
                 Text(
                   AppConstants.appName,
                   style: AppTypography.cinzel(
@@ -48,7 +46,6 @@ class RoleSelectionScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 56),
-
                 Text(
                   'Who are you?',
                   style: AppTypography.cinzel(
@@ -59,7 +56,6 @@ class RoleSelectionScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-
                 _RoleCard(
                   icon: Icons.admin_panel_settings_rounded,
                   label: 'Admin',
@@ -89,13 +85,12 @@ class RoleSelectionScreen extends StatelessWidget {
                     extra: {'role': 'student'},
                   ),
                 ),
-
                 const Spacer(),
                 Text(
                   'Mrs. Siddhi Gharat',
                   style: AppTypography.poppins(
                     fontSize: 11,
-                    color: AppColors.parchment.withOpacity(0.4),
+                    color: AppColors.parchment.withValues(alpha: 0.4),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -124,7 +119,7 @@ class _RoleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.parchment.withOpacity(0.08),
+      color: AppColors.parchment.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
@@ -133,7 +128,7 @@ class _RoleCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.gold.withOpacity(0.35)),
+            border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
           ),
           child: Row(
             children: [
@@ -141,7 +136,7 @@ class _RoleCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.gold.withOpacity(0.15),
+                  color: AppColors.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: AppColors.gold, size: 26),
@@ -162,7 +157,7 @@ class _RoleCard extends StatelessWidget {
                     subtitle,
                     style: AppTypography.poppins(
                       fontSize: 12,
-                      color: AppColors.parchment.withOpacity(0.6),
+                      color: AppColors.parchment.withValues(alpha: 0.6),
                     ),
                   ),
                 ],

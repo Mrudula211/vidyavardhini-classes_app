@@ -52,8 +52,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   @override
   void dispose() {
-    for (final c in _controllers) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
     _resendTimer?.cancel();
     super.dispose();
   }
@@ -85,9 +89,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid OTP. Please try again.')),
+        const SnackBar(content: Text('Invalid OTP. Please try again.')),
       );
-      for (final c in _controllers) c.clear();
+      for (final c in _controllers) {
+        c.clear();
+      }
       _focusNodes[0].requestFocus();
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -134,19 +140,23 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               const SizedBox(height: 8),
               Text(
                 'Enter the 6-digit code sent to $maskedPhone',
-                style: AppTypography.poppins(fontSize: 14, color: AppColors.brown),
+                style:
+                    AppTypography.poppins(fontSize: 14, color: AppColors.brown),
               ),
               const SizedBox(height: 40),
 
               // OTP boxes
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(6, (i) => _OtpBox(
-                  controller: _controllers[i],
-                  focusNode: _focusNodes[i],
-                  onChanged: (val) => _onDigitEntered(i, val),
-                  onBackspace: () => _onBackspace(i),
-                )),
+                children: List.generate(
+                  6,
+                  (i) => _OtpBox(
+                    controller: _controllers[i],
+                    focusNode: _focusNodes[i],
+                    onChanged: (val) => _onDigitEntered(i, val),
+                    onBackspace: () => _onBackspace(i),
+                  ),
+                ),
               ),
               const SizedBox(height: 40),
 
@@ -167,10 +177,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         ),
                       )
                     : TextButton(
-                        onPressed: () {
-                          // TODO: resend OTP
-                          _startResendTimer();
-                        },
+                        onPressed: _startResendTimer,
                         child: Text(
                           'Resend OTP',
                           style: AppTypography.poppins(

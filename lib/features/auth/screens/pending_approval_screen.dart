@@ -21,7 +21,7 @@ class PendingApprovalScreen extends StatelessWidget {
               Container(
                 width: 80,
                 height: 80,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.warningLight,
                   shape: BoxShape.circle,
                 ),
@@ -68,17 +68,23 @@ class PendingApprovalScreen extends StatelessWidget {
 
               // Status indicator
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: AppColors.warningLight,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.warning.withOpacity(0.4)),
+                  border: Border.all(
+                    color: AppColors.warning.withValues(alpha: 0.4),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.pending_rounded,
-                        color: AppColors.warning, size: 18),
+                    const Icon(
+                      Icons.pending_rounded,
+                      color: AppColors.warning,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Status: Pending',

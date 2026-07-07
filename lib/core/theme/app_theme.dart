@@ -43,10 +43,12 @@ class AppTheme {
         cardTheme: CardThemeData(
           color: AppColors.lightSurface,
           elevation: 2,
-          shadowColor: AppColors.brown.withOpacity(0.15),
+          shadowColor: AppColors.brown.withValues(alpha: 0.15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: AppColors.lightOutline.withOpacity(0.4)),
+            side: BorderSide(
+              color: AppColors.lightOutline.withValues(alpha: 0.4),
+            ),
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -54,8 +56,12 @@ class AppTheme {
             backgroundColor: AppColors.maroon,
             foregroundColor: AppColors.parchment,
             minimumSize: const Size(double.infinity, 52),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            textStyle: AppTypography.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            textStyle: AppTypography.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -63,14 +69,21 @@ class AppTheme {
             foregroundColor: AppColors.maroon,
             side: const BorderSide(color: AppColors.maroon),
             minimumSize: const Size(double.infinity, 52),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            textStyle: AppTypography.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            textStyle: AppTypography.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: AppColors.maroon,
-            textStyle: AppTypography.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+            textStyle: AppTypography.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -92,9 +105,14 @@ class AppTheme {
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.error),
           ),
-          labelStyle: AppTypography.poppins(fontSize: 14, color: AppColors.brown),
-          hintStyle: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          labelStyle:
+              AppTypography.poppins(fontSize: 14, color: AppColors.brown),
+          hintStyle: AppTypography.poppins(
+            fontSize: 14,
+            color: AppColors.lightOutline,
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         chipTheme: ChipThemeData(
           backgroundColor: AppColors.lightSurfaceVariant,
@@ -110,7 +128,8 @@ class AppTheme {
           backgroundColor: AppColors.lightSurface,
           selectedItemColor: AppColors.maroon,
           unselectedItemColor: AppColors.lightOutline,
-          selectedLabelStyle: AppTypography.poppins(fontSize: 11, fontWeight: FontWeight.w600),
+          selectedLabelStyle:
+              AppTypography.poppins(fontSize: 11, fontWeight: FontWeight.w600),
           unselectedLabelStyle: AppTypography.poppins(fontSize: 11),
           type: BottomNavigationBarType.fixed,
           elevation: 8,
@@ -121,7 +140,8 @@ class AppTheme {
         ),
         snackBarTheme: SnackBarThemeData(
           backgroundColor: AppColors.brown,
-          contentTextStyle: AppTypography.poppins(fontSize: 14, color: AppColors.parchment),
+          contentTextStyle:
+              AppTypography.poppins(fontSize: 14, color: AppColors.parchment),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -168,7 +188,8 @@ class AppTheme {
           shadowColor: Colors.black45,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: AppColors.darkOutline.withOpacity(0.5)),
+            side:
+                BorderSide(color: AppColors.darkOutline.withValues(alpha: 0.5)),
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -176,8 +197,12 @@ class AppTheme {
             backgroundColor: AppColors.gold,
             foregroundColor: AppColors.brown,
             minimumSize: const Size(double.infinity, 52),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            textStyle: AppTypography.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            textStyle: AppTypography.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -185,8 +210,12 @@ class AppTheme {
             foregroundColor: AppColors.gold,
             side: const BorderSide(color: AppColors.gold),
             minimumSize: const Size(double.infinity, 52),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            textStyle: AppTypography.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            textStyle: AppTypography.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
@@ -204,15 +233,19 @@ class AppTheme {
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.gold, width: 2),
           ),
-          labelStyle: AppTypography.poppins(fontSize: 14, color: AppColors.goldLight),
-          hintStyle: AppTypography.poppins(fontSize: 14, color: AppColors.darkOutline),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          labelStyle:
+              AppTypography.poppins(fontSize: 14, color: AppColors.goldLight),
+          hintStyle:
+              AppTypography.poppins(fontSize: 14, color: AppColors.darkOutline),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: AppColors.darkSurface,
           selectedItemColor: AppColors.gold,
           unselectedItemColor: AppColors.darkOutline,
-          selectedLabelStyle: AppTypography.poppins(fontSize: 11, fontWeight: FontWeight.w600),
+          selectedLabelStyle:
+              AppTypography.poppins(fontSize: 11, fontWeight: FontWeight.w600),
           unselectedLabelStyle: AppTypography.poppins(fontSize: 11),
           type: BottomNavigationBarType.fixed,
         ),

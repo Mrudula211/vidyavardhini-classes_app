@@ -134,8 +134,11 @@ class _StudentRegistrationScreenState
                         ? FileImage(_profilePhoto!)
                         : null,
                     child: _profilePhoto == null
-                        ? const Icon(Icons.add_a_photo_rounded,
-                            size: 32, color: AppColors.maroon)
+                        ? const Icon(
+                            Icons.add_a_photo_rounded,
+                            size: 32,
+                            color: AppColors.maroon,
+                          )
                         : null,
                   ),
                 ),
@@ -146,21 +149,27 @@ class _StudentRegistrationScreenState
                   child: Text(
                     'Add Photo (Optional)',
                     style: AppTypography.poppins(
-                        fontSize: 13, color: AppColors.maroon),
+                      fontSize: 13,
+                      color: AppColors.maroon,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
 
-              _SectionLabel('Personal Information'),
+              const _SectionLabel('Personal Information'),
               const SizedBox(height: 12),
 
-              _buildTextField(_nameController, 'Full Name', Icons.person_rounded),
+              _buildTextField(
+                _nameController,
+                'Full Name',
+                Icons.person_rounded,
+              ),
               const SizedBox(height: 16),
 
               // Gender
               DropdownButtonFormField<String>(
-                value: _selectedGender,
+                initialValue: _selectedGender,
                 decoration: const InputDecoration(
                   labelText: 'Gender',
                   prefixIcon: Icon(Icons.wc_rounded),
@@ -196,30 +205,53 @@ class _StudentRegistrationScreenState
               ),
               const SizedBox(height: 24),
 
-              _SectionLabel('Parent / Guardian'),
+              const _SectionLabel('Parent / Guardian'),
               const SizedBox(height: 12),
 
-              _buildTextField(_parentNameController, 'Parent Name', Icons.family_restroom_rounded),
+              _buildTextField(
+                _parentNameController,
+                'Parent Name',
+                Icons.family_restroom_rounded,
+              ),
               const SizedBox(height: 16),
-              _buildTextField(_parentPhoneController, 'Parent Mobile', Icons.phone_rounded,
-                  keyboardType: TextInputType.phone, maxLength: 10),
+              _buildTextField(
+                _parentPhoneController,
+                'Parent Mobile',
+                Icons.phone_rounded,
+                keyboardType: TextInputType.phone,
+                maxLength: 10,
+              ),
               const SizedBox(height: 16),
-              _buildTextField(_whatsappController, 'WhatsApp Number', Icons.message_rounded,
-                  keyboardType: TextInputType.phone, maxLength: 10),
+              _buildTextField(
+                _whatsappController,
+                'WhatsApp Number',
+                Icons.message_rounded,
+                keyboardType: TextInputType.phone,
+                maxLength: 10,
+              ),
               const SizedBox(height: 24),
 
-              _SectionLabel('Contact & School'),
+              const _SectionLabel('Contact & School'),
               const SizedBox(height: 12),
 
-              _buildTextField(_emailController, 'Email Address', Icons.email_rounded,
-                  keyboardType: TextInputType.emailAddress, required: false),
+              _buildTextField(
+                _emailController,
+                'Email Address',
+                Icons.email_rounded,
+                keyboardType: TextInputType.emailAddress,
+                required: false,
+              ),
               const SizedBox(height: 16),
-              _buildTextField(_schoolController, 'School Name', Icons.school_rounded),
+              _buildTextField(
+                _schoolController,
+                'School Name',
+                Icons.school_rounded,
+              ),
               const SizedBox(height: 16),
 
               // Board
               DropdownButtonFormField<String>(
-                value: _selectedBoard,
+                initialValue: _selectedBoard,
                 decoration: const InputDecoration(
                   labelText: 'Board',
                   prefixIcon: Icon(Icons.menu_book_rounded),
@@ -233,7 +265,7 @@ class _StudentRegistrationScreenState
 
               // Standard
               DropdownButtonFormField<String>(
-                value: _selectedStandard,
+                initialValue: _selectedStandard,
                 decoration: const InputDecoration(
                   labelText: 'Standard / Class',
                   prefixIcon: Icon(Icons.class_rounded),
@@ -255,7 +287,9 @@ class _StudentRegistrationScreenState
                 child: Text(
                   'Your registration will be reviewed by the admin.',
                   style: AppTypography.poppins(
-                      fontSize: 12, color: AppColors.lightOutline),
+                    fontSize: 12,
+                    color: AppColors.lightOutline,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
