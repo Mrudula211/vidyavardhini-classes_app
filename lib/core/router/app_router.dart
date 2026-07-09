@@ -11,6 +11,7 @@ import '../../features/auth/screens/admin_login_screen.dart';
 import '../../features/auth/screens/teacher_login_screen.dart';
 import '../../features/auth/screens/student_registration_screen.dart';
 import '../../features/auth/screens/pending_approval_screen.dart';
+import '../../features/admin/screens/admin_dashboard_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
 import '../../features/student/screens/student_dashboard_screen.dart';
 

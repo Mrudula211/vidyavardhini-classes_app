@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../providers/auth_providers.dart';
 import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
@@ -82,7 +83,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     if (_otp.length != 6) return;
     setState(() => _isLoading = true);
     try {
-      await ref.read(authRepositoryProvider).verifyOtp(_phone, _otp);
+      await ref.read(authRepositoryProvider).verifyOtp(_phone, _otp, _role);
       if (!mounted) return;
       _navigateAfterOtp();
     } catch (e) {

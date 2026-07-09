@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 
 import '../../../core/constants/app_constants.dart';
@@ -136,18 +137,13 @@ class _StudentRegistrationScreenState
   Future<String?> _uploadProfilePhoto(File file, String phone) async {
     final fileName =
         'student_${phone}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final response = await Supabase.instance.client.storage
+    await Supabase.instance.client.storage
         .from(AppConstants.bucketProfilePhotos)
         .upload(fileName, file);
 
-    if (response.error != null) {
-      throw Exception('Photo upload failed.');
-    }
-
     return Supabase.instance.client.storage
         .from(AppConstants.bucketProfilePhotos)
-        .getPublicUrl(fileName)
-        .data;
+        .getPublicUrl(fileName);
   }
 
   void _showError(String msg) {

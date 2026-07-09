@@ -6,28 +6,20 @@ import 'auth_repository.dart';
 class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> sendOtp(String phone) async {
-    final response = await Supabase.instance.client.auth.signInWithOtp(
+    await Supabase.instance.client.auth.signInWithOtp(
       phone: phone,
     );
-
-    if (response.error != null) {
-      throw Exception(response.error!.message);
-    }
   }
 
   @override
   Future<Session?> verifyOtp(String phone, String otp, String role) async {
-    final response = await Supabase.instance.client.auth.verifyOTP(
+    await Supabase.instance.client.auth.verifyOTP(
       phone: phone,
       token: otp,
       type: OtpType.sms,
     );
 
-    if (response.error != null) {
-      throw Exception(response.error!.message);
-    }
-
-    final session = response.session;
+    final session = Supabase.instance.client.auth.currentSession;
     final user = session?.user;
     if (user == null) {
       throw Exception('OTP verification failed. User session missing.');
@@ -39,10 +31,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    final response = await Supabase.instance.client.auth.signOut();
-    if (response.error != null) {
-      throw Exception(response.error!.message);
-    }
+    await Supabase.instance.client.auth.signOut();
   }
 
   @override
@@ -156,17 +145,14 @@ class SupabaseAuthRepository implements AuthRepository {
       return true;
     }
 
-    final insertResponse = await Supabase.instance.client.from('users').insert({
+    await Supabase.instance.client.from('users').insert({
       'id': userId,
       'phone': phone,
       'role': role,
       'created_at': DateTime.now().toIso8601String(),
       'updated_at': DateTime.now().toIso8601String(),
-    }).execute();
+    });
 
-    if (insertResponse.error != null) {
-      throw Exception(insertResponse.error!.message);
-    }
     return true;
   }
 }

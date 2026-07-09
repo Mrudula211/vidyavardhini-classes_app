@@ -9,6 +9,7 @@ abstract class AuthRepository {
   User? get currentUser;
   Future<String?> fetchUserRole(String userId);
   Future<String?> fetchStudentStatus(String userId);
+  Future<bool> isStudentPhoneRegistered(String phone);
   Future<bool> verifyAdminCredentials(String accessCode, String password);
   Future<bool> verifyTeacherAccessCode(String accessCode);
   Future<bool> ensureUserProfile(String userId, String phone, String role);
