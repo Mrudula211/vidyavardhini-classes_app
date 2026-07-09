@@ -111,7 +111,9 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                     hintText: '9876543210',
                     prefixIcon: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 14),
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
                       child: Text(
                         '+91',
                         style: AppTypography.poppins(

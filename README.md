@@ -25,6 +25,16 @@ dart run build_runner build --delete-conflicting-outputs
 flutter run --dart-define-from-file=.env
 ```
 
+## Setup Script
+
+From the repository root, run:
+
+```powershell
+.\setup.ps1
+```
+
+This script installs dependencies and runs the Flutter analyzer. After setup, make sure your local Supabase and Firebase configuration files are present before launching the app.
+
 ## Phase Status
 
 - [~] Phase 0 — Project Setup (in progress — Flutter install pending)
