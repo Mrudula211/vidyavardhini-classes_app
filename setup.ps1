@@ -1,16 +1,31 @@
 <#
-Project setup script for vidyavardhini-classes_app
-Run this from the repository root in PowerShell:
-  .\setup.ps1
+Project setup script for Vidyavardhini Classes App
+
+Run from repository root:
+
+.\setup.ps1
 #>
 
-Write-Host "Installing Dart/Flutter dependencies..."
+Write-Host "==================================="
+Write-Host "Vidyavardhini Classes App Setup"
+Write-Host "==================================="
+
+Write-Host "`nInstalling Flutter packages..."
 flutter pub get
 
-Write-Host "Verifying Flutter setup..."
+Write-Host "`nChecking Flutter installation..."
+flutter doctor -v
+
+Write-Host "`nFlutter Version:"
 flutter --version
 
-Write-Host "Running Flutter analyzer..."
+Write-Host "`nRunning code analyzer..."
 flutter analyze
 
-Write-Host "Setup complete. If this is the first run, ensure you add your Supabase and Firebase config files as documented in README.md."
+Write-Host "`nSetup completed successfully."
+
+Write-Host ""
+Write-Host "Next Steps:"
+Write-Host "1. Configure Supabase credentials (if not already configured)."
+Write-Host "2. Configure Firebase (if the project uses Firebase)."
+Write-Host "3. Run: flutter run"
