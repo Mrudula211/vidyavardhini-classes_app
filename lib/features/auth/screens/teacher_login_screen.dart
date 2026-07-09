@@ -44,7 +44,8 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Invalid access code. Please check with admin.')),
+          content: Text('Invalid access code. Please check with admin.'),
+        ),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -77,7 +78,9 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
                 Text(
                   'Enter the access code provided by admin',
                   style: AppTypography.poppins(
-                      fontSize: 14, color: AppColors.brown),
+                    fontSize: 14,
+                    color: AppColors.brown,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 TextFormField(

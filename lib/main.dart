@@ -32,7 +32,7 @@ Future<void> main() async {
   // Supabase
   await Supabase.initialize(
     url: SupabaseKeys.supabaseUrl,
-    anonKey: SupabaseKeys.supabaseAnonKey,
+    publishableKey: SupabaseKeys.supabaseAnonKey,
   );
 
   // Firebase

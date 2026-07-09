@@ -88,7 +88,9 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<bool> verifyAdminCredentials(
-      String accessCode, String password) async {
+    String accessCode,
+    String password,
+  ) async {
     final response = await Supabase.instance.client
         .from('admin_profiles')
         .select('access_code_hash, password_hash')
@@ -114,13 +116,15 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<bool> verifyTeacherAccessCode(String accessCode) async {
     final response = await Supabase.instance.client
         .from('teacher_profiles')
-        .select('id, access_code_hash');
+        .select('id, access_code_hash')
+        .maybeSingle();
 
-    if (response is! List) {
+    final records = response as List<dynamic>?;
+    if (records == null) {
       return false;
     }
 
-    for (final item in response) {
+    for (final item in records) {
       if (item is Map<String, dynamic>) {
         final hash = item['access_code_hash'] as String?;
         if (hash != null && BCrypt.checkpw(accessCode, hash)) {
@@ -134,14 +138,17 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<bool> ensureUserProfile(
-      String userId, String phone, String role) async {
+    String userId,
+    String phone,
+    String role,
+  ) async {
     final existing = await Supabase.instance.client
         .from('users')
         .select('id')
         .eq('id', userId)
         .maybeSingle();
 
-    if (existing != null) {
+    if (existing is Map<String, dynamic>) {
       return true;
     }
 
