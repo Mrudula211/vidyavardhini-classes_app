@@ -51,9 +51,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
     setState(() => _isLoading = true);
     try {
       final phone = '+91${_phoneController.text.trim()}';
-      // TODO: call authRepository.sendOtp(phone)
-      // Supabase OTP via:
-      // await Supabase.instance.client.auth.signInWithOtp(phone: phone)
+      await ref.read(authRepositoryProvider).sendOtp(phone);
       if (!mounted) return;
       context.go(Routes.otp, extra: {'phone': phone, 'role': _role});
     } catch (e) {
@@ -111,7 +109,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                     labelText: 'Mobile Number',
                     hintText: '9876543210',
                     prefixIcon: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 14),
                       child: Text(
                         '+91',
                         style: AppTypography.poppins(
@@ -121,7 +120,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                         ),
                       ),
                     ),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                    prefixIconConstraints:
+                        const BoxConstraints(minWidth: 0, minHeight: 0),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {

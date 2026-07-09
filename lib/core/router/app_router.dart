@@ -11,6 +11,8 @@ import '../../features/auth/screens/admin_login_screen.dart';
 import '../../features/auth/screens/teacher_login_screen.dart';
 import '../../features/auth/screens/student_registration_screen.dart';
 import '../../features/auth/screens/pending_approval_screen.dart';
+import '../../features/teacher/screens/teacher_dashboard_screen.dart';
+import '../../features/student/screens/student_dashboard_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -54,9 +56,19 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) => const PendingApprovalScreen(),
       ),
 
-      // TODO: Admin shell (Phase 2+)
-      // TODO: Teacher shell (Phase 3+)
-      // TODO: Student shell (Phase 2+)
+      // Role dashboards
+      GoRoute(
+        path: Routes.adminDashboard,
+        builder: (context, state) => const AdminDashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherDashboard,
+        builder: (context, state) => const TeacherDashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.studentDashboard,
+        builder: (context, state) => const StudentDashboardScreen(),
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(

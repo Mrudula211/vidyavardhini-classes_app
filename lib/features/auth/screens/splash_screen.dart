@@ -38,8 +38,47 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Future<void> _navigate() async {
     await Future.delayed(const Duration(milliseconds: 2200));
     if (!mounted) return;
-    // TODO: check existing session → route to correct dashboard
-    // For now, always go to role selection
+
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session?.user != null) {
+      final userId = session!.user.id;
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('role')
+          .eq('id', userId)
+          .maybeSingle();
+
+      if (response is Map<String, dynamic>) {
+        final role = response['role'] as String?;
+        switch (role) {
+          case 'admin':
+            context.go(Routes.adminDashboard);
+            return;
+          case 'teacher':
+            context.go(Routes.teacherDashboard);
+            return;
+          case 'student':
+            final statusResponse = await Supabase.instance.client
+                .from('student_profiles')
+                .select('status')
+                .eq('id', userId)
+                .maybeSingle();
+            if (statusResponse is Map<String, dynamic>) {
+              final status = statusResponse['status'] as String?;
+              if (status == 'pending') {
+                context.go(Routes.pendingApproval);
+                return;
+              }
+            }
+            context.go(Routes.studentDashboard);
+            return;
+          default:
+            context.go(Routes.roleSelect);
+            return;
+        }
+      }
+    }
+
     context.go(Routes.roleSelect);
   }
 

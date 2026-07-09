@@ -96,8 +96,33 @@ class _StudentRegistrationScreenState
 
     setState(() => _isLoading = true);
     try {
-      // TODO: upload photo to Supabase Storage
-      // TODO: insert into student_profiles (status = 'pending')
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+      final registrationPhone = extra?['phone'] as String?;
+      if (registrationPhone == null) {
+        throw Exception('Phone number is missing.');
+      }
+
+      final profilePhotoUrl = _profilePhoto == null
+          ? null
+          : await _uploadProfilePhoto(_profilePhoto!, registrationPhone);
+
+      await Supabase.instance.client.from('student_profiles').insert({
+        'id': Supabase.instance.client.auth.currentUser?.id,
+        'full_name': _nameController.text.trim(),
+        'gender': _selectedGender,
+        'dob': _selectedDob?.toIso8601String(),
+        'parent_name': _parentNameController.text.trim(),
+        'parent_phone': '+91${_parentPhoneController.text.trim()}',
+        'whatsapp_number': '+91${_whatsappController.text.trim()}',
+        'email': _emailController.text.trim(),
+        'school_name': _schoolController.text.trim(),
+        'board': _selectedBoard,
+        'standard': _selectedStandard,
+        'profile_photo_url': profilePhotoUrl,
+        'status': 'pending',
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
       if (!mounted) return;
       context.go(Routes.pendingApproval);
     } catch (e) {
@@ -106,6 +131,23 @@ class _StudentRegistrationScreenState
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<String?> _uploadProfilePhoto(File file, String phone) async {
+    final fileName =
+        'student_${phone}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final response = await Supabase.instance.client.storage
+        .from(AppConstants.bucketProfilePhotos)
+        .upload(fileName, file);
+
+    if (response.error != null) {
+      throw Exception('Photo upload failed.');
+    }
+
+    return Supabase.instance.client.storage
+        .from(AppConstants.bucketProfilePhotos)
+        .getPublicUrl(fileName)
+        .data;
   }
 
   void _showError(String msg) {

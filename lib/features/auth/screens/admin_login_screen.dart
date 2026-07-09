@@ -33,7 +33,14 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      // TODO: verify access code hash and password hash via authRepository
+      final accessCode = _accessCodeController.text.trim();
+      final password = _passwordController.text.trim();
+      final isValid = await ref
+          .read(authRepositoryProvider)
+          .verifyAdminCredentials(accessCode, password);
+      if (!isValid) {
+        throw Exception('Invalid credentials');
+      }
       if (!mounted) return;
       context.go(Routes.adminDashboard);
     } catch (e) {

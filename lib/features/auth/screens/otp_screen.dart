@@ -82,8 +82,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     if (_otp.length != 6) return;
     setState(() => _isLoading = true);
     try {
-      // TODO: call authRepository.verifyOtp(phone: _phone, token: _otp)
-      // await Supabase.instance.client.auth.verifyOTP(phone: _phone, token: _otp, type: OtpType.sms)
+      await ref.read(authRepositoryProvider).verifyOtp(_phone, _otp);
       if (!mounted) return;
       _navigateAfterOtp();
     } catch (e) {
@@ -104,11 +103,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     switch (_role) {
       case 'admin':
         context.go(Routes.adminLogin, extra: {'phone': _phone});
+        break;
       case 'teacher':
         context.go(Routes.teacherLogin, extra: {'phone': _phone});
+        break;
       default:
-        // TODO: check if student is registered → pending / dashboard / register
         context.go(Routes.studentRegister, extra: {'phone': _phone});
+        break;
     }
   }
 

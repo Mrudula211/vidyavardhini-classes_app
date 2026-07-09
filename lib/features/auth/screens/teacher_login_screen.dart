@@ -30,13 +30,20 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
-      // TODO: verify teacher access code via authRepository
+      final accessCode = _accessCodeController.text.trim();
+      final isValid = await ref
+          .read(authRepositoryProvider)
+          .verifyTeacherAccessCode(accessCode);
+      if (!isValid) {
+        throw Exception('Invalid access code');
+      }
       if (!mounted) return;
       context.go(Routes.teacherDashboard);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid access code. Please check with admin.')),
+        const SnackBar(
+            content: Text('Invalid access code. Please check with admin.')),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -57,7 +64,6 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
                 const SizedBox(height: 32),
                 const AppLogoHeader(),
                 const SizedBox(height: 40),
-
                 Text(
                   'Teacher Login',
                   style: AppTypography.cinzel(
@@ -69,10 +75,10 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Enter the access code provided by admin',
-                  style: AppTypography.poppins(fontSize: 14, color: AppColors.brown),
+                  style: AppTypography.poppins(
+                      fontSize: 14, color: AppColors.brown),
                 ),
                 const SizedBox(height: 32),
-
                 TextFormField(
                   controller: _accessCodeController,
                   keyboardType: TextInputType.number,
@@ -91,7 +97,6 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
-
                 PrimaryButton(
                   label: 'Login',
                   isLoading: _isLoading,
