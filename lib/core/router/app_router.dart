@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../constants/routes.dart';
+import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/auth/screens/phone_entry_screen.dart';
@@ -19,9 +20,37 @@ part 'app_router.g.dart';
 
 @riverpod
 GoRouter appRouter(AppRouterRef ref) {
+  final authState = ref.watch(authStateProvider);
+  final userRole = ref.watch(currentUserRoleProvider).valueOrNull;
+
   return GoRouter(
     initialLocation: Routes.splash,
     debugLogDiagnostics: true,
+    redirect: (context, state) {
+      final isAuthRoute = state.uri.toString().startsWith('/auth') ||
+          state.uri.toString() == Routes.roleSelect ||
+          state.uri.toString() == Routes.splash;
+
+      final session = authState.valueOrNull;
+
+      if (session == null && !isAuthRoute) {
+        return Routes.roleSelect;
+      }
+
+      if (session != null && userRole != null) {
+        if (state.uri.toString().startsWith('/admin') && userRole != 'admin') {
+           return Routes.roleSelect;
+        }
+        if (state.uri.toString().startsWith('/teacher') && userRole != 'teacher') {
+           return Routes.roleSelect;
+        }
+        if (state.uri.toString().startsWith('/student') && userRole != 'student') {
+           return Routes.roleSelect;
+        }
+      }
+
+      return null;
+    },
     routes: [
       // Auth
       GoRoute(
