@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../constants/routes.dart';
+import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/role_selection_screen.dart';
 import '../../features/auth/screens/phone_entry_screen.dart';
@@ -19,9 +20,63 @@ part 'app_router.g.dart';
 
 @riverpod
 GoRouter appRouter(AppRouterRef ref) {
+  final authState = ref.watch(authStateProvider);
+  final userRole = ref.watch(currentUserRoleProvider);
+
   return GoRouter(
     initialLocation: Routes.splash,
     debugLogDiagnostics: true,
+    redirect: (context, state) {
+      final isAuthRoute = state.uri.toString().startsWith('/auth') ||
+          state.uri.toString() == Routes.roleSelect ||
+          state.uri.toString() == Routes.splash;
+
+      if (authState.isLoading) {
+        return Routes.splash;
+      }
+
+      final session = authState.value;
+
+      if (session == null) {
+        if (!isAuthRoute) {
+          return Routes.roleSelect;
+        }
+        return null;
+      }
+
+      if (userRole.isLoading) {
+        return Routes.splash; // Wait for role
+      }
+
+      final role = userRole.value;
+
+      if (role == null) {
+        // Logged in but no role (should theoretically not happen, but safe fallback)
+        if (!isAuthRoute) {
+          return Routes.roleSelect;
+        }
+        return null;
+      }
+
+      // Check route against roles
+      final uri = state.uri.toString();
+      if (uri.startsWith('/admin') && role != 'admin') {
+        return _getDashboardRoute(role);
+      }
+      if (uri.startsWith('/teacher') && role != 'teacher') {
+        return _getDashboardRoute(role);
+      }
+      if (uri.startsWith('/student') && role != 'student') {
+        return _getDashboardRoute(role);
+      }
+
+      // If user goes to auth routes while logged in, redirect to dashboard
+      if (isAuthRoute && uri != Routes.splash && uri != Routes.pendingApproval) {
+        return _getDashboardRoute(role);
+      }
+
+      return null;
+    },
     routes: [
       // Auth
       GoRoute(
@@ -77,4 +132,17 @@ GoRouter appRouter(AppRouterRef ref) {
       ),
     ),
   );
+}
+
+String _getDashboardRoute(String role) {
+  switch (role) {
+    case 'admin':
+      return Routes.adminDashboard;
+    case 'teacher':
+      return Routes.teacherDashboard;
+    case 'student':
+      return Routes.studentDashboard;
+    default:
+      return Routes.roleSelect;
+  }
 }

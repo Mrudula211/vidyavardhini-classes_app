@@ -1,4 +1,3 @@
-import 'package:bcrypt/bcrypt.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth_repository.dart';
@@ -91,49 +90,33 @@ class SupabaseAuthRepository implements AuthRepository {
     String accessCode,
     String password,
   ) async {
-    final response = await Supabase.instance.client
-        .from('admin_profiles')
-        .select('access_code_hash, password_hash')
-        .maybeSingle();
-
-    if (response is! Map<String, dynamic>) {
+    try {
+      final response = await Supabase.instance.client.rpc(
+        'verify_admin_credentials',
+        params: {
+          'p_access_code': accessCode,
+          'p_password': password,
+        },
+      );
+      return response == true;
+    } catch (e) {
       return false;
     }
-
-    final storedAccessCodeHash = response['access_code_hash'] as String?;
-    final storedPasswordHash = response['password_hash'] as String?;
-
-    if (storedAccessCodeHash == null || storedPasswordHash == null) {
-      return false;
-    }
-
-    final accessCodeValid = BCrypt.checkpw(accessCode, storedAccessCodeHash);
-    final passwordValid = BCrypt.checkpw(password, storedPasswordHash);
-    return accessCodeValid && passwordValid;
   }
 
   @override
   Future<bool> verifyTeacherAccessCode(String accessCode) async {
-    final response = await Supabase.instance.client
-        .from('teacher_profiles')
-        .select('id, access_code_hash')
-        .maybeSingle();
-
-    final records = response as List<dynamic>?;
-    if (records == null) {
+    try {
+      final response = await Supabase.instance.client.rpc(
+        'verify_teacher_access_code',
+        params: {
+          'p_access_code': accessCode,
+        },
+      );
+      return response == true;
+    } catch (e) {
       return false;
     }
-
-    for (final item in records) {
-      if (item is Map<String, dynamic>) {
-        final hash = item['access_code_hash'] as String?;
-        if (hash != null && BCrypt.checkpw(accessCode, hash)) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
   @override

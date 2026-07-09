@@ -61,7 +61,6 @@ dependencies:
 
   # Fonts
   google_fonts: ^6.2.1
-  bcrypt: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -77,11 +76,13 @@ flutter:
   assets:
     - images/
     - images/logo.png
+    - assets/fonts/Cinzel-Regular.ttf
+    - assets/fonts/Cinzel-Bold.ttf
 
   fonts:
     - family: Cinzel
       fonts:
-        - asset: fonts/Cinzel-Regular.ttf
+        - asset: assets/fonts/Cinzel-Regular.ttf
           weight: 400
-        - asset: fonts/Cinzel-Bold.ttf
+        - asset: assets/fonts/Cinzel-Bold.ttf
           weight: 700
