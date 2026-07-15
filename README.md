@@ -35,6 +35,8 @@ From the repository root, run:
 
 This script installs dependencies and runs the Flutter analyzer. After setup, make sure your local Supabase and Firebase configuration files are present before launching the app.
 
+If you are building on Windows, enable Developer Mode first so Flutter can create the plugin symlinks required by Android builds.
+
 ## Phase Status
 
 - [~] Phase 0 — Project Setup (in progress — Flutter install pending)
