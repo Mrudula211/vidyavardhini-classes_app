@@ -13,6 +13,12 @@ import '../../features/auth/screens/teacher_login_screen.dart';
 import '../../features/auth/screens/student_registration_screen.dart';
 import '../../features/auth/screens/pending_approval_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
+import '../../features/admin/students/screens/student_list_screen.dart';
+import '../../features/admin/students/screens/student_approval_screen.dart';
+import '../../features/admin/students/screens/student_detail_screen.dart';
+import '../../features/admin/teachers/screens/teacher_list_screen.dart';
+import '../../features/admin/teachers/screens/add_teacher_screen.dart';
+import '../../features/admin/teachers/screens/teacher_detail_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
 import '../../features/student/screens/student_dashboard_screen.dart';
 
@@ -116,6 +122,39 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: Routes.adminDashboard,
         builder: (context, state) => const AdminDashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminStudents,
+        builder: (context, state) => const StudentListScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminStudentApprove,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return StudentApprovalScreen(studentId: id);
+        },
+      ),
+      GoRoute(
+        path: Routes.adminStudentDetail,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return StudentDetailScreen(studentId: id);
+        },
+      ),
+      GoRoute(
+        path: Routes.adminTeachers,
+        builder: (context, state) => const TeacherListScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminTeacherAdd,
+        builder: (context, state) => const AddTeacherScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminTeacherDetail,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return TeacherDetailScreen(teacherId: id);
+        },
       ),
       GoRoute(
         path: Routes.teacherDashboard,

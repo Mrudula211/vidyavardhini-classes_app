@@ -45,44 +45,44 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Shared Auth
-- [ ] `SplashScreen` — check session, redirect by role or to role-select
-- [ ] `RoleSelectionScreen` — 3 role cards (Admin / Teacher / Student)
-- [ ] `PhoneEntryScreen` — phone number input with country code
-- [ ] `OTPVerificationScreen` — 6-digit OTP input, resend timer
-- [ ] Supabase OTP integration (`signInWithOtp`, `verifyOtp`)
-- [ ] Store role in `users` table on first login
+- [x] `SplashScreen` — check session, redirect by role or to role-select
+- [x] `RoleSelectionScreen` — 3 role cards (Admin / Teacher / Student)
+- [x] `PhoneEntryScreen` — phone number input with country code
+- [x] `OTPVerificationScreen` — 6-digit OTP input, resend timer
+- [x] Supabase OTP integration (`signInWithOtp`, `verifyOtp`)
+- [x] Store role in `users` table on first login
 - [ ] JWT role claim setup (Supabase Auth hook)
 
 #### Admin Auth
-- [ ] `AdminLoginScreen` — access code input + password input
-- [ ] Hash comparison for access code + password
-- [ ] Redirect to `AdminShell`
+- [x] `AdminLoginScreen` — access code input + password input
+- [x] Hash comparison for access code + password
+- [x] Redirect to `AdminShell`
 
 #### Teacher Auth
-- [ ] `TeacherLoginScreen` — access code input
-- [ ] Hash comparison for teacher access code
-- [ ] Redirect to `TeacherShell`
+- [x] `TeacherLoginScreen` — access code input
+- [x] Hash comparison for teacher access code
+- [x] Redirect to `TeacherShell`
 
 #### Student Auth (Registration)
-- [ ] `StudentRegistrationScreen` — full 10-field form + photo upload
-- [ ] Form validation
+- [x] `StudentRegistrationScreen` — full 10-field form + photo upload
+- [x] Form validation
 - [ ] Upload profile photo to `profile-photos` bucket
-- [ ] Insert into `student_profiles` with status = `pending`
-- [ ] `PendingApprovalScreen` — shown until admin approves
+- [x] Insert into `student_profiles` with status = `pending`
+- [x] `PendingApprovalScreen` — shown until admin approves
 
 #### Student Auth (Returning)
 - [ ] `StudentPasswordScreen` — first login after approval (set password)
-- [ ] Standard login with phone + OTP for returning students
+- [x] Standard login with phone + OTP for returning students
 
 #### Route Guards
-- [ ] GoRouter `redirect` logic based on `authStateProvider`
-- [ ] Role-based shell routing
-- [ ] Unapproved student guard → `PendingApprovalScreen`
+- [x] GoRouter `redirect` logic based on `authStateProvider`
+- [x] Role-based shell routing
+- [x] Unapproved student guard → `PendingApprovalScreen`
 
 #### Auth Provider
-- [ ] `authStateProvider` (stream)
-- [ ] `currentUserProvider` (async, derives from auth + users table)
-- [ ] `authRepositoryProvider`
+- [x] `authStateProvider` (stream)
+- [x] `currentUserProvider` (async, derives from auth + users table)
+- [x] `authRepositoryProvider`
 
 **Deliverable:** All three roles can complete their login flows end-to-end.
 
@@ -94,22 +94,22 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] `StudentListScreen` — filterable/searchable student list
-  - Filters: All | Active | Pending | Inactive | Banned | Archived
+- [x] `StudentListScreen` — filterable/searchable student list
+  - Filters: All | Active | Pending | Inactive | Banned | Rejected
   - Search by: Name / Phone / Student ID
-- [ ] `StudentDetailScreen` — profile tab (read-only + edit button)
-- [ ] `StudentApprovalScreen`
+- [x] `StudentDetailScreen` — profile tab
+- [x] `StudentApprovalScreen`
   - Show registration details
   - Suggest next Student ID (`next_student_id()` function call)
   - Admin edits ID if needed
   - Set monthly fee
-  - Confirm → approve → push notification → create `fee_structure`
-- [ ] Reject flow — reason input → notify student
-- [ ] Ban flow — confirmation dialog → status = banned
-- [ ] Edit student profile (admin can edit name, contact, board, standard)
-- [ ] Student search provider (debounced)
-- [ ] `studentListProvider`, `pendingStudentsProvider`
-- [ ] Pending approval badge on admin bottom nav
+  - Confirm → approve → create `fee_structure` & `student_enrollments`
+- [x] Reject flow — reason input
+- [x] Ban flow — confirmation dialog → status = banned
+- [x] Edit student profile (admin can edit name, contact, board, standard)
+- [x] Student search provider (debounced)
+- [x] `studentListProvider`, `pendingStudentsProvider`
+- [x] Pending approval badge on admin dashboard
 
 **Deliverable:** Admin can fully manage student lifecycle.
 
@@ -121,19 +121,16 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] `TeacherListScreen` — search by name / teacher ID
-- [ ] `AddTeacherScreen` — profile form + access code generation
+- [x] `TeacherListScreen` — search by name / teacher ID
+- [x] `AddTeacherScreen` — profile form + access code generation
   - Auto-generate Teacher ID (`TCH0001` format)
   - Generate unique access code, show once, then hash and store
-- [ ] `TeacherDetailScreen` (tabs)
+- [x] `TeacherDetailScreen` (tabs)
   - Profile tab — view + edit
   - Classes tab — assigned board/standard/subjects
-  - Timetable tab — weekly grid editor
-  - Attendance tab — calendar view + correction
-  - Salary tab — monthly records
-- [ ] Class assignment UI — multi-select board/standard/subject chips
-- [ ] `TeacherTimetableEditor` — per-day slot editor
-- [ ] `teacherListProvider`, `teacherDetailProvider`
+  - Salary tab — monthly salary editor
+- [x] Class assignment UI — board/standard/subject chips
+- [x] `teacherListProvider`, `teacherDetailProvider`
 
 **Deliverable:** Admin can add teachers and configure their access.
 
