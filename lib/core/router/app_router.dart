@@ -19,8 +19,12 @@ import '../../features/admin/students/screens/student_detail_screen.dart';
 import '../../features/admin/teachers/screens/teacher_list_screen.dart';
 import '../../features/admin/teachers/screens/add_teacher_screen.dart';
 import '../../features/admin/teachers/screens/teacher_detail_screen.dart';
+import '../../features/admin/attendance/screens/admin_attendance_screen.dart';
+import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
+import '../../features/teacher/attendance/screens/attendance_mark_screen.dart';
 import '../../features/student/screens/student_dashboard_screen.dart';
+import '../../features/student/attendance/screens/student_attendance_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -157,14 +161,29 @@ GoRouter appRouter(AppRouterRef ref) {
         },
       ),
       GoRoute(
+        path: Routes.adminAttendance,
+        builder: (context, state) => const AdminAttendanceScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminGeofence,
+        builder: (context, state) => const GeofenceSettingsScreen(),
+      ),
+      GoRoute(
         path: Routes.teacherDashboard,
         builder: (context, state) => const TeacherDashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherAttendance,
+        builder: (context, state) => const AttendanceMarkScreen(),
       ),
       GoRoute(
         path: Routes.studentDashboard,
         builder: (context, state) => const StudentDashboardScreen(),
       ),
-    ],
+      GoRoute(
+        path: Routes.studentAttendance,
+        builder: (context, state) => const StudentAttendanceScreen(),
+      ),
     errorBuilder: (context, state) => Scaffold(
       body: Center(
         child: Text('Page not found: ${state.uri}'),

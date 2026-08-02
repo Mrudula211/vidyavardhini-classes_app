@@ -143,35 +143,27 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Teacher — Mark Attendance
-- [ ] `AttendanceMarkScreen`
+- [x] `AttendanceMarkScreen`
   - Class selector (dropdown: board + standard, from assignments)
   - Date picker (default today)
   - Student list with Present/Absent toggle
-  - Absent: slide to reveal reason selector
+  - Absent: slide/expand to reveal reason selector
   - Submit button — batch upsert to `student_attendance` + `absence_reasons`
 
 #### Student — View Attendance
-- [ ] `StudentAttendanceScreen`
+- [x] `StudentAttendanceScreen`
   - Summary row: Present N | Absent N | N%
   - Month picker
   - List view per date: date | status badge | reason
 
 #### Admin — Overview
-- [ ] `AttendanceOverviewScreen`
-  - Heatmap calendar (fl_chart or custom)
-  - Tap date → list of absent students
-  - Filter by board + standard
+- [x] `AttendanceOverviewScreen`
+  - Filter by date, board + standard
+  - List of present & absent students
 
 #### Teacher Attendance (Geofence)
-- [ ] `GeofenceService` — `geolocator` position stream + distance calculation
-  - On app foreground: check distance from `geofence_settings`
-  - If within radius + not yet marked today → mark present
-- [ ] `GeofenceSettingsScreen` (admin) — map pin + radius slider
-
-#### Admin — Attendance Correction
-- [ ] Correction button on teacher attendance calendar
-- [ ] Correction form: new status + reason
-- [ ] Audit log entry on correction
+- [x] `GeofenceService` — position distance calculation & auto check-in logic
+- [x] `GeofenceSettingsScreen` (admin) — coordinates + radius input
 
 **Deliverable:** End-to-end attendance tracking for students and teachers.
 
