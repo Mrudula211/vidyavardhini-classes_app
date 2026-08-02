@@ -35,3 +35,9 @@ final monthlyFeePaymentsProvider = FutureProvider.family<List<FeePaymentModel>, 
   final repo = ref.watch(feeRepositoryProvider);
   return repo.fetchFeePayments(monthlyFeeId);
 });
+
+final annualRevenueAnalyticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  final repo = ref.watch(feeRepositoryProvider);
+  final year = ref.watch(selectedFeeYearProvider);
+  return repo.fetchAnnualRevenueAnalytics(year: year);
+});

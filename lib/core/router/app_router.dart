@@ -21,6 +21,7 @@ import '../../features/admin/teachers/screens/add_teacher_screen.dart';
 import '../../features/admin/teachers/screens/teacher_detail_screen.dart';
 import '../../features/admin/attendance/screens/admin_attendance_screen.dart';
 import '../../features/admin/fees/screens/fee_overview_screen.dart';
+import '../../features/admin/revenue/screens/revenue_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/admin/announcements/screens/announcement_create_screen.dart';
 import '../../features/admin/timetable/screens/admin_timetable_screen.dart';
@@ -34,6 +35,7 @@ import '../../features/teacher/homework/screens/homework_create_screen.dart';
 import '../../features/teacher/homework/screens/teacher_homework_list_screen.dart';
 import '../../features/teacher/classwork/screens/classwork_create_screen.dart';
 import '../../features/teacher/classwork/screens/teacher_classwork_list_screen.dart';
+import '../../features/teacher/salary/screens/teacher_salary_screen.dart';
 import '../../features/student/screens/student_dashboard_screen.dart';
 import '../../features/student/attendance/screens/student_attendance_screen.dart';
 import '../../features/student/fees/screens/student_fees_screen.dart';
@@ -179,6 +181,10 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) => const FeeOverviewScreen(),
       ),
       GoRoute(
+        path: Routes.adminRevenue,
+        builder: (context, state) => const RevenueScreen(),
+      ),
+      GoRoute(
         path: Routes.adminAttendance,
         builder: (context, state) => const AdminAttendanceScreen(),
       ),
@@ -236,6 +242,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: Routes.teacherClassworkCreate,
         builder: (context, state) => const ClassworkCreateScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherSalary,
+        builder: (context, state) => const TeacherSalaryScreen(),
       ),
       GoRoute(
         path: Routes.studentDashboard,

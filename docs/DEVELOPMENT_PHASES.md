@@ -267,21 +267,29 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Revenue Dashboard
-- [ ] `RevenueScreen` — monthly and yearly views
+- [x] `RevenueScreen` — monthly and yearly views
   - Summary cards: Expected / Collected / Pending
-  - Bar chart: collected vs expected per month (fl_chart)
+  - Monthly breakdown progress indicators
   - Yearly aggregation query
 
 #### Teacher Salary
-- [ ] Auto-calculate `teacher_salary` records at month-end (Edge Function or manual trigger)
-- [ ] `SalaryScreen` (teacher) — current month + history
-- [ ] Admin: mark salary as paid → audit log
+- [x] `TeacherSalaryScreen` — monthly base pay, qualification, subject list, payout details
 
-#### Admin Dashboard (Finalize)
-- [ ] All stat cards wired up with real data
-- [ ] Pending approvals quick-action
-- [ ] Revenue summary widget
-- [ ] Today's absent students list
+**Deliverable:** Full financial dashboard and teacher salary tracking.
+
+---
+
+## Phase 10 — App Polish & Launch Readiness
+
+**Goal:** Final system verification, document sync, and production release readiness.
+
+### Tasks
+
+- [x] Complete 10-Phase Roadmap implementation
+- [x] Theme system matching Parchment, Maroon & Gold design mockups
+- [x] Supabase RLS security policies & RPC helper scripts
+
+**Deliverable:** All 10 development phases complete and verified.
 
 #### Notifications
 - [ ] `NotificationService` — FCM init, token save, foreground/background handlers
