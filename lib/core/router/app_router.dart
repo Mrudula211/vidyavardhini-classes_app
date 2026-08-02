@@ -23,7 +23,9 @@ import '../../features/admin/attendance/screens/admin_attendance_screen.dart';
 import '../../features/admin/fees/screens/fee_overview_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/admin/announcements/screens/announcement_create_screen.dart';
+import '../../features/admin/timetable/screens/admin_timetable_screen.dart';
 import '../../features/announcements/screens/announcement_list_screen.dart';
+import '../../features/timetable/screens/user_timetable_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
 import '../../features/teacher/attendance/screens/attendance_mark_screen.dart';
 import '../../features/teacher/homework/screens/homework_create_screen.dart';
@@ -187,8 +189,16 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) => const AnnouncementCreateScreen(),
       ),
       GoRoute(
+        path: Routes.adminTimetable,
+        builder: (context, state) => const AdminTimetableScreen(),
+      ),
+      GoRoute(
         path: Routes.announcementList,
         builder: (context, state) => const AnnouncementListScreen(),
+      ),
+      GoRoute(
+        path: Routes.userTimetable,
+        builder: (context, state) => const UserTimetableScreen(),
       ),
       GoRoute(
         path: Routes.teacherDashboard,
