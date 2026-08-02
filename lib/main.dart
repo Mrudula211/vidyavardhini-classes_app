@@ -35,10 +35,14 @@ Future<void> main() async {
     publishableKey: SupabaseKeys.supabaseAnonKey,
   );
 
-  // Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Firebase (optional / platform-dependent)
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization skipped or not configured: $e');
+  }
 
   runApp(const ProviderScope(child: VidyavardhiniApp()));
 }

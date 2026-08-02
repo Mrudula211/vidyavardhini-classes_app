@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/routes.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../admin/teachers/providers/teacher_providers.dart';
-import '../../../auth/providers/auth_providers.dart';
+import '../../../core/constants/routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../admin/teachers/providers/teacher_providers.dart';
+import '../../auth/providers/auth_providers.dart';
 import '../providers/chat_providers.dart';
 
 class ChatListScreen extends ConsumerWidget {

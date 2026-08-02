@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/constants/routes.dart';
-import '../../core/theme/app_colors.dart';
+import '../../../core/constants/routes.dart';
+import '../../../core/theme/app_colors.dart';
 
 class StudentDashboardScreen extends StatelessWidget {
   const StudentDashboardScreen({super.key});

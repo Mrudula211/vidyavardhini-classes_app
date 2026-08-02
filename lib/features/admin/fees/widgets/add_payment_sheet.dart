@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/fee_model.dart';
 import '../../../auth/providers/auth_providers.dart';
-import '../../fees/providers/fee_providers.dart';
+import '../../../fees/providers/fee_providers.dart';
 
 class AddPaymentSheet extends ConsumerStatefulWidget {
   final MonthlyFeeModel monthlyFee;
