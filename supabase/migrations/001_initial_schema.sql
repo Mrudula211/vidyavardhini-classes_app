@@ -100,13 +100,6 @@ ALTER TABLE student_profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "student_profiles: own read" ON student_profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "student_profiles: own insert" ON student_profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "student_profiles: admin all" ON student_profiles FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
-CREATE POLICY "student_profiles: teacher read assigned" ON student_profiles FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM teacher_assignments ta
-    JOIN academic_years ay ON ay.id = ta.academic_year_id AND ay.is_current = true
-    WHERE ta.teacher_id = auth.uid() AND ta.board = student_profiles.board AND ta.standard = student_profiles.standard
-  )
-);
 
 -- ── academic_years ─────────────────────────────────────────
 CREATE TABLE academic_years (
@@ -152,6 +145,15 @@ CREATE TABLE teacher_assignments (
 ALTER TABLE teacher_assignments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "teacher_assignments: own read" ON teacher_assignments FOR SELECT USING (auth.uid() = teacher_id);
 CREATE POLICY "teacher_assignments: admin all" ON teacher_assignments FOR ALL USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+
+-- Policy on student_profiles requiring teacher_assignments and academic_years (placed after tables exist)
+CREATE POLICY "student_profiles: teacher read assigned" ON student_profiles FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM teacher_assignments ta
+    JOIN academic_years ay ON ay.id = ta.academic_year_id AND ay.is_current = true
+    WHERE ta.teacher_id = auth.uid() AND ta.board = student_profiles.board AND ta.standard = student_profiles.standard
+  )
+);
 
 -- ── student_attendance ─────────────────────────────────────
 CREATE TABLE student_attendance (

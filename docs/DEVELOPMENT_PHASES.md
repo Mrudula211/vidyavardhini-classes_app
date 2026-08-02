@@ -22,14 +22,16 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Set up Material 3 theme (light + dark) with brand colours
 - [x] Configure Supabase client initialisation
 - [ ] Set up build flavors (dev / prod)
-- [ ] Apply database migration 001 in Supabase SQL Editor
-- [ ] Apply database migration 002 in Supabase SQL Editor
+- [x] Apply database migration 001 in Supabase SQL Editor
+- [x] Apply database migration 002 in Supabase SQL Editor
+- [x] Apply database migration 003 in Supabase SQL Editor
 - [x] Configure Hive for local caching (in main.dart)
 - [x] Set up `analysis_options.yaml` with strict lint rules
 - [x] Set up `build_runner` for code generation (in pubspec.yaml)
 - [x] Create `supabase/migrations/001_initial_schema.sql`
 - [x] Create `supabase/migrations/002_triggers_functions.sql`
-- [ ] Create `supabase/migrations/003_seed_admin.sql`
+- [x] Create `supabase/migrations/003_auth_rpc.sql`
+- [x] Create `supabase/migrations/004_seed_admin.sql`
 - [ ] Move `google-services.json` to `android/app/` (after `flutter create`)
 
 **Deliverable:** App launches, shows theme colours, Supabase connected.
