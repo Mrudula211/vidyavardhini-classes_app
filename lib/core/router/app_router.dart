@@ -20,11 +20,13 @@ import '../../features/admin/teachers/screens/teacher_list_screen.dart';
 import '../../features/admin/teachers/screens/add_teacher_screen.dart';
 import '../../features/admin/teachers/screens/teacher_detail_screen.dart';
 import '../../features/admin/attendance/screens/admin_attendance_screen.dart';
+import '../../features/admin/fees/screens/fee_overview_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
 import '../../features/teacher/attendance/screens/attendance_mark_screen.dart';
 import '../../features/student/screens/student_dashboard_screen.dart';
 import '../../features/student/attendance/screens/student_attendance_screen.dart';
+import '../../features/student/fees/screens/student_fees_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -161,6 +163,10 @@ GoRouter appRouter(AppRouterRef ref) {
         },
       ),
       GoRoute(
+        path: Routes.adminFees,
+        builder: (context, state) => const FeeOverviewScreen(),
+      ),
+      GoRoute(
         path: Routes.adminAttendance,
         builder: (context, state) => const AdminAttendanceScreen(),
       ),
@@ -183,6 +189,10 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: Routes.studentAttendance,
         builder: (context, state) => const StudentAttendanceScreen(),
+      ),
+      GoRoute(
+        path: Routes.studentFees,
+        builder: (context, state) => const StudentFeesScreen(),
       ),
     errorBuilder: (context, state) => Scaffold(
       body: Center(

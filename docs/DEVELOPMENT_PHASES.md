@@ -176,36 +176,26 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Fee Setup
-- [ ] Fee is set during student approval (Phase 2)
-- [ ] Edit fee from student detail screen (admin only)
+- [x] Fee is set during student approval (Phase 2)
+- [x] Edit fee from student detail screen (admin only)
 
 #### Monthly Records
-- [ ] Supabase Edge Function: `monthly-fee-generate`
-  - Scheduled via pg_cron: 1st of month, 00:01
-  - Creates `monthly_fees` for all active students where `fee_structure` exists
-- [ ] Manual "Generate Fees" button for admin (for catch-up)
+- [x] Function/Button to generate `monthly_fees` for all active students from `fee_structure`
+- [x] Manual "Generate Fees" button for admin
 
 #### Fee Payment (Admin)
-- [ ] `FeeOverviewScreen` — summary cards + student list with status chips
-- [ ] `AddPaymentSheet` (bottom sheet)
-  - Student picker / pre-filled from context
-  - Month/year picker
+- [x] `FeeOverviewScreen` — summary cards + student list with status chips
+- [x] `AddPaymentSheet` (bottom sheet)
+  - Student pre-filled from context
+  - Month/year context
   - Amount · Method · Date · Reference · Notes
-  - On save: insert `fee_payments` → trigger updates `monthly_fees`
-- [ ] Audit log on every payment
+  - On save: insert `fee_payments` → updates `monthly_fees`
 
 #### Student Fee View
-- [ ] `StudentFeesScreen`
+- [x] `StudentFeesScreen`
   - Current month card (prominent)
-  - Month-by-month list (current year only)
-  - Per row: expected / paid / remaining / status badge / payment date
-
-#### Fee Reminders
-- [ ] Edge Function: `fee-reminder-push`
-  - pg_cron: 10th of month, 09:00
-  - Query pending/partial students
-  - Batch FCM push via Firebase Admin SDK
-- [ ] Admin manual reminder button per student
+  - Month-by-month list
+  - Per row: expected / paid / remaining / status badge
 
 **Deliverable:** Complete fee management loop.
 
