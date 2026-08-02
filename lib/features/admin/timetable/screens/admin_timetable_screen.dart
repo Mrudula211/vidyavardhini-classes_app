@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/timetable_model.dart';
-import '../providers/timetable_providers.dart';
+import '../../../timetable/providers/timetable_providers.dart';
 import '../widgets/add_timetable_slot_sheet.dart';
 
 class AdminTimetableScreen extends ConsumerStatefulWidget {

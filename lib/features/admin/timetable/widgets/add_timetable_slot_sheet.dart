@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../admin/teachers/providers/teacher_providers.dart';
-import '../../timetable/providers/timetable_providers.dart';
+import '../../teachers/providers/teacher_providers.dart';
+import '../../../timetable/providers/timetable_providers.dart';
 
 class AddTimetableSlotSheet extends ConsumerStatefulWidget {
   final String board;
