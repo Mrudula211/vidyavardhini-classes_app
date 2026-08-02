@@ -60,20 +60,14 @@ class RoleSelectionScreen extends StatelessWidget {
                   icon: Icons.admin_panel_settings_rounded,
                   label: 'Admin',
                   subtitle: 'Owner / Manager',
-                  onTap: () => context.go(
-                    Routes.phone,
-                    extra: {'role': 'admin'},
-                  ),
+                  onTap: () => context.go(Routes.adminLogin),
                 ),
                 const SizedBox(height: 16),
                 _RoleCard(
                   icon: Icons.school_rounded,
                   label: 'Teacher',
                   subtitle: 'Instructor',
-                  onTap: () => context.go(
-                    Routes.phone,
-                    extra: {'role': 'teacher'},
-                  ),
+                  onTap: () => context.go(Routes.teacherLogin),
                 ),
                 const SizedBox(height: 16),
                 _RoleCard(

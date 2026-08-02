@@ -86,6 +86,15 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Session?> signInWithEmailAndPassword(String email, String password) async {
+    final response = await Supabase.instance.client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+    return response.session;
+  }
+
+  @override
   Future<bool> verifyAdminCredentials(
     String accessCode,
     String password,
