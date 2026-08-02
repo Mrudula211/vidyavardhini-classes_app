@@ -227,18 +227,18 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] `AnnouncementCreateScreen`
+- [x] `AnnouncementCreateScreen`
   - Type selector: General / Staff / Emergency
   - Target: All / Specific Board / Specific Standard
   - Rich text content + optional file attach
   - Expiry date
-- [ ] `AnnouncementListScreen` — admin view with seen counts
-- [ ] `AnnouncementDetailScreen` (admin) — seen/not-seen lists
-- [ ] `AnnouncementFeedScreen` (student) — general + emergency only
-- [ ] `AnnouncementFeedScreen` (teacher) — general + staff + emergency
-- [ ] Emergency popup overlay — shown on app open if unread emergency
-- [ ] Seen tracking — mark as seen when detail screen opens
-- [ ] Push notification on announcement create
+- [x] `AnnouncementListScreen` — admin view with seen counts
+- [x] `AnnouncementDetailScreen` (admin) — seen/not-seen lists
+- [x] `AnnouncementFeedScreen` (student) — general + emergency only
+- [x] `AnnouncementFeedScreen` (teacher) — general + staff + emergency
+- [x] Emergency popup overlay — shown on app open if unread emergency
+- [x] Seen tracking — mark as seen when detail screen opens
+- [x] Push notification on announcement create
 
 **Deliverable:** Replaces WhatsApp broadcast for class notices.
 
