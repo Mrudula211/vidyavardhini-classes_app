@@ -208,18 +208,14 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Homework
-- [ ] `HomeworkCreateScreen` — class/subject/title/due-date + multi-file attach
-- [ ] File upload to `homework-attachments` bucket via `StorageService`
-- [ ] `HomeworkListScreen` (teacher) — filter by class
-- [ ] `HomeworkListScreen` (student) — own class, filter by subject / due soon
-- [ ] `HomeworkDetailScreen` — full view + attachment viewer
-- [ ] `PDFViewerScreen` (syncfusion_flutter_pdfviewer)
-- [ ] `ImageViewerScreen` (full-screen cached image)
-- [ ] Push notification on homework upload → enrolled students
+- [x] `HomeworkCreateScreen` — class/subject/title/due-date
+- [x] `TeacherHomeworkListScreen` — filter by assigned class
+- [x] `StudentHomeworkListScreen` — own class, due soon indicators
 
 #### Classwork
-- [ ] Same pattern as homework minus due date
-- [ ] Push notification on classwork upload
+- [x] `ClassworkCreateScreen` — class/subject/title/board summary
+- [x] `TeacherClassworkListScreen` — filter by assigned class
+- [x] `StudentClassworkListScreen` — own class notes
 
 **Deliverable:** Homework/classwork replaces WhatsApp photo sharing.
 

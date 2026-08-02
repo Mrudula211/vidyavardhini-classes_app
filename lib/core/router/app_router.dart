@@ -24,9 +24,15 @@ import '../../features/admin/fees/screens/fee_overview_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
 import '../../features/teacher/attendance/screens/attendance_mark_screen.dart';
+import '../../features/teacher/homework/screens/homework_create_screen.dart';
+import '../../features/teacher/homework/screens/teacher_homework_list_screen.dart';
+import '../../features/teacher/classwork/screens/classwork_create_screen.dart';
+import '../../features/teacher/classwork/screens/teacher_classwork_list_screen.dart';
 import '../../features/student/screens/student_dashboard_screen.dart';
 import '../../features/student/attendance/screens/student_attendance_screen.dart';
 import '../../features/student/fees/screens/student_fees_screen.dart';
+import '../../features/student/homework/screens/student_homework_list_screen.dart';
+import '../../features/student/classwork/screens/student_classwork_list_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -183,6 +189,22 @@ GoRouter appRouter(AppRouterRef ref) {
         builder: (context, state) => const AttendanceMarkScreen(),
       ),
       GoRoute(
+        path: Routes.teacherHomework,
+        builder: (context, state) => const TeacherHomeworkListScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherHomeworkCreate,
+        builder: (context, state) => const HomeworkCreateScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherClasswork,
+        builder: (context, state) => const TeacherClassworkListScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherClassworkCreate,
+        builder: (context, state) => const ClassworkCreateScreen(),
+      ),
+      GoRoute(
         path: Routes.studentDashboard,
         builder: (context, state) => const StudentDashboardScreen(),
       ),
@@ -193,6 +215,14 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: Routes.studentFees,
         builder: (context, state) => const StudentFeesScreen(),
+      ),
+      GoRoute(
+        path: Routes.studentHomework,
+        builder: (context, state) => const StudentHomeworkListScreen(),
+      ),
+      GoRoute(
+        path: Routes.studentClasswork,
+        builder: (context, state) => const StudentClassworkListScreen(),
       ),
     errorBuilder: (context, state) => Scaffold(
       body: Center(
