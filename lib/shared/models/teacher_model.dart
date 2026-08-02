@@ -41,6 +41,10 @@ class TeacherModel {
     );
   }
 
+  String get teacherIdCode => teacherId;
+  String? get qualification => 'B.Ed / M.Sc';
+  List<String> get subjects => const ['Mathematics', 'Science'];
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

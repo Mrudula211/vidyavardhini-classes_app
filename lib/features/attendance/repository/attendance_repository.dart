@@ -50,7 +50,7 @@ class AttendanceRepository {
     final existingAttendance = await _client
         .from('student_attendance')
         .select('*, absence_reasons(*)')
-        .in_('student_id', studentIds)
+        .filter('student_id', 'in', studentIds)
         .eq('date', date);
 
     final Map<String, Map<String, dynamic>> attendanceMap = {};

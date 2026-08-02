@@ -57,7 +57,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [AppColors.primary, AppColors.primaryVariant],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,

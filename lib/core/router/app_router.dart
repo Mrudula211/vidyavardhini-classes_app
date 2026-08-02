@@ -267,6 +267,7 @@ GoRouter appRouter(AppRouterRef ref) {
         path: Routes.studentClasswork,
         builder: (context, state) => const StudentClassworkListScreen(),
       ),
+    ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
         child: Text('Page not found: ${state.uri}'),

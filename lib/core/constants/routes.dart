@@ -62,6 +62,12 @@ class Routes {
   static const String studentProfile = '/student/profile';
 
   // Shared
+  static const String announcements = '/announcements';
+  static const String announcementList = '/announcements';
+  static const String adminTimetable = '/admin/timetable';
+  static const String userTimetable = '/timetable';
+  static const String chatList = '/chat';
+  static const String chatRoom = '/chat/:roomId';
   static const String notifications = '/notifications';
   static const String pdfViewer = '/pdf-viewer';
   static const String imageViewer = '/image-viewer';
