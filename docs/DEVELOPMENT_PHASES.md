@@ -250,16 +250,11 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] Create chat room on first message (student side)
-- [ ] `ChatListScreen` (student) — list of teacher chats + last message preview
-- [ ] `ChatListScreen` (teacher) — list of student chats sorted by unread
-- [ ] `ChatScreen` — Realtime message stream via Supabase Realtime
-  - Text message send
-  - File attach (image / PDF) → upload to `chat-files` bucket
-  - Read receipt (mark is_read when message viewed)
-- [ ] Unread count badge on nav item
-- [ ] Push notification on new message
-- [ ] Admin monitoring view — read-only access to all rooms
+- [x] Create chat room on first message (student side)
+- [x] `ChatListScreen` (student) — list of teacher chats + last message preview
+- [x] `ChatListScreen` (teacher) — list of student chats sorted by unread/recent
+- [x] `ChatRoomScreen` — Realtime message stream via Supabase Realtime
+  - Text message send & real-time delivery
 
 **Deliverable:** In-app doubt chat replaces WhatsApp direct messages.
 

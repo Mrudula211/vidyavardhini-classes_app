@@ -26,6 +26,8 @@ import '../../features/admin/announcements/screens/announcement_create_screen.da
 import '../../features/admin/timetable/screens/admin_timetable_screen.dart';
 import '../../features/announcements/screens/announcement_list_screen.dart';
 import '../../features/timetable/screens/user_timetable_screen.dart';
+import '../../features/chat/screens/chat_list_screen.dart';
+import '../../features/chat/screens/chat_room_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
 import '../../features/teacher/attendance/screens/attendance_mark_screen.dart';
 import '../../features/teacher/homework/screens/homework_create_screen.dart';
@@ -199,6 +201,17 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: Routes.userTimetable,
         builder: (context, state) => const UserTimetableScreen(),
+      ),
+      GoRoute(
+        path: Routes.chatList,
+        builder: (context, state) => const ChatListScreen(),
+      ),
+      GoRoute(
+        path: Routes.chatRoom,
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId'] ?? '';
+          return ChatRoomScreen(roomId: roomId);
+        },
       ),
       GoRoute(
         path: Routes.teacherDashboard,
