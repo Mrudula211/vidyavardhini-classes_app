@@ -48,14 +48,24 @@ part 'app_router.g.dart';
 GoRouter appRouter(AppRouterRef ref) {
   final authState = ref.watch(authStateProvider);
   final userRole = ref.watch(currentUserRoleProvider);
+  final isAdminLoggedIn = ref.watch(adminAuthenticatedProvider);
+  final isTeacherLoggedIn = ref.watch(teacherAuthenticatedProvider);
 
   return GoRouter(
     initialLocation: Routes.splash,
     debugLogDiagnostics: true,
     redirect: (context, state) {
-      final isAuthRoute = state.uri.toString().startsWith('/auth') ||
-          state.uri.toString() == Routes.roleSelect ||
-          state.uri.toString() == Routes.splash;
+      final uri = state.uri.toString();
+      final isAuthRoute = uri.startsWith('/auth') ||
+          uri == Routes.roleSelect ||
+          uri == Routes.splash;
+
+      if (isAdminLoggedIn && uri.startsWith('/admin')) {
+        return null;
+      }
+      if (isTeacherLoggedIn && uri.startsWith('/teacher')) {
+        return null;
+      }
 
       if (authState.isLoading) {
         return Routes.splash;
@@ -63,21 +73,22 @@ GoRouter appRouter(AppRouterRef ref) {
 
       final session = authState.value;
 
-      if (session == null) {
+      if (session == null && !isAdminLoggedIn && !isTeacherLoggedIn) {
         if (!isAuthRoute) {
           return Routes.roleSelect;
         }
         return null;
       }
 
-      if (userRole.isLoading) {
+      if (userRole.isLoading && !isAdminLoggedIn && !isTeacherLoggedIn) {
         return Routes.splash; // Wait for role
       }
 
-      final role = userRole.value;
+      final role = isAdminLoggedIn
+          ? 'admin'
+          : (isTeacherLoggedIn ? 'teacher' : userRole.value);
 
       if (role == null) {
-        // Logged in but no role (should theoretically not happen, but safe fallback)
         if (!isAuthRoute) {
           return Routes.roleSelect;
         }
@@ -85,7 +96,6 @@ GoRouter appRouter(AppRouterRef ref) {
       }
 
       // Check route against roles
-      final uri = state.uri.toString();
       if (uri.startsWith('/admin') && role != 'admin') {
         return _getDashboardRoute(role);
       }

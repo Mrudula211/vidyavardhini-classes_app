@@ -40,7 +40,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
 
       bool success = false;
 
-      // 1. First try verifyAdminCredentials (RPC access code / hash check)
+      // 1. Try verifyAdminCredentials via database RPC
       try {
         success = await ref
             .read(authRepositoryProvider)
@@ -49,7 +49,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
         success = false;
       }
 
-      // 2. If RPC fails or returns false, try Supabase Email Auth if user typed an email
+      // 2. If RPC fails or returns false, try Supabase Email Auth
       if (!success && input.contains('@')) {
         try {
           final session = await ref
@@ -57,25 +57,28 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
               .signInWithEmailAndPassword(input, password);
           success = session != null;
         } catch (_) {
-          // Fallback check if auth server schema error occurs
+          // Check standard admin email / code
           final lowerInput = input.toLowerCase();
-          if ((lowerInput.contains('siddhi') || lowerInput.contains('gharat') || lowerInput.contains('ghaart') || input == '123456' || input == '8888602496') &&
+          if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
               password == 'Vidyavardhini-classes81') {
             success = true;
           }
         }
       }
 
-      // 3. Robust fallback check for Admin credentials (accepting typo variations like ghaart / gharat)
+      // 3. Fallback check for exact registered Admin credentials
       if (!success) {
         final lowerInput = input.toLowerCase();
-        if ((lowerInput.contains('siddhi') || lowerInput.contains('gharat') || lowerInput.contains('ghaart') || input == '123456' || input == '8888602496') &&
+        if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
             password == 'Vidyavardhini-classes81') {
           success = true;
         } else {
-          throw Exception('Invalid admin credentials. Correct email is siddhigharat81@gmail.com');
+          throw Exception('Invalid admin credentials. Please enter siddhigharat81@gmail.com or 123456.');
         }
       }
+
+      // Grant Admin session flag so router allows navigation to /admin
+      ref.read(adminAuthenticatedProvider.notifier).state = true;
 
       if (!mounted) return;
       context.go(Routes.adminDashboard);

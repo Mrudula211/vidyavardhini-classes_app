@@ -27,3 +27,6 @@ final currentStudentStatusProvider = FutureProvider<String?>((ref) async {
   if (user == null) return null;
   return ref.watch(authRepositoryProvider).fetchStudentStatus(user.id);
 });
+
+final adminAuthenticatedProvider = StateProvider<bool>((ref) => false);
+final teacherAuthenticatedProvider = StateProvider<bool>((ref) => false);
