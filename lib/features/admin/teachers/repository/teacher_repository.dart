@@ -76,10 +76,9 @@ class TeacherRepository {
     final academicYearId = currentYearRes != null ? currentYearRes['id'] as String? : null;
 
     if (academicYearId == null) {
-      throw Exception('No active academic year found');
+      throw Exception('No active academic year found in database');
     }
 
-    // Delete existing assignments for this teacher in current academic year
     await _client
         .from('teacher_assignments')
         .delete()

@@ -64,7 +64,6 @@ class StudentRepository {
     required double monthlyFee,
     required String adminId,
   }) async {
-    // 1. Update student profile
     final now = DateTime.now().toIso8601String();
     await _client.from('student_profiles').update({
       'student_id': assignedStudentId,
@@ -74,11 +73,9 @@ class StudentRepository {
       'updated_at': now,
     }).eq('id', studentId);
 
-    // Fetch current student board & standard
     final student = await fetchStudentDetail(studentId);
     if (student == null) return;
 
-    // 2. Fetch current academic year
     final currentYearRes = await _client
         .from('academic_years')
         .select('id')
@@ -88,7 +85,6 @@ class StudentRepository {
     final academicYearId = currentYearRes != null ? currentYearRes['id'] as String? : null;
 
     if (academicYearId != null) {
-      // 3. Create / Upsert fee structure
       await _client.from('fee_structure').upsert({
         'student_id': studentId,
         'academic_year_id': academicYearId,
@@ -96,7 +92,6 @@ class StudentRepository {
         'updated_at': now,
       }, onConflict: 'student_id,academic_year_id');
 
-      // 4. Create student enrollment
       await _client.from('student_enrollments').upsert({
         'student_id': studentId,
         'academic_year_id': academicYearId,
