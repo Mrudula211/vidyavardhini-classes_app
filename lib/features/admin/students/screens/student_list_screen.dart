@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/student_model.dart';
 import '../providers/student_providers.dart';
@@ -16,6 +15,7 @@ class StudentListScreen extends ConsumerStatefulWidget {
 
 class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  bool _isRefreshing = false;
 
   @override
   void dispose() {
@@ -23,10 +23,33 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
     super.dispose();
   }
 
+  Future<void> _refreshStudents() async {
+    setState(() => _isRefreshing = true);
+    try {
+      ref.invalidate(studentListProvider);
+      await ref.read(studentListProvider.future);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Student list refreshed from database!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error refreshing students: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final studentsAsync = ref.watch(studentListProvider);
-    final selectedStatus = ref.watch(studentFilterStatusProvider);
     final selectedBoard = ref.watch(studentFilterBoardProvider);
     final selectedStandard = ref.watch(studentFilterStandardProvider);
 
@@ -34,10 +57,20 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
       appBar: AppBar(
         title: const Text('Student Management'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(studentListProvider),
-          ),
+          _isRefreshing
+              ? const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                  ),
+                )
+              : IconButton(
+                  tooltip: 'Refresh Students List',
+                  icon: const Icon(Icons.refresh),
+                  onPressed: _refreshStudents,
+                ),
         ],
       ),
       body: Column(
@@ -146,17 +179,28 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
             child: studentsAsync.when(
               data: (students) {
                 if (students.isEmpty) {
-                  return const Center(
-                    child: Text('No students found'),
+                  return RefreshIndicator(
+                    onRefresh: _refreshStudents,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 100),
+                        Center(child: Text('No students found')),
+                      ],
+                    ),
                   );
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: students.length,
-                  itemBuilder: (context, index) {
-                    final student = students[index];
-                    return _buildStudentCard(context, student);
-                  },
+                return RefreshIndicator(
+                  onRefresh: _refreshStudents,
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: students.length,
+                    itemBuilder: (context, index) {
+                      final student = students[index];
+                      return _buildStudentCard(context, student);
+                    },
+                  ),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -165,8 +209,9 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Error: $err'),
+                    const SizedBox(height: 12),
                     ElevatedButton(
-                      onPressed: () => ref.invalidate(studentListProvider),
+                      onPressed: _refreshStudents,
                       child: const Text('Retry'),
                     ),
                   ],

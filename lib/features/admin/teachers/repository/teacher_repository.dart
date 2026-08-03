@@ -39,21 +39,20 @@ class TeacherRepository {
     required double monthlySalary,
     required String accessCode,
   }) async {
-    // 1. Check for duplicate phone or email in database
-    if (phone.isNotEmpty) {
+    // 1. Check for duplicate phone in users table
+    if (phone.trim().isNotEmpty) {
       final existingPhone = await _client
-          .from('teacher_profiles')
-          .select('id, full_name, teacher_id')
-          .eq('phone', phone)
+          .from('users')
+          .select('id, phone')
+          .eq('phone', phone.trim())
           .maybeSingle();
 
       if (existingPhone != null) {
-        final teacherId = existingPhone['teacher_id'] ?? '';
-        final name = existingPhone['full_name'] ?? 'Existing Teacher';
-        throw Exception('Teacher "$name" ($teacherId) with phone number $phone is already present in the database.');
+        throw Exception('User with phone number $phone is already registered in the database.');
       }
     }
 
+    // 2. Check for duplicate email in teacher_profiles table
     if (email != null && email.trim().isNotEmpty) {
       final existingEmail = await _client
           .from('teacher_profiles')
@@ -64,23 +63,23 @@ class TeacherRepository {
       if (existingEmail != null) {
         final teacherId = existingEmail['teacher_id'] ?? '';
         final name = existingEmail['full_name'] ?? 'Existing Teacher';
-        throw Exception('Teacher "$name" ($teacherId) with email $email is already present in the database.');
+        throw Exception('Teacher "$name" ($teacherId) with email $email is already registered in the database.');
       }
     }
 
     Map<String, dynamic> result = {};
 
-    // 2. Try RPC creation
+    // 3. Try RPC creation first
     try {
       final response = await _client.rpc('create_teacher_profile', params: {
-        'p_phone': phone,
-        'p_full_name': fullName,
+        'p_phone': phone.trim(),
+        'p_full_name': fullName.trim(),
         'p_gender': (gender != null && gender.isNotEmpty) ? gender : null,
         'p_dob': (dob != null && dob.isNotEmpty) ? dob : null,
-        'p_email': (email != null && email.isNotEmpty) ? email : null,
+        'p_email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
         'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
         'p_monthly_salary': monthlySalary,
-        'p_access_code': accessCode,
+        'p_access_code': accessCode.trim(),
       });
 
       if (response is Map<String, dynamic> && response.isNotEmpty) {
@@ -88,22 +87,30 @@ class TeacherRepository {
       }
     } catch (_) {}
 
-    // 3. Fallback direct table insert if RPC returned empty or failed
+    // 4. Direct table insert fallback if RPC returned empty or failed
     if (result.isEmpty) {
+      // Create user entry first
+      final userRes = await _client.from('users').insert({
+        'phone': phone.trim(),
+        'role': 'teacher',
+        'is_active': true,
+      }).select('id').single();
+
+      final userId = userRes['id'] as String;
+
       final existingRes = await _client.from('teacher_profiles').select('id');
       final count = (existingRes as List).length + 1;
       final assignedId = 'TCH${count.toString().padLeft(4, '0')}';
 
       final insertData = await _client.from('teacher_profiles').insert({
+        'id': userId,
         'teacher_id': assignedId,
-        'full_name': fullName,
-        'phone': phone,
+        'full_name': fullName.trim(),
         'gender': (gender != null && gender.isNotEmpty) ? gender : null,
         'dob': (dob != null && dob.isNotEmpty) ? dob : null,
-        'email': (email != null && email.isNotEmpty) ? email : null,
+        'email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
         'joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : DateTime.now().toIso8601String().split('T')[0],
         'monthly_salary': monthlySalary,
-        'access_code': accessCode,
         'is_active': true,
       }).select().single();
 
@@ -118,6 +125,10 @@ class TeacherRepository {
     await _client.from('teacher_assignments').delete().eq('teacher_id', teacherId);
     // Delete teacher profile record
     await _client.from('teacher_profiles').delete().eq('id', teacherId);
+    // Delete user record
+    try {
+      await _client.from('users').delete().eq('id', teacherId);
+    } catch (_) {}
   }
 
   Future<List<TeacherAssignmentModel>> fetchTeacherAssignments(String teacherId) async {

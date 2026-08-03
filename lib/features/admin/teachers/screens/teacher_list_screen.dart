@@ -16,11 +16,36 @@ class TeacherListScreen extends ConsumerStatefulWidget {
 
 class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  bool _isRefreshing = false;
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _refreshTeachers() async {
+    setState(() => _isRefreshing = true);
+    try {
+      ref.invalidate(teacherListProvider);
+      await ref.read(teacherListProvider.future);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Teachers list refreshed from database!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error refreshing teachers: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
   }
 
   @override
@@ -31,10 +56,20 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
       appBar: AppBar(
         title: const Text('Teacher Management'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(teacherListProvider),
-          ),
+          _isRefreshing
+              ? const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                  ),
+                )
+              : IconButton(
+                  tooltip: 'Refresh Teachers List',
+                  icon: const Icon(Icons.refresh),
+                  onPressed: _refreshTeachers,
+                ),
         ],
       ),
       body: Column(
@@ -71,17 +106,28 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
             child: teachersAsync.when(
               data: (teachers) {
                 if (teachers.isEmpty) {
-                  return const Center(
-                    child: Text('No teachers found'),
+                  return RefreshIndicator(
+                    onRefresh: _refreshTeachers,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 100),
+                        Center(child: Text('No teachers found')),
+                      ],
+                    ),
                   );
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: teachers.length,
-                  itemBuilder: (context, index) {
-                    final teacher = teachers[index];
-                    return _buildTeacherCard(context, teacher);
-                  },
+                return RefreshIndicator(
+                  onRefresh: _refreshTeachers,
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: teachers.length,
+                    itemBuilder: (context, index) {
+                      final teacher = teachers[index];
+                      return _buildTeacherCard(context, teacher);
+                    },
+                  ),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -90,8 +136,9 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Error: $err'),
+                    const SizedBox(height: 12),
                     ElevatedButton(
-                      onPressed: () => ref.invalidate(teacherListProvider),
+                      onPressed: _refreshTeachers,
                       child: const Text('Retry'),
                     ),
                   ],
