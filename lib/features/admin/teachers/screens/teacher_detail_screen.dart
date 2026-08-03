@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/teacher_model.dart';
@@ -194,6 +195,51 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
     }
   }
 
+  Future<void> _deleteTeacher() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Teacher Profile'),
+        content: const Text(
+          'Are you sure you want to permanently delete this teacher account from the database? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await ref.read(teacherRepositoryProvider).deleteTeacher(widget.teacherId);
+        ref.invalidate(teacherListProvider);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Teacher deleted from database successfully')),
+          );
+          context.pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to delete teacher: $e')),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final teacherAsync = ref.watch(teacherDetailProvider(widget.teacherId));
@@ -202,6 +248,13 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Teacher Profile'),
+        actions: [
+          IconButton(
+            tooltip: 'Delete Teacher',
+            icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+            onPressed: _deleteTeacher,
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

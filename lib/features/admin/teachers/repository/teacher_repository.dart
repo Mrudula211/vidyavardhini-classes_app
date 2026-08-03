@@ -39,8 +39,38 @@ class TeacherRepository {
     required double monthlySalary,
     required String accessCode,
   }) async {
+    // 1. Check for duplicate phone or email in database
+    if (phone.isNotEmpty) {
+      final existingPhone = await _client
+          .from('teacher_profiles')
+          .select('id, full_name, teacher_id')
+          .eq('phone', phone)
+          .maybeSingle();
+
+      if (existingPhone != null) {
+        final teacherId = existingPhone['teacher_id'] ?? '';
+        final name = existingPhone['full_name'] ?? 'Existing Teacher';
+        throw Exception('Teacher "$name" ($teacherId) with phone number $phone is already present in the database.');
+      }
+    }
+
+    if (email != null && email.trim().isNotEmpty) {
+      final existingEmail = await _client
+          .from('teacher_profiles')
+          .select('id, full_name, teacher_id')
+          .eq('email', email.trim())
+          .maybeSingle();
+
+      if (existingEmail != null) {
+        final teacherId = existingEmail['teacher_id'] ?? '';
+        final name = existingEmail['full_name'] ?? 'Existing Teacher';
+        throw Exception('Teacher "$name" ($teacherId) with email $email is already present in the database.');
+      }
+    }
+
     Map<String, dynamic> result = {};
 
+    // 2. Try RPC creation
     try {
       final response = await _client.rpc('create_teacher_profile', params: {
         'p_phone': phone,
@@ -58,6 +88,7 @@ class TeacherRepository {
       }
     } catch (_) {}
 
+    // 3. Fallback direct table insert if RPC returned empty or failed
     if (result.isEmpty) {
       final existingRes = await _client.from('teacher_profiles').select('id');
       final count = (existingRes as List).length + 1;
@@ -66,6 +97,7 @@ class TeacherRepository {
       final insertData = await _client.from('teacher_profiles').insert({
         'teacher_id': assignedId,
         'full_name': fullName,
+        'phone': phone,
         'gender': (gender != null && gender.isNotEmpty) ? gender : null,
         'dob': (dob != null && dob.isNotEmpty) ? dob : null,
         'email': (email != null && email.isNotEmpty) ? email : null,
@@ -79,6 +111,13 @@ class TeacherRepository {
     }
 
     return result;
+  }
+
+  Future<void> deleteTeacher(String teacherId) async {
+    // Delete assignments first
+    await _client.from('teacher_assignments').delete().eq('teacher_id', teacherId);
+    // Delete teacher profile record
+    await _client.from('teacher_profiles').delete().eq('id', teacherId);
   }
 
   Future<List<TeacherAssignmentModel>> fetchTeacherAssignments(String teacherId) async {
@@ -144,9 +183,11 @@ class TeacherRepository {
       'updated_at': DateTime.now().toIso8601String(),
     }).eq('id', teacherId);
 
-    await _client.from('users').update({
-      'is_active': isActive,
-      'updated_at': DateTime.now().toIso8601String(),
-    }).eq('id', teacherId);
+    try {
+      await _client.from('users').update({
+        'is_active': isActive,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', teacherId);
+    } catch (_) {}
   }
 }
