@@ -24,7 +24,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
-  bool _useEmailLogin = true; // Default to Email Login for instant access
+  bool _useEmailLogin = true;
   bool _passwordVisible = false;
   String _role = 'student';
 
@@ -62,18 +62,25 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
       if (_useEmailLogin) {
         final email = _emailController.text.trim();
         final password = _passwordController.text.trim();
+
         final session = await ref
             .read(authRepositoryProvider)
             .signInWithEmailAndPassword(email, password);
 
         if (session == null) {
-          throw Exception('Email login failed. Check email & password.');
+          throw Exception('Check email & password.');
         }
 
         if (!mounted) return;
-        if (_role == 'admin') {
+
+        // Fetch user's role from DB
+        final userRole = await ref
+            .read(authRepositoryProvider)
+            .fetchUserRole(session.user.id);
+
+        if (userRole == 'admin') {
           context.go(Routes.adminDashboard);
-        } else if (_role == 'teacher') {
+        } else if (userRole == 'teacher') {
           context.go(Routes.teacherDashboard);
         } else {
           context.go(Routes.studentDashboard);
@@ -86,8 +93,20 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
       }
     } catch (e) {
       if (!mounted) return;
+      String errorMsg = 'Invalid email or password.';
+      final rawStr = e.toString();
+      if (rawStr.contains('Database error querying schema') || rawStr.contains('500')) {
+        errorMsg = 'Account not registered for Student login. If you are Admin, please use Admin Login.';
+      } else if (rawStr.contains('Invalid login credentials')) {
+        errorMsg = 'Incorrect email or password. Please try again.';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: AppColors.maroon,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -170,7 +189,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: 'Email Address',
-                      hintText: 'siddhigharat81@gmail.com',
+                      hintText: 'student@gmail.com',
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     validator: (value) {
@@ -256,18 +275,32 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                Center(
-                  child: TextButton(
-                    onPressed: () => context.go(Routes.roleSelect),
-                    child: Text(
-                      'Change Role',
-                      style: AppTypography.poppins(
-                        fontSize: 14,
-                        color: AppColors.maroon,
-                        fontWeight: FontWeight.w500,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => context.go(Routes.adminLogin),
+                      child: Text(
+                        'Admin Login',
+                        style: AppTypography.poppins(
+                          fontSize: 13,
+                          color: AppColors.maroon,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
+                    TextButton(
+                      onPressed: () => context.go(Routes.roleSelect),
+                      child: Text(
+                        'Change Role',
+                        style: AppTypography.poppins(
+                          fontSize: 13,
+                          color: AppColors.brown,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
