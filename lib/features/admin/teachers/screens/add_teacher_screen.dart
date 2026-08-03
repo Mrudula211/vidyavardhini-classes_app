@@ -94,7 +94,10 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
             ],
           ),
         );
-        context.pop();
+        ref.invalidate(teacherListProvider);
+        if (mounted) {
+          context.pop();
+        }
       }
     } catch (e) {
       if (mounted) {

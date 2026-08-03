@@ -12,8 +12,10 @@ class TeacherRepository {
       query = query.or('full_name.ilike.$q,teacher_id.ilike.$q,email.ilike.$q');
     }
 
-    final data = await query.order('created_at', ascending: false);
-    return (data as List).map((json) => TeacherModel.fromJson(json)).toList();
+    final data = await query;
+    final list = (data as List).map((json) => TeacherModel.fromJson(json)).toList();
+    list.sort((a, b) => b.teacherId.compareTo(a.teacherId));
+    return list;
   }
 
   Future<TeacherModel?> fetchTeacherDetail(String id) async {
@@ -37,21 +39,46 @@ class TeacherRepository {
     required double monthlySalary,
     required String accessCode,
   }) async {
-    final response = await _client.rpc('create_teacher_profile', params: {
-      'p_phone': phone,
-      'p_full_name': fullName,
-      'p_gender': (gender != null && gender.isNotEmpty) ? gender : null,
-      'p_dob': (dob != null && dob.isNotEmpty) ? dob : null,
-      'p_email': (email != null && email.isNotEmpty) ? email : null,
-      'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
-      'p_monthly_salary': monthlySalary,
-      'p_access_code': accessCode,
-    });
+    Map<String, dynamic> result = {};
 
-    if (response is Map<String, dynamic>) {
-      return response;
+    try {
+      final response = await _client.rpc('create_teacher_profile', params: {
+        'p_phone': phone,
+        'p_full_name': fullName,
+        'p_gender': (gender != null && gender.isNotEmpty) ? gender : null,
+        'p_dob': (dob != null && dob.isNotEmpty) ? dob : null,
+        'p_email': (email != null && email.isNotEmpty) ? email : null,
+        'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
+        'p_monthly_salary': monthlySalary,
+        'p_access_code': accessCode,
+      });
+
+      if (response is Map<String, dynamic> && response.isNotEmpty) {
+        result = response;
+      }
+    } catch (_) {}
+
+    if (result.isEmpty) {
+      final existingRes = await _client.from('teacher_profiles').select('id');
+      final count = (existingRes as List).length + 1;
+      final assignedId = 'TCH${count.toString().padLeft(4, '0')}';
+
+      final insertData = await _client.from('teacher_profiles').insert({
+        'teacher_id': assignedId,
+        'full_name': fullName,
+        'gender': (gender != null && gender.isNotEmpty) ? gender : null,
+        'dob': (dob != null && dob.isNotEmpty) ? dob : null,
+        'email': (email != null && email.isNotEmpty) ? email : null,
+        'joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : DateTime.now().toIso8601String().split('T')[0],
+        'monthly_salary': monthlySalary,
+        'access_code': accessCode,
+        'is_active': true,
+      }).select().single();
+
+      result = Map<String, dynamic>.from(insertData);
     }
-    return {};
+
+    return result;
   }
 
   Future<List<TeacherAssignmentModel>> fetchTeacherAssignments(String teacherId) async {
