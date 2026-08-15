@@ -26,6 +26,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
         title: const Text('My Attendance'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(studentAttendanceHistoryProvider(user.id)),
           ),

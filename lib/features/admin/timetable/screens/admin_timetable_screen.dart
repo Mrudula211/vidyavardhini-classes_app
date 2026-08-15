@@ -30,6 +30,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
         title: const Text('Manage Class Timetable'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(adminClassTimetableProvider),
           ),
@@ -196,6 +197,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
           style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
         ),
         trailing: IconButton(
+          tooltip: 'Delete',
           icon: const Icon(Icons.delete_outline, color: Colors.red),
           onPressed: () async {
             final confirm = await showDialog<bool>(

@@ -19,6 +19,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
         title: const Text('Attendance Overview'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(adminAttendanceOverviewProvider),
           ),

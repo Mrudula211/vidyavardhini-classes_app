@@ -28,6 +28,7 @@ class TeacherClassworkListScreen extends ConsumerWidget {
         title: const Text('My Classwork Notes'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(teacherClassworkListProvider(user.id)),
           ),
