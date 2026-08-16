@@ -28,6 +28,7 @@ class TeacherHomeworkListScreen extends ConsumerWidget {
         title: const Text('My Uploaded Homework'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(teacherHomeworkListProvider(user.id)),
           ),

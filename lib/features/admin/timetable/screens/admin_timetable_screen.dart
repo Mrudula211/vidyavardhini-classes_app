@@ -30,6 +30,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
         title: const Text('Manage Class Timetable'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(adminClassTimetableProvider),
           ),

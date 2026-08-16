@@ -26,6 +26,7 @@ class StudentHomeworkListScreen extends ConsumerWidget {
         title: const Text('My Homework Assignments'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(studentHomeworkListProvider(user.id)),
           ),

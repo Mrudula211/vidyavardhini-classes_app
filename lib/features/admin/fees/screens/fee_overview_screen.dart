@@ -74,6 +74,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
         title: const Text('Fee Register & Collections'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(adminFeeOverviewProvider),
           ),
