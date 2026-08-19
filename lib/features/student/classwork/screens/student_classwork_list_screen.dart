@@ -27,6 +27,7 @@ class StudentClassworkListScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
             onPressed: () => ref.invalidate(studentClassworkListProvider(user.id)),
           ),
         ],
