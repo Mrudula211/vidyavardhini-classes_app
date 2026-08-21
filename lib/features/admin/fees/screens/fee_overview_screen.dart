@@ -74,6 +74,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
         title: const Text('Fee Register & Collections'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(adminFeeOverviewProvider),
           ),
@@ -133,6 +134,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
+                            tooltip: 'Clear Search',
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
