@@ -26,8 +26,10 @@ class StudentHomeworkListScreen extends ConsumerWidget {
         title: const Text('My Homework Assignments'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(studentHomeworkListProvider(user.id)),
+            onPressed: () =>
+                ref.invalidate(studentHomeworkListProvider(user.id)),
           ),
         ],
       ),
@@ -50,7 +52,8 @@ class StudentHomeworkListScreen extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -60,7 +63,8 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -75,7 +79,8 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.red.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -94,16 +99,19 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                       const SizedBox(height: 10),
                       Text(
                         hw.title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       if (hw.teacherName != null) ...[
                         const SizedBox(height: 2),
                         Text(
                           'Teacher: ${hw.teacherName}',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 12),
                         ),
                       ],
-                      if (hw.description != null && hw.description!.isNotEmpty) ...[
+                      if (hw.description != null &&
+                          hw.description!.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.all(10),
@@ -125,7 +133,8 @@ class StudentHomeworkListScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading homework: $err')),
+        error: (err, stack) =>
+            Center(child: Text('Error loading homework: $err')),
       ),
     );
   }
