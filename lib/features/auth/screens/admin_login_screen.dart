@@ -101,6 +101,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Go back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Routes.roleSelect),
         ),
@@ -158,6 +159,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                     labelText: 'Password',
                     prefixIcon: const Icon(Icons.key_rounded),
                     suffixIcon: IconButton(
+                      tooltip: _passwordVisible ? 'Hide password' : 'Show password',
                       icon: Icon(
                         _passwordVisible
                             ? Icons.visibility_off_rounded

@@ -118,6 +118,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Go back',
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Routes.roleSelect),
         ),
@@ -209,6 +210,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                       labelText: 'Password',
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: IconButton(
+                        tooltip: _passwordVisible ? 'Hide password' : 'Show password',
                         icon: Icon(
                           _passwordVisible
                               ? Icons.visibility_off_rounded
