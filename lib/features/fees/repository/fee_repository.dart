@@ -2,7 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/fee_model.dart';
 
 class FeeRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  FeeRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   Future<List<MonthlyFeeModel>> fetchAdminFeeOverview({
     int? month,
@@ -10,7 +13,8 @@ class FeeRepository {
     String? status,
     String? searchQuery,
   }) async {
-    dynamic query = _client.from('monthly_fees').select('*, student_profiles!inner(*)');
+    dynamic query =
+        _client.from('monthly_fees').select('*, student_profiles!inner(*)');
 
     if (month != null) {
       query = query.eq('month', month);
@@ -23,11 +27,14 @@ class FeeRepository {
     }
     if (searchQuery != null && searchQuery.trim().isNotEmpty) {
       final q = '%${searchQuery.trim()}%';
-      query = query.or('student_profiles.full_name.ilike.$q,student_profiles.student_id.ilike.$q');
+      query = query.or(
+          'student_profiles.full_name.ilike.$q,student_profiles.student_id.ilike.$q');
     }
 
     final data = await query.order('created_at', ascending: false);
-    return (data as List).map((json) => MonthlyFeeModel.fromJson(json)).toList();
+    return (data as List)
+        .map((json) => MonthlyFeeModel.fromJson(json))
+        .toList();
   }
 
   Future<void> recordFeePayment({
@@ -57,7 +64,8 @@ class FeeRepository {
         .eq('id', monthlyFeeId)
         .single();
 
-    final currentPaid = (monthlyFeeRes['paid_amount'] as num?)?.toDouble() ?? 0.0;
+    final currentPaid =
+        (monthlyFeeRes['paid_amount'] as num?)?.toDouble() ?? 0.0;
     final newPaid = currentPaid + amount;
 
     await _client.from('monthly_fees').update({
@@ -76,7 +84,9 @@ class FeeRepository {
         .order('year', ascending: false)
         .order('month', ascending: false);
 
-    return (data as List).map((json) => MonthlyFeeModel.fromJson(json)).toList();
+    return (data as List)
+        .map((json) => MonthlyFeeModel.fromJson(json))
+        .toList();
   }
 
   Future<List<FeePaymentModel>> fetchFeePayments(String monthlyFeeId) async {
@@ -86,7 +96,9 @@ class FeeRepository {
         .eq('monthly_fee_id', monthlyFeeId)
         .order('payment_date', ascending: false);
 
-    return (data as List).map((json) => FeePaymentModel.fromJson(json)).toList();
+    return (data as List)
+        .map((json) => FeePaymentModel.fromJson(json))
+        .toList();
   }
 
   Future<int> generateMonthlyFees({
@@ -100,7 +112,8 @@ class FeeRepository {
         .eq('is_current', true)
         .maybeSingle();
 
-    final academicYearId = currentYearRes != null ? currentYearRes['id'] as String? : null;
+    final academicYearId =
+        currentYearRes != null ? currentYearRes['id'] as String? : null;
     if (academicYearId == null) return 0;
 
     // Fetch active fee structures
@@ -141,7 +154,8 @@ class FeeRepository {
     return generatedCount;
   }
 
-  Future<Map<String, dynamic>> fetchAnnualRevenueAnalytics({required int year}) async {
+  Future<Map<String, dynamic>> fetchAnnualRevenueAnalytics(
+      {required int year}) async {
     final data = await _client
         .from('monthly_fees')
         .select('month, expected_amount, paid_amount, remaining_amount')
@@ -167,9 +181,12 @@ class FeeRepository {
       totalPending += rem;
 
       if (monthlyBreakdown.containsKey(month)) {
-        monthlyBreakdown[month]!['expected'] = (monthlyBreakdown[month]!['expected'] ?? 0.0) + exp;
-        monthlyBreakdown[month]!['collected'] = (monthlyBreakdown[month]!['collected'] ?? 0.0) + paid;
-        monthlyBreakdown[month]!['pending'] = (monthlyBreakdown[month]!['pending'] ?? 0.0) + rem;
+        monthlyBreakdown[month]!['expected'] =
+            (monthlyBreakdown[month]!['expected'] ?? 0.0) + exp;
+        monthlyBreakdown[month]!['collected'] =
+            (monthlyBreakdown[month]!['collected'] ?? 0.0) + paid;
+        monthlyBreakdown[month]!['pending'] =
+            (monthlyBreakdown[month]!['pending'] ?? 0.0) + rem;
       }
     }
 
