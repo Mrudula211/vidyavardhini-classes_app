@@ -113,7 +113,6 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                    tooltip: 'Close',
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -198,7 +197,6 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                   prefixIcon: const Icon(Icons.calendar_today),
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    tooltip: 'Select Payment Date',
                     icon: const Icon(Icons.edit_calendar),
                     onPressed: () async {
                       final picked = await showDatePicker(

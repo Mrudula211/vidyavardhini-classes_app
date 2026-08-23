@@ -9,18 +9,8 @@ class TeacherSalaryScreen extends ConsumerWidget {
   const TeacherSalaryScreen({super.key});
 
   final List<String> _months = const [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
   @override
@@ -41,7 +31,6 @@ class TeacherSalaryScreen extends ConsumerWidget {
         title: const Text('My Salary & Earnings'),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(teacherDetailProvider(user.id)),
           ),
@@ -65,8 +54,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                 // Salary Summary Card
                 Card(
                   elevation: 4,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -85,42 +73,31 @@ class TeacherSalaryScreen extends ConsumerWidget {
                           children: [
                             Text(
                               '$currentMonthName $currentYear Earnings',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Text(
                                 'ACTIVE PAYOUT',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold),
+                                style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 20),
+
                         Text(
                           'Base Monthly Salary',
-                          style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 12),
+                          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '₹${monthlySalary.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -135,8 +112,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -145,14 +121,11 @@ class TeacherSalaryScreen extends ConsumerWidget {
                         const Divider(),
                         _buildDetailRow('Full Name', teacher.fullName),
                         const Divider(),
-                        _buildDetailRow(
-                            'Qualification', teacher.qualification ?? 'N/A'),
+                        _buildDetailRow('Qualification', teacher.qualification ?? 'N/A'),
                         const Divider(),
-                        _buildDetailRow(
-                            'Assigned Subjects', teacher.subjects.join(', ')),
+                        _buildDetailRow('Assigned Subjects', teacher.subjects.join(', ')),
                         const Divider(),
-                        _buildDetailRow('Monthly Base Pay',
-                            '₹${monthlySalary.toStringAsFixed(0)}'),
+                        _buildDetailRow('Monthly Base Pay', '₹${monthlySalary.toStringAsFixed(0)}'),
                       ],
                     ),
                   ),
@@ -162,8 +135,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) =>
-            Center(child: Text('Error loading salary: $err')),
+        error: (err, stack) => Center(child: Text('Error loading salary: $err')),
       ),
     );
   }
@@ -175,9 +147,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
-          Text(value,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
         ],
       ),
     );
