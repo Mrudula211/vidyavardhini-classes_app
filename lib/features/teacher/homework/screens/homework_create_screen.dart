@@ -166,6 +166,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                   prefixIcon: const Icon(Icons.calendar_today),
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
+                    tooltip: 'Select Due Date',
                     icon: const Icon(Icons.edit_calendar),
                     onPressed: () async {
                       final picked = await showDatePicker(

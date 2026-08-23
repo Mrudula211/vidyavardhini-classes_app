@@ -219,6 +219,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
           style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
         ),
         trailing: IconButton(
+          tooltip: 'Delete Slot',
           icon: const Icon(Icons.delete_outline, color: Colors.red),
           onPressed: () async {
             final confirm = await showDialog<bool>(

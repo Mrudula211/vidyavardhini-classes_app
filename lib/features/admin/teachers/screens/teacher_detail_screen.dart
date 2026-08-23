@@ -483,6 +483,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                               title: Text('${a['board']} • Standard ${a['standard']}', style: const TextStyle(fontWeight: FontWeight.bold)),
                               subtitle: Text('Subject: ${a['subject']}'),
                               trailing: IconButton(
+                                tooltip: 'Delete Assignment',
                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                                 onPressed: () {
                                   setState(() {

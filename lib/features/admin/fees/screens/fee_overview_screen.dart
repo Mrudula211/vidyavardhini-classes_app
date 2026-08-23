@@ -154,6 +154,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
+                            tooltip: 'Clear Search',
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
