@@ -10,8 +10,18 @@ class StudentFeesScreen extends ConsumerWidget {
   const StudentFeesScreen({super.key});
 
   final List<String> _months = const [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
   ];
 
   @override
@@ -59,7 +69,8 @@ class StudentFeesScreen extends ConsumerWidget {
                 // Prominent Current Month Card
                 Card(
                   elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -78,17 +89,27 @@ class StudentFeesScreen extends ConsumerWidget {
                           children: [
                             Text(
                               '${_months[currentMonthRecord.month - 1]} ${currentMonthRecord.year}',
-                              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _getStatusColor(currentMonthRecord.status),
+                                color:
+                                    _getStatusColor(currentMonthRecord.status),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                currentMonthRecord.status.replaceAll('_', ' ').toUpperCase(),
-                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                currentMonthRecord.status
+                                    .replaceAll('_', ' ')
+                                    .toUpperCase(),
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -100,22 +121,43 @@ class StudentFeesScreen extends ConsumerWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Expected Fee', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                Text('₹${currentMonthRecord.expectedAmount.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                                const Text('Expected Fee',
+                                    style: TextStyle(
+                                        color: Colors.white70, fontSize: 12)),
+                                Text(
+                                    '₹${currentMonthRecord.expectedAmount.toStringAsFixed(0)}',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Paid Amount', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                Text('₹${currentMonthRecord.paidAmount.toStringAsFixed(0)}', style: const TextStyle(color: Colors.greenAccent, fontSize: 20, fontWeight: FontWeight.bold)),
+                                const Text('Paid Amount',
+                                    style: TextStyle(
+                                        color: Colors.white70, fontSize: 12)),
+                                Text(
+                                    '₹${currentMonthRecord.paidAmount.toStringAsFixed(0)}',
+                                    style: const TextStyle(
+                                        color: Colors.greenAccent,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Remaining', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                Text('₹${currentMonthRecord.remainingAmount.toStringAsFixed(0)}', style: const TextStyle(color: Colors.orangeAccent, fontSize: 20, fontWeight: FontWeight.bold)),
+                                const Text('Remaining',
+                                    style: TextStyle(
+                                        color: Colors.white70, fontSize: 12)),
+                                Text(
+                                    '₹${currentMonthRecord.remainingAmount.toStringAsFixed(0)}',
+                                    style: const TextStyle(
+                                        color: Colors.orangeAccent,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ],
@@ -142,9 +184,12 @@ class StudentFeesScreen extends ConsumerWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: _getStatusColor(item.status).withOpacity(0.1),
+                          backgroundColor:
+                              _getStatusColor(item.status).withOpacity(0.1),
                           child: Icon(
-                            item.status == 'paid' ? Icons.check_circle : Icons.pending,
+                            item.status == 'paid'
+                                ? Icons.check_circle
+                                : Icons.pending,
                             color: _getStatusColor(item.status),
                           ),
                         ),
@@ -154,14 +199,17 @@ class StudentFeesScreen extends ConsumerWidget {
                         ),
                         subtitle: Text(
                           'Expected: ₹${item.expectedAmount.toStringAsFixed(0)} • Paid: ₹${item.paidAmount.toStringAsFixed(0)}',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 12),
                         ),
                         trailing: Text(
                           'Remaining\n₹${item.remainingAmount.toStringAsFixed(0)}',
                           textAlign: TextAlign.right,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: item.remainingAmount > 0 ? Colors.red : Colors.green,
+                            color: item.remainingAmount > 0
+                                ? Colors.red
+                                : Colors.green,
                           ),
                         ),
                       ),
