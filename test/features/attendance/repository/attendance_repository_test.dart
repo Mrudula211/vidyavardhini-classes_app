@@ -83,8 +83,12 @@ class FakePostgrestFilterBuilder extends Fake
       final fut = Future<List<Map<String, dynamic>>>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
     }
-    return Future.value(_returnValue)
-        .then((val) => onValue((val ?? []) as List<Map<String, dynamic>>), onError: onError);
+    final list = (_returnValue is List)
+        ? List<Map<String, dynamic>>.from(
+            (_returnValue as List).map((x) => Map<String, dynamic>.from(x as Map)))
+        : <Map<String, dynamic>>[];
+    return Future.value(list)
+        .then((val) => onValue(val), onError: onError);
   }
 }
 
