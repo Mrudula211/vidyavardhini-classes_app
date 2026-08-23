@@ -32,6 +32,7 @@ class StudentFeesScreen extends ConsumerWidget {
         title: const Text('My Fee Status'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(studentFeeHistoryProvider(user.id)),
           ),

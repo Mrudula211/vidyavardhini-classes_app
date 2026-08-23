@@ -22,6 +22,7 @@ class RevenueScreen extends ConsumerWidget {
         title: const Text('Revenue & Fee Analytics'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(annualRevenueAnalyticsProvider),
           ),
