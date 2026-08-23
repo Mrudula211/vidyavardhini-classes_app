@@ -28,7 +28,7 @@ class AnnouncementRepository {
     required String userId,
     required String role,
   }) async {
-    dynamic query = _client.from('announcements').select();
+    final dynamic query = _client.from('announcements').select();
 
     if (role == 'admin') {
       // Admin sees all announcements

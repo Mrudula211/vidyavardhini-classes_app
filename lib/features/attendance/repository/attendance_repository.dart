@@ -108,7 +108,7 @@ class AttendanceRepository {
         'status': status,
         'marked_by': markedBy,
         'updated_at': DateTime.now().toIso8601String(),
-      }, onConflict: 'student_id,date').select('id').single();
+      }, onConflict: 'student_id,date',).select('id').single();
 
       final attendanceId = upsertRes['id'] as String;
 
@@ -208,7 +208,7 @@ class AttendanceRepository {
         'latitude': userLat,
         'longitude': userLng,
         'updated_at': now,
-      }, onConflict: 'teacher_id,date');
+      }, onConflict: 'teacher_id,date',);
       return true;
     }
     return false;

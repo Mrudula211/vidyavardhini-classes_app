@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../shared/models/fee_model.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../fees/providers/fee_providers.dart';
 
@@ -11,7 +10,7 @@ class StudentFeesScreen extends ConsumerWidget {
 
   final List<String> _months = const [
     'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
   @override
@@ -61,7 +60,7 @@ class StudentFeesScreen extends ConsumerWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [AppColors.primary, AppColors.primaryVariant],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,

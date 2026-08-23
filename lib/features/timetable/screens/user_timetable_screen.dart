@@ -9,7 +9,7 @@ class UserTimetableScreen extends ConsumerWidget {
   const UserTimetableScreen({super.key});
 
   final List<String> _days = const [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
   ];
 
   @override
@@ -102,7 +102,7 @@ class UserTimetableScreen extends ConsumerWidget {
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: AppColors.primary.withOpacity(0.1),
-                          child: Icon(Icons.schedule, color: AppColors.primary),
+                          child: const Icon(Icons.schedule, color: AppColors.primary),
                         ),
                         title: Text(
                           slot.subject,

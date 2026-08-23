@@ -78,7 +78,7 @@ class ChatRepository {
         .stream(primaryKey: ['id'])
         .eq('room_id', roomId)
         .order('created_at', ascending: true)
-        .map((data) => data.map((j) => ChatMessageModel.fromJson(j)).toList());
+        .map((data) => data.map(ChatMessageModel.fromJson).toList());
   }
 
   Future<ChatRoomModel?> fetchChatRoomById(String roomId) async {

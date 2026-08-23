@@ -105,7 +105,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                     return const Text('No classes assigned to you.', style: TextStyle(color: Colors.red));
                   }
                   return DropdownButtonFormField<String>(
-                    value: '${_selectedBoard}_$_selectedStandard',
+                    initialValue: '${_selectedBoard}_$_selectedStandard',
                     decoration: const InputDecoration(
                       labelText: 'Select Target Class *',
                       prefixIcon: Icon(Icons.class_),

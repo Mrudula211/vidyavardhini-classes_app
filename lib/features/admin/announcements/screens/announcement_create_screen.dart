@@ -97,7 +97,7 @@ class _AnnouncementCreateScreenState extends ConsumerState<AnnouncementCreateScr
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                value: _priority,
+                initialValue: _priority,
                 decoration: const InputDecoration(
                   labelText: 'Priority Level *',
                   prefixIcon: Icon(Icons.priority_high),
@@ -115,7 +115,7 @@ class _AnnouncementCreateScreenState extends ConsumerState<AnnouncementCreateScr
               const SizedBox(height: 16),
 
               DropdownButtonFormField<String>(
-                value: _targetType,
+                initialValue: _targetType,
                 decoration: const InputDecoration(
                   labelText: 'Target Audience *',
                   prefixIcon: Icon(Icons.group),
@@ -138,7 +138,7 @@ class _AnnouncementCreateScreenState extends ConsumerState<AnnouncementCreateScr
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _targetBoard,
+                        initialValue: _targetBoard,
                         decoration: const InputDecoration(labelText: 'Board'),
                         items: const [
                           DropdownMenuItem(value: 'SSC', child: Text('SSC')),
@@ -152,7 +152,7 @@ class _AnnouncementCreateScreenState extends ConsumerState<AnnouncementCreateScr
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _targetStandard,
+                        initialValue: _targetStandard,
                         decoration: const InputDecoration(labelText: 'Standard'),
                         items: const [
                           DropdownMenuItem(value: '1st', child: Text('1st Std')),

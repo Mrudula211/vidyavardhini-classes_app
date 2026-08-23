@@ -33,7 +33,7 @@ class _AddTimetableSlotSheetState extends ConsumerState<AddTimetableSlotSheet> {
   bool _isSubmitting = false;
 
   final List<String> _days = const [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
   ];
 
   @override
@@ -124,7 +124,7 @@ class _AddTimetableSlotSheetState extends ConsumerState<AddTimetableSlotSheet> {
               const SizedBox(height: 12),
 
               DropdownButtonFormField<String>(
-                value: _selectedDay,
+                initialValue: _selectedDay,
                 decoration: const InputDecoration(
                   labelText: 'Day of Week *',
                   prefixIcon: Icon(Icons.calendar_today),
@@ -183,7 +183,7 @@ class _AddTimetableSlotSheetState extends ConsumerState<AddTimetableSlotSheet> {
               teachersAsync.when(
                 data: (teachers) {
                   return DropdownButtonFormField<String>(
-                    value: _selectedTeacherId,
+                    initialValue: _selectedTeacherId,
                     decoration: const InputDecoration(
                       labelText: 'Assign Teacher (Optional)',
                       prefixIcon: Icon(Icons.person),

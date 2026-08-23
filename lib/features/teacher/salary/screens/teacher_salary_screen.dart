@@ -10,7 +10,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
 
   final List<String> _months = const [
     'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
   @override
@@ -57,7 +57,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [AppColors.primary, AppColors.primaryVariant],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,

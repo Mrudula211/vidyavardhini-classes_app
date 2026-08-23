@@ -15,7 +15,7 @@ class AdminTimetableScreen extends ConsumerStatefulWidget {
 
 class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
   final List<String> _days = const [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
   ];
 
   @override
@@ -44,7 +44,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: selectedBoard,
+                    initialValue: selectedBoard,
                     decoration: const InputDecoration(labelText: 'Board'),
                     items: const [
                       DropdownMenuItem(value: 'SSC', child: Text('SSC')),
@@ -58,7 +58,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: selectedStandard,
+                    initialValue: selectedStandard,
                     decoration: const InputDecoration(labelText: 'Standard'),
                     items: const [
                       DropdownMenuItem(value: '1st', child: Text('1st Std')),
@@ -183,7 +183,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
         leading: CircleAvatar(
           backgroundColor: AppColors.primary.withOpacity(0.1),
           child: Text(
-            '${slotsIndex(slot.startTime)}',
+            slotsIndex(slot.startTime),
             style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 12),
           ),
         ),

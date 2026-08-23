@@ -3,22 +3,27 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_repository.dart';
 
 class SupabaseAuthRepository implements AuthRepository {
+  final SupabaseClient _client;
+
+  SupabaseAuthRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
+
   @override
   Future<void> sendOtp(String phone) async {
-    await Supabase.instance.client.auth.signInWithOtp(
+    await _client.auth.signInWithOtp(
       phone: phone,
     );
   }
 
   @override
   Future<Session?> verifyOtp(String phone, String otp, String role) async {
-    await Supabase.instance.client.auth.verifyOTP(
+    await _client.auth.verifyOTP(
       phone: phone,
       token: otp,
       type: OtpType.sms,
     );
 
-    final session = Supabase.instance.client.auth.currentSession;
+    final session = _client.auth.currentSession;
     final user = session?.user;
     if (user == null) {
       throw Exception('OTP verification failed. User session missing.');
@@ -30,24 +35,24 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    await Supabase.instance.client.auth.signOut();
+    await _client.auth.signOut();
   }
 
   @override
   Stream<Session?> authStateChanges() {
-    return Supabase.instance.client.auth.onAuthStateChange
+    return _client.auth.onAuthStateChange
         .map((event) => event.session);
   }
 
   @override
-  Session? get currentSession => Supabase.instance.client.auth.currentSession;
+  Session? get currentSession => _client.auth.currentSession;
 
   @override
-  User? get currentUser => Supabase.instance.client.auth.currentUser;
+  User? get currentUser => _client.auth.currentUser;
 
   @override
   Future<String?> fetchUserRole(String userId) async {
-    final response = await Supabase.instance.client
+    final response = await _client
         .from('users')
         .select('role')
         .eq('id', userId)
@@ -61,7 +66,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<String?> fetchStudentStatus(String userId) async {
-    final response = await Supabase.instance.client
+    final response = await _client
         .from('student_profiles')
         .select('status')
         .eq('id', userId)
@@ -75,7 +80,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<bool> isStudentPhoneRegistered(String phone) async {
-    final response = await Supabase.instance.client
+    final response = await _client
         .from('users')
         .select('id')
         .eq('phone', phone)
@@ -87,7 +92,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<Session?> signInWithEmailAndPassword(String email, String password) async {
-    final response = await Supabase.instance.client.auth.signInWithPassword(
+    final response = await _client.auth.signInWithPassword(
       email: email,
       password: password,
     );
@@ -100,7 +105,7 @@ class SupabaseAuthRepository implements AuthRepository {
     String password,
   ) async {
     try {
-      final response = await Supabase.instance.client.rpc(
+      final response = await _client.rpc(
         'verify_admin_credentials',
         params: {
           'p_access_code': accessCode,
@@ -116,7 +121,7 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<bool> verifyTeacherAccessCode(String accessCode) async {
     try {
-      final response = await Supabase.instance.client.rpc(
+      final response = await _client.rpc(
         'verify_teacher_access_code',
         params: {
           'p_access_code': accessCode,
@@ -134,7 +139,7 @@ class SupabaseAuthRepository implements AuthRepository {
     String phone,
     String role,
   ) async {
-    final existing = await Supabase.instance.client
+    final existing = await _client
         .from('users')
         .select('id')
         .eq('id', userId)
@@ -144,7 +149,7 @@ class SupabaseAuthRepository implements AuthRepository {
       return true;
     }
 
-    await Supabase.instance.client.from('users').insert({
+    await _client.from('users').insert({
       'id': userId,
       'phone': phone,
       'role': role,

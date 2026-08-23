@@ -51,7 +51,7 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: '${selectedBoard}_$selectedStandard',
+                            initialValue: '${selectedBoard}_$selectedStandard',
                             decoration: const InputDecoration(
                               labelText: 'Select Class',
                               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -113,7 +113,7 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
             child: studentsAsync.when(
               data: (remoteList) {
                 if (_localStudentList.isEmpty || _hasParamsChanged(remoteList)) {
-                  _localStudentList = List.from(remoteList.map((item) => Map<String, dynamic>.from(item)));
+                  _localStudentList = List.from(remoteList.map(Map<String, dynamic>.from));
                 }
 
                 if (_localStudentList.isEmpty) {
@@ -178,7 +178,7 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                                     ),
                                     Switch(
                                       value: isPresent,
-                                      activeColor: Colors.green,
+                                      activeThumbColor: Colors.green,
                                       inactiveThumbColor: Colors.red,
                                       onChanged: (val) {
                                         setState(() {
@@ -200,7 +200,7 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: DropdownButtonFormField<String>(
-                                      value: reason,
+                                      initialValue: reason,
                                       decoration: const InputDecoration(
                                         contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                         isDense: true,
