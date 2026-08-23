@@ -10,19 +10,12 @@ class AdminTimetableScreen extends ConsumerStatefulWidget {
   const AdminTimetableScreen({super.key});
 
   @override
-  ConsumerState<AdminTimetableScreen> createState() =>
-      _AdminTimetableScreenState();
+  ConsumerState<AdminTimetableScreen> createState() => _AdminTimetableScreenState();
 }
 
 class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
   final List<String> _days = const [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
   ];
 
   @override
@@ -37,7 +30,6 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
         title: const Text('Manage Class Timetable'),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(adminClassTimetableProvider),
           ),
@@ -59,10 +51,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                       DropdownMenuItem(value: 'CBSE', child: Text('CBSE')),
                     ],
                     onChanged: (val) {
-                      if (val != null)
-                        ref
-                            .read(selectedTimetableBoardProvider.notifier)
-                            .state = val;
+                      if (val != null) ref.read(selectedTimetableBoardProvider.notifier).state = val;
                     },
                   ),
                 ),
@@ -84,10 +73,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                       DropdownMenuItem(value: '10th', child: Text('10th Std')),
                     ],
                     onChanged: (val) {
-                      if (val != null)
-                        ref
-                            .read(selectedTimetableStandardProvider.notifier)
-                            .state = val;
+                      if (val != null) ref.read(selectedTimetableStandardProvider.notifier).state = val;
                     },
                   ),
                 ),
@@ -110,13 +96,11 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                     selectedColor: AppColors.primary,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : Colors.black,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                     onSelected: (selected) {
                       if (selected) {
-                        ref.read(selectedTimetableDayProvider.notifier).state =
-                            day;
+                        ref.read(selectedTimetableDayProvider.notifier).state = day;
                       }
                     },
                   ),
@@ -141,8 +125,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton.icon(
-                          onPressed: () => _openAddSlotSheet(context,
-                              selectedBoard, selectedStandard, selectedDay),
+                          onPressed: () => _openAddSlotSheet(context, selectedBoard, selectedStandard, selectedDay),
                           icon: const Icon(Icons.add),
                           label: const Text('Add Schedule Slot'),
                         ),
@@ -161,8 +144,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) =>
-                  Center(child: Text('Error loading timetable: $err')),
+              error: (err, stack) => Center(child: Text('Error loading timetable: $err')),
             ),
           ),
         ],
@@ -172,14 +154,12 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_alarm),
         label: const Text('Add Slot'),
-        onPressed: () => _openAddSlotSheet(
-            context, selectedBoard, selectedStandard, selectedDay),
+        onPressed: () => _openAddSlotSheet(context, selectedBoard, selectedStandard, selectedDay),
       ),
     );
   }
 
-  void _openAddSlotSheet(
-      BuildContext context, String board, String standard, String day) {
+  void _openAddSlotSheet(BuildContext context, String board, String standard, String day) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -204,10 +184,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
           backgroundColor: AppColors.primary.withOpacity(0.1),
           child: Text(
             '${slotsIndex(slot.startTime)}',
-            style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-                fontSize: 12),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 12),
           ),
         ),
         title: Text(
@@ -219,31 +196,22 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
           style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
         ),
         trailing: IconButton(
-          tooltip: 'Delete Slot',
           icon: const Icon(Icons.delete_outline, color: Colors.red),
           onPressed: () async {
             final confirm = await showDialog<bool>(
               context: context,
               builder: (ctx) => AlertDialog(
                 title: const Text('Delete Slot?'),
-                content:
-                    Text('Remove ${slot.subject} slot from ${slot.dayOfWeek}?'),
+                content: Text('Remove ${slot.subject} slot from ${slot.dayOfWeek}?'),
                 actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: const Text('Cancel')),
-                  TextButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text('Delete',
-                          style: TextStyle(color: Colors.red))),
+                  TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                  TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
                 ],
               ),
             );
 
             if (confirm == true) {
-              await ref
-                  .read(timetableRepositoryProvider)
-                  .deleteTimetableSlot(slot.id);
+              await ref.read(timetableRepositoryProvider).deleteTimetableSlot(slot.id);
               ref.invalidate(adminClassTimetableProvider);
             }
           },

@@ -1,20 +1,5 @@
-import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../shared/models/teacher_model.dart';
-
-String _generateUuid() {
-  final random = Random.secure();
-  final values = List<int>.generate(16, (i) => random.nextInt(256));
-  values[6] = (values[6] & 0x0f) | 0x40; // set version to 4
-  values[8] = (values[8] & 0x3f) | 0x80; // set variant to IETF
-  return [
-    values.sublist(0, 4).map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
-    values.sublist(4, 6).map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
-    values.sublist(6, 8).map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
-    values.sublist(8, 10).map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
-    values.sublist(10, 16).map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
-  ].join('-');
-}
 
 class TeacherRepository {
   final SupabaseClient _client = Supabase.instance.client;
@@ -54,107 +39,85 @@ class TeacherRepository {
     required double monthlySalary,
     required String accessCode,
   }) async {
-    final cleanPhone = phone.trim();
-    final cleanEmail = (email != null && email.trim().isNotEmpty) ? email.trim() : null;
-
     // 1. Check for duplicate phone in users table
-    if (cleanPhone.isNotEmpty) {
+    if (phone.trim().isNotEmpty) {
       final existingPhone = await _client
           .from('users')
           .select('id, phone')
-          .eq('phone', cleanPhone)
+          .eq('phone', phone.trim())
           .maybeSingle();
 
       if (existingPhone != null) {
-        throw Exception('User with phone number $cleanPhone is already registered in the database.');
+        throw Exception('User with phone number $phone is already registered in the database.');
       }
     }
 
     // 2. Check for duplicate email in teacher_profiles table
-    if (cleanEmail != null) {
+    if (email != null && email.trim().isNotEmpty) {
       final existingEmail = await _client
           .from('teacher_profiles')
           .select('id, full_name, teacher_id')
-          .eq('email', cleanEmail)
+          .eq('email', email.trim())
           .maybeSingle();
 
       if (existingEmail != null) {
         final teacherId = existingEmail['teacher_id'] ?? '';
         final name = existingEmail['full_name'] ?? 'Existing Teacher';
-        throw Exception('Teacher "$name" ($teacherId) with email $cleanEmail is already registered in the database.');
+        throw Exception('Teacher "$name" ($teacherId) with email $email is already registered in the database.');
       }
     }
 
-    // 3. Try RPC creation first (runs server-side with full permissions)
+    Map<String, dynamic> result = {};
+
+    // 3. Try RPC creation first
     try {
       final response = await _client.rpc('create_teacher_profile', params: {
-        'p_phone': cleanPhone,
+        'p_phone': phone.trim(),
         'p_full_name': fullName.trim(),
         'p_gender': (gender != null && gender.isNotEmpty) ? gender : null,
         'p_dob': (dob != null && dob.isNotEmpty) ? dob : null,
-        'p_email': cleanEmail,
+        'p_email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
         'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
         'p_monthly_salary': monthlySalary,
         'p_access_code': accessCode.trim(),
       });
 
       if (response is Map<String, dynamic> && response.isNotEmpty) {
-        return response;
+        result = response;
       }
-    } catch (rpcError) {
-      // If RPC failed due to missing function or foreign key constraint, proceed to direct fallback
-    }
+    } catch (_) {}
 
-    // 4. Direct Table Insertion Fallback
-    String userId = _generateUuid();
-
-    // Insert user row
-    try {
-      await _client.from('users').insert({
-        'id': userId,
-        'phone': cleanPhone,
+    // 4. Direct table insert fallback if RPC returned empty or failed
+    if (result.isEmpty) {
+      // Create user entry first
+      final userRes = await _client.from('users').insert({
+        'phone': phone.trim(),
         'role': 'teacher',
         'is_active': true,
-      });
-    } catch (e) {
-      final existingUser = await _client.from('users').select('id').eq('phone', cleanPhone).maybeSingle();
-      if (existingUser != null) {
-        userId = existingUser['id'] as String;
-      } else {
-        throw Exception(
-          'Supabase database foreign key constraint error. Please execute the provided SQL setup script in your Supabase SQL Editor once.',
-        );
-      }
+      }).select('id').single();
+
+      final userId = userRes['id'] as String;
+
+      final existingRes = await _client.from('teacher_profiles').select('id');
+      final count = (existingRes as List).length + 1;
+      final assignedId = 'TCH${count.toString().padLeft(4, '0')}';
+
+      final insertData = await _client.from('teacher_profiles').insert({
+        'id': userId,
+        'teacher_id': assignedId,
+        'full_name': fullName.trim(),
+        'gender': (gender != null && gender.isNotEmpty) ? gender : null,
+        'dob': (dob != null && dob.isNotEmpty) ? dob : null,
+        'email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
+        'joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : DateTime.now().toIso8601String().split('T')[0],
+        'monthly_salary': monthlySalary,
+        'is_active': true,
+      }).select().single();
+
+      result = Map<String, dynamic>.from(insertData);
     }
 
-    // Insert teacher_profiles row
-    final existingRes = await _client.from('teacher_profiles').select('id');
-    final count = (existingRes as List).length + 1;
-    final assignedId = 'TCH${count.toString().padLeft(4, '0')}';
-
-    Map<String, dynamic> profileRow = {
-      'id': userId,
-      'teacher_id': assignedId,
-      'full_name': fullName.trim(),
-      'gender': (gender != null && gender.isNotEmpty) ? gender : null,
-      'dob': (dob != null && dob.isNotEmpty) ? dob : null,
-      'email': cleanEmail,
-      'joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : DateTime.now().toIso8601String().split('T')[0],
-      'monthly_salary': monthlySalary,
-      'is_active': true,
-    };
-
-    dynamic insertData;
-    try {
-      profileRow['access_code'] = accessCode.trim();
-      insertData = await _client.from('teacher_profiles').insert(profileRow).select().single();
-    } catch (_) {
-      profileRow.remove('access_code');
-      profileRow['access_code_hash'] = accessCode.trim();
-      insertData = await _client.from('teacher_profiles').insert(profileRow).select().single();
-    }
-
-    return Map<String, dynamic>.from(insertData);
+    return result;
   }
 
   Future<void> deleteTeacher(String teacherId) async {

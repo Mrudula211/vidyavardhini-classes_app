@@ -116,7 +116,6 @@ class _AddTimetableSlotSheetState extends ConsumerState<AddTimetableSlotSheet> {
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
-                    tooltip: 'Close',
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
