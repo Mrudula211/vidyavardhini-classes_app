@@ -102,7 +102,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          tooltip: 'Back',
           onPressed: () => context.go(Routes.roleSelect),
         ),
         backgroundColor: Colors.transparent,
@@ -164,7 +163,6 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                             ? Icons.visibility_off_rounded
                             : Icons.visibility_rounded,
                       ),
-                      tooltip: 'Toggle Password Visibility',
                       onPressed: () =>
                           setState(() => _passwordVisible = !_passwordVisible),
                     ),
