@@ -2,7 +2,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../shared/models/student_model.dart';
 
 class StudentRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  StudentRepository({SupabaseClient? client}) : _client = client ?? Supabase.instance.client;
 
   Future<List<StudentModel>> fetchStudents({
     String? status,
