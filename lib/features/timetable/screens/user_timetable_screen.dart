@@ -34,6 +34,7 @@ class UserTimetableScreen extends ConsumerWidget {
         title: const Text('My Class Timetable'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () {
               if (role == 'teacher') {

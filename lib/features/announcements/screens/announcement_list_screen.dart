@@ -20,6 +20,7 @@ class AnnouncementListScreen extends ConsumerWidget {
         title: const Text('Announcements Feed'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(userAnnouncementsProvider),
           ),

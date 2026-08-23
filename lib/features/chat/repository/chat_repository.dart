@@ -2,7 +2,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/chat_model.dart';
 
 class ChatRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  ChatRepository({SupabaseClient? client}) : _client = client ?? Supabase.instance.client;
 
   Future<List<ChatRoomModel>> fetchUserChatRooms({
     required String userId,

@@ -28,6 +28,7 @@ class ChatListScreen extends ConsumerWidget {
         title: const Text('Doubt Clearing Chat'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(userChatRoomsProvider),
           ),

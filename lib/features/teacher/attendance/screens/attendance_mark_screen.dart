@@ -5,12 +5,14 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/student_model.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../attendance/providers/attendance_providers.dart';
+import '../widgets/student_attendance_card.dart';
 
 class AttendanceMarkScreen extends ConsumerStatefulWidget {
   const AttendanceMarkScreen({super.key});
 
   @override
-  ConsumerState<AttendanceMarkScreen> createState() => _AttendanceMarkScreenState();
+  ConsumerState<AttendanceMarkScreen> createState() =>
+      _AttendanceMarkScreenState();
 }
 
 class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
@@ -45,7 +47,10 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                 assignedClassesAsync.when(
                   data: (classes) {
                     if (classes.isEmpty) {
-                      return const Text('No classes assigned to you.', style: TextStyle(color: Colors.red));
+                      return const Text(
+                        'No classes assigned to you.',
+                        style: TextStyle(color: Colors.red),
+                      );
                     }
                     return Row(
                       children: [
@@ -54,20 +59,34 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                             initialValue: '${selectedBoard}_$selectedStandard',
                             decoration: const InputDecoration(
                               labelText: 'Select Class',
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                             ),
                             items: classes.map((c) {
                               final val = '${c['board']}_${c['standard']}';
                               return DropdownMenuItem(
                                 value: val,
-                                child: Text('${c['board']} • Standard ${c['standard']}'),
+                                child: Text(
+                                  '${c['board']} • Standard ${c['standard']}',
+                                ),
                               );
                             }).toList(),
                             onChanged: (val) {
                               if (val != null) {
                                 final parts = val.split('_');
-                                ref.read(selectedAttendanceBoardProvider.notifier).state = parts[0];
-                                ref.read(selectedAttendanceStandardProvider.notifier).state = parts[1];
+                                ref
+                                    .read(
+                                      selectedAttendanceBoardProvider.notifier,
+                                    )
+                                    .state = parts[0];
+                                ref
+                                    .read(
+                                      selectedAttendanceStandardProvider
+                                          .notifier,
+                                    )
+                                    .state = parts[1];
                               }
                             },
                           ),
@@ -76,7 +95,8 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                     );
                   },
                   loading: () => const LinearProgressIndicator(),
-                  error: (_, __) => const Text('Error loading assigned classes'),
+                  error: (_, __) =>
+                      const Text('Error loading assigned classes'),
                 ),
                 const SizedBox(height: 12),
 
@@ -95,7 +115,9 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                             lastDate: DateTime(2030),
                           );
                           if (picked != null) {
-                            ref.read(selectedAttendanceDateProvider.notifier).state =
+                            ref
+                                    .read(selectedAttendanceDateProvider.notifier)
+                                    .state =
                                 picked.toIso8601String().split('T').first;
                           }
                         },
@@ -112,8 +134,11 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
           Expanded(
             child: studentsAsync.when(
               data: (remoteList) {
-                if (_localStudentList.isEmpty || _hasParamsChanged(remoteList)) {
-                  _localStudentList = List.from(remoteList.map(Map<String, dynamic>.from));
+                if (_localStudentList.isEmpty ||
+                    _hasParamsChanged(remoteList)) {
+                  _localStudentList = List.from(
+                    remoteList.map(Map<String, dynamic>.from),
+                  );
                 }
 
                 if (_localStudentList.isEmpty) {
@@ -131,108 +156,27 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                     final isPresent = item['status'] == 'present';
                     final reason = item['reason'] as String? ?? 'sick';
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
-                                  child: Text(
-                                    student.fullName[0].toUpperCase(),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: isPresent ? Colors.green : Colors.red,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        student.fullName,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                      ),
-                                      Text(
-                                        student.studentId ?? 'STU0000',
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      isPresent ? 'PRESENT' : 'ABSENT',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: isPresent ? Colors.green : Colors.red,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    Switch(
-                                      value: isPresent,
-                                      activeThumbColor: Colors.green,
-                                      inactiveThumbColor: Colors.red,
-                                      onChanged: (val) {
-                                        setState(() {
-                                          item['status'] = val ? 'present' : 'absent';
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-
-                            // Reason dropdown if absent
-                            if (!isPresent) ...[
-                              const Divider(),
-                              Row(
-                                children: [
-                                  const Text('Absence Reason: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      initialValue: reason,
-                                      decoration: const InputDecoration(
-                                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                        isDense: true,
-                                      ),
-                                      items: const [
-                                        DropdownMenuItem(value: 'sick', child: Text('Sick / Unwell')),
-                                        DropdownMenuItem(value: 'family_function', child: Text('Family Function')),
-                                        DropdownMenuItem(value: 'travel', child: Text('Travel / Out of station')),
-                                        DropdownMenuItem(value: 'personal', child: Text('Personal Work')),
-                                        DropdownMenuItem(value: 'other', child: Text('Other')),
-                                      ],
-                                      onChanged: (val) {
-                                        if (val != null) {
-                                          setState(() {
-                                            item['reason'] = val;
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
+                    return StudentAttendanceCard(
+                      student: student,
+                      isPresent: isPresent,
+                      reason: reason,
+                      onStatusChanged: (val) {
+                        setState(() {
+                          item['status'] = val ? 'present' : 'absent';
+                        });
+                      },
+                      onReasonChanged: (val) {
+                        setState(() {
+                          item['reason'] = val;
+                        });
+                      },
                     );
                   },
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading students: $err')),
+              error: (err, stack) =>
+                  Center(child: Text('Error loading students: $err')),
             ),
           ),
 
@@ -247,7 +191,9 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: _isSubmitting
                       ? null
@@ -255,7 +201,9 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                           if (currentUser == null) return;
                           setState(() => _isSubmitting = true);
                           try {
-                            await ref.read(attendanceRepositoryProvider).submitBatchAttendance(
+                            await ref
+                                .read(attendanceRepositoryProvider)
+                                .submitBatchAttendance(
                                   date: selectedDate,
                                   markedBy: currentUser.id,
                                   records: _localStudentList,
@@ -263,18 +211,24 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
 
                             ref.invalidate(studentsForAttendanceProvider);
 
-                            if (mounted) {
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Attendance submitted successfully!'),
+                                  content: Text(
+                                    'Attendance submitted successfully!',
+                                  ),
                                   backgroundColor: Colors.green,
                                 ),
                               );
                             }
                           } catch (e) {
-                            if (mounted) {
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Failed to submit attendance: $e')),
+                                SnackBar(
+                                  content: Text(
+                                    'Failed to submit attendance: $e',
+                                  ),
+                                ),
                               );
                             }
                           } finally {
@@ -285,7 +239,10 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'SUBMIT ATTENDANCE',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                 ),
               ),

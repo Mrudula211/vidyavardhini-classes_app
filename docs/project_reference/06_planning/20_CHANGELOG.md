@@ -11,7 +11,7 @@ Initial documentation established.
 ### [Unreleased] - Initial Analysis Phase
 -   **Analysis Completed:** Full repository scan of `lib/`, `docs/`, and `supabase/`.
 -   **Documentation Created:** Generated 22 Markdown files in `docs/project_reference/` categorizing features, bugs, architecture, and planning.
--   **Major Architectural Decisions:** 
+-   **Major Architectural Decisions:**
     -   Treat `docs/` as the product requirement truth.
     -   Treat `lib/` as the current implementation truth.
     -   Organize documentation into modular folders (01_overview to 06_planning) for better maintainability.

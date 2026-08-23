@@ -31,6 +31,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
         title: const Text('My Salary & Earnings'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(teacherDetailProvider(user.id)),
           ),
