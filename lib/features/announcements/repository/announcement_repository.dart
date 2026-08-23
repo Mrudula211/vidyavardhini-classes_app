@@ -2,7 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/announcement_model.dart';
 
 class AnnouncementRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  AnnouncementRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   Future<void> createAnnouncement({
     required String title,
