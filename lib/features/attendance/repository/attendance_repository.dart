@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/attendance_model.dart';
@@ -10,7 +11,8 @@ class AttendanceRepository {
       : _client = client ?? Supabase.instance.client;
 
   Future<List<Map<String, String>>> fetchTeacherAssignedClasses(
-      String teacherId) async {
+    String teacherId,
+  ) async {
     final data = await _client
         .from('teacher_assignments')
         .select('board, standard, subject')
@@ -85,46 +87,16 @@ class AttendanceRepository {
     }).toList();
   }
 
-  // Added for testing convenience without complex mocking
-  Future<Map<String, dynamic>?> getCurrentAcademicYearForTest() async {
-    return await _client
-        .from('academic_years')
-        .select('id')
-        .eq('is_current', true)
-        .maybeSingle();
-  }
-
-  Future<void> upsertStudentAttendanceForTest(Map<String, dynamic> data) async {
-    final upsertRes = await _client
-        .from('student_attendance')
-        .upsert(data, onConflict: 'student_id,date')
-        .select('id')
-        .single();
-    final attendanceId = upsertRes['id'] as String;
-    data['_attendanceId'] = attendanceId; // Pass it back
-  }
-
-  Future<void> deleteAbsenceReasonsForTest(String attendanceId) async {
-    await _client
-        .from('absence_reasons')
-        .delete()
-        .eq('attendance_id', attendanceId);
-  }
-
-  Future<void> insertAbsenceReasonForTest(
-      String attendanceId, String reason) async {
-    await _client.from('absence_reasons').insert({
-      'attendance_id': attendanceId,
-      'reason': reason,
-    });
-  }
-
   Future<void> submitBatchAttendance({
     required String date,
     required String markedBy,
     required List<Map<String, dynamic>> records,
   }) async {
-    final currentYearRes = await getCurrentAcademicYearForTest();
+    final currentYearRes = await _client
+        .from('academic_years')
+        .select('id')
+        .eq('is_current', true)
+        .maybeSingle();
 
     final academicYearId =
         currentYearRes != null ? currentYearRes['id'] as String? : null;
@@ -137,24 +109,39 @@ class AttendanceRepository {
       final status = record['status'] as String;
       final reason = record['reason'] as String?;
 
-      final data = {
-        'student_id': student.id,
-        'academic_year_id': academicYearId,
-        'date': date,
-        'status': status,
-        'marked_by': markedBy,
-        'updated_at': DateTime.now().toIso8601String(),
-      };
+      final upsertRes = await _client
+          .from('student_attendance')
+          .upsert(
+            {
+              'student_id': student.id,
+              'academic_year_id': academicYearId,
+              'date': date,
+              'status': status,
+              'marked_by': markedBy,
+              'updated_at': DateTime.now().toIso8601String(),
+            },
+            onConflict: 'student_id,date',
+          )
+          .select('id')
+          .single();
 
-      await upsertStudentAttendanceForTest(data);
-      final attendanceId = data['_attendanceId'] as String;
+      final attendanceId = upsertRes['id'] as String;
 
       // Handle absence reason
       if (status == 'absent' && reason != null && reason.isNotEmpty) {
-        await deleteAbsenceReasonsForTest(attendanceId);
-        await insertAbsenceReasonForTest(attendanceId, reason);
+        await _client
+            .from('absence_reasons')
+            .delete()
+            .eq('attendance_id', attendanceId);
+        await _client.from('absence_reasons').insert({
+          'attendance_id': attendanceId,
+          'reason': reason,
+        });
       } else {
-        await deleteAbsenceReasonsForTest(attendanceId);
+        await _client
+            .from('absence_reasons')
+            .delete()
+            .eq('attendance_id', attendanceId);
       }
     }
   }
@@ -236,29 +223,36 @@ class AttendanceRepository {
     final settings = await fetchGeofenceSettings();
     if (settings == null) return false;
 
-    final distanceMeters = _calculateDistance(
-        userLat, userLng, settings.latitude, settings.longitude);
+    final distanceMeters = calculateDistance(
+      userLat,
+      userLng,
+      settings.latitude,
+      settings.longitude,
+    );
 
     if (distanceMeters <= settings.radiusMeters) {
       final today = DateTime.now().toIso8601String().split('T').first;
       final now = DateTime.now().toIso8601String();
 
-      await _client.from('teacher_attendance').upsert({
-        'teacher_id': teacherId,
-        'date': today,
-        'status': 'present',
-        'check_in_time': now,
-        'latitude': userLat,
-        'longitude': userLng,
-        'updated_at': now,
-      }, onConflict: 'teacher_id,date');
+      await _client.from('teacher_attendance').upsert(
+        {
+          'teacher_id': teacherId,
+          'date': today,
+          'status': 'present',
+          'check_in_time': now,
+          'latitude': userLat,
+          'longitude': userLng,
+          'updated_at': now,
+        },
+        onConflict: 'teacher_id,date',
+      );
       return true;
     }
     return false;
   }
 
-  double _calculateDistance(
-      double lat1, double lon1, double lat2, double lon2) {
+  @visibleForTesting
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295;
     final a = 0.5 -
         cos((lat2 - lat1) * p) / 2 +
