@@ -36,7 +36,7 @@ class FakeSupabaseQueryBuilder extends Fake implements SupabaseQueryBuilder {
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> insert(
     Object values, {
-    String? defaultToNull,
+    bool defaultToNull = true,
   }) {
     return FakePostgrestFilterBuilder(_returnValue, _error);
   }
