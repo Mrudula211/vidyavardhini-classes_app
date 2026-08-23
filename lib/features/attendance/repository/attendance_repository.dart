@@ -1,12 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/attendance_model.dart';
 import '../../../shared/models/student_model.dart';
 
 class AttendanceRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
 
-  Future<List<Map<String, String>>> fetchTeacherAssignedClasses(String teacherId) async {
+  AttendanceRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
+
+  Future<List<Map<String, String>>> fetchTeacherAssignedClasses(
+    String teacherId,
+  ) async {
     final data = await _client
         .from('teacher_assignments')
         .select('board, standard, subject')
@@ -42,7 +48,8 @@ class AttendanceRepository {
         .eq('status', 'active')
         .order('full_name');
 
-    final students = (studentsData as List).map((j) => StudentModel.fromJson(j)).toList();
+    final students =
+        (studentsData as List).map((j) => StudentModel.fromJson(j)).toList();
     if (students.isEmpty) return [];
 
     final studentIds = students.map((s) => s.id).toList();
@@ -91,7 +98,8 @@ class AttendanceRepository {
         .eq('is_current', true)
         .maybeSingle();
 
-    final academicYearId = currentYearRes != null ? currentYearRes['id'] as String? : null;
+    final academicYearId =
+        currentYearRes != null ? currentYearRes['id'] as String? : null;
     if (academicYearId == null) {
       throw Exception('No active academic year found');
     }
@@ -101,26 +109,39 @@ class AttendanceRepository {
       final status = record['status'] as String;
       final reason = record['reason'] as String?;
 
-      final upsertRes = await _client.from('student_attendance').upsert({
-        'student_id': student.id,
-        'academic_year_id': academicYearId,
-        'date': date,
-        'status': status,
-        'marked_by': markedBy,
-        'updated_at': DateTime.now().toIso8601String(),
-      }, onConflict: 'student_id,date').select('id').single();
+      final upsertRes = await _client
+          .from('student_attendance')
+          .upsert(
+            {
+              'student_id': student.id,
+              'academic_year_id': academicYearId,
+              'date': date,
+              'status': status,
+              'marked_by': markedBy,
+              'updated_at': DateTime.now().toIso8601String(),
+            },
+            onConflict: 'student_id,date',
+          )
+          .select('id')
+          .single();
 
       final attendanceId = upsertRes['id'] as String;
 
       // Handle absence reason
       if (status == 'absent' && reason != null && reason.isNotEmpty) {
-        await _client.from('absence_reasons').delete().eq('attendance_id', attendanceId);
+        await _client
+            .from('absence_reasons')
+            .delete()
+            .eq('attendance_id', attendanceId);
         await _client.from('absence_reasons').insert({
           'attendance_id': attendanceId,
           'reason': reason,
         });
       } else {
-        await _client.from('absence_reasons').delete().eq('attendance_id', attendanceId);
+        await _client
+            .from('absence_reasons')
+            .delete()
+            .eq('attendance_id', attendanceId);
       }
     }
   }
@@ -134,7 +155,9 @@ class AttendanceRepository {
         .eq('student_id', studentId)
         .order('date', ascending: false);
 
-    return (data as List).map((j) => StudentAttendanceModel.fromJson(j)).toList();
+    return (data as List)
+        .map((j) => StudentAttendanceModel.fromJson(j))
+        .toList();
   }
 
   Future<List<StudentAttendanceModel>> fetchAdminAttendanceOverview({
@@ -142,7 +165,10 @@ class AttendanceRepository {
     String? board,
     String? standard,
   }) async {
-    dynamic query = _client.from('student_attendance').select('*, student_profiles!inner(*), absence_reasons(*)').eq('date', date);
+    dynamic query = _client
+        .from('student_attendance')
+        .select('*, student_profiles!inner(*), absence_reasons(*)')
+        .eq('date', date);
 
     if (board != null && board != 'all') {
       query = query.eq('student_profiles.board', board);
@@ -152,11 +178,14 @@ class AttendanceRepository {
     }
 
     final data = await query.order('created_at', ascending: false);
-    return (data as List).map((j) => StudentAttendanceModel.fromJson(j)).toList();
+    return (data as List)
+        .map((j) => StudentAttendanceModel.fromJson(j))
+        .toList();
   }
 
   Future<GeofenceSettingsModel?> fetchGeofenceSettings() async {
-    final data = await _client.from('geofence_settings').select().limit(1).maybeSingle();
+    final data =
+        await _client.from('geofence_settings').select().limit(1).maybeSingle();
     if (data == null) return null;
     return GeofenceSettingsModel.fromJson(data);
   }
@@ -194,29 +223,39 @@ class AttendanceRepository {
     final settings = await fetchGeofenceSettings();
     if (settings == null) return false;
 
-    final distanceMeters = _calculateDistance(userLat, userLng, settings.latitude, settings.longitude);
+    final distanceMeters = calculateDistance(
+      userLat,
+      userLng,
+      settings.latitude,
+      settings.longitude,
+    );
 
     if (distanceMeters <= settings.radiusMeters) {
       final today = DateTime.now().toIso8601String().split('T').first;
       final now = DateTime.now().toIso8601String();
 
-      await _client.from('teacher_attendance').upsert({
-        'teacher_id': teacherId,
-        'date': today,
-        'status': 'present',
-        'check_in_time': now,
-        'latitude': userLat,
-        'longitude': userLng,
-        'updated_at': now,
-      }, onConflict: 'teacher_id,date');
+      await _client.from('teacher_attendance').upsert(
+        {
+          'teacher_id': teacherId,
+          'date': today,
+          'status': 'present',
+          'check_in_time': now,
+          'latitude': userLat,
+          'longitude': userLng,
+          'updated_at': now,
+        },
+        onConflict: 'teacher_id,date',
+      );
       return true;
     }
     return false;
   }
 
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  @visibleForTesting
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295;
-    final a = 0.5 - cos((lat2 - lat1) * p) / 2 +
+    final a = 0.5 -
+        cos((lat2 - lat1) * p) / 2 +
         cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a)) * 1000; // Returns distance in meters
   }
