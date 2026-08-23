@@ -26,22 +26,17 @@ class StudentAttendanceScreen extends ConsumerWidget {
         title: const Text('My Attendance'),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: () =>
-                ref.invalidate(studentAttendanceHistoryProvider(user.id)),
+            onPressed: () => ref.invalidate(studentAttendanceHistoryProvider(user.id)),
           ),
         ],
       ),
       body: historyAsync.when(
         data: (records) {
           final totalDays = records.length;
-          final presentDays =
-              records.where((r) => r.status == 'present').length;
+          final presentDays = records.where((r) => r.status == 'present').length;
           final absentDays = records.where((r) => r.status == 'absent').length;
-          final percentage = totalDays > 0
-              ? (presentDays / totalDays * 100).toStringAsFixed(1)
-              : '0.0';
+          final percentage = totalDays > 0 ? (presentDays / totalDays * 100).toStringAsFixed(1) : '0.0';
 
           return Column(
             children: [
@@ -57,9 +52,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                           child: _buildSummaryCard(
                             title: 'Attendance',
                             value: '$percentage%',
-                            color: double.parse(percentage) >= 75
-                                ? Colors.green
-                                : Colors.orange,
+                            color: double.parse(percentage) >= 75 ? Colors.green : Colors.orange,
                             icon: Icons.pie_chart,
                           ),
                         ),
@@ -112,9 +105,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor:
-                                    (isPresent ? Colors.green : Colors.red)
-                                        .withOpacity(0.1),
+                                backgroundColor: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
                                 child: Icon(
                                   isPresent ? Icons.check : Icons.close,
                                   color: isPresent ? Colors.green : Colors.red,
@@ -122,30 +113,22 @@ class StudentAttendanceScreen extends ConsumerWidget {
                               ),
                               title: Text(
                                 item.date,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               subtitle: item.absenceReason != null
-                                  ? Text(
-                                      'Reason: ${item.absenceReason!.reason.toUpperCase()}')
+                                  ? Text('Reason: ${item.absenceReason!.reason.toUpperCase()}')
                                   : null,
                               trailing: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: (isPresent ? Colors.green : Colors.red)
-                                      .withOpacity(0.1),
+                                  color: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: isPresent
-                                          ? Colors.green
-                                          : Colors.red),
+                                  border: Border.all(color: isPresent ? Colors.green : Colors.red),
                                 ),
                                 child: Text(
                                   item.status.toUpperCase(),
                                   style: TextStyle(
-                                    color:
-                                        isPresent ? Colors.green : Colors.red,
+                                    color: isPresent ? Colors.green : Colors.red,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
                                   ),
@@ -160,8 +143,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) =>
-            Center(child: Text('Error loading attendance: $err')),
+        error: (err, stack) => Center(child: Text('Error loading attendance: $err')),
       ),
     );
   }
@@ -187,15 +169,9 @@ class StudentAttendanceScreen extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                Text(title, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                 const SizedBox(height: 2),
-                Text(value,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: color)),
+                Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
               ],
             ),
           ],
