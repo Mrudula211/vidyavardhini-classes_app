@@ -95,10 +95,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
       if (!mounted) return;
       String errorMsg = 'Invalid email or password.';
       final rawStr = e.toString();
-      if (rawStr.contains('Database error querying schema') ||
-          rawStr.contains('500')) {
-        errorMsg =
-            'Account not registered for Student login. If you are Admin, please use Admin Login.';
+      if (rawStr.contains('Database error querying schema') || rawStr.contains('500')) {
+        errorMsg = 'Account not registered for Student login. If you are Admin, please use Admin Login.';
       } else if (rawStr.contains('Invalid login credentials')) {
         errorMsg = 'Incorrect email or password. Please try again.';
       }
@@ -218,8 +216,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
                         ),
-                        onPressed: () => setState(
-                            () => _passwordVisible = !_passwordVisible),
+                        onPressed: () =>
+                            setState(() => _passwordVisible = !_passwordVisible),
                       ),
                     ),
                     validator: (value) {

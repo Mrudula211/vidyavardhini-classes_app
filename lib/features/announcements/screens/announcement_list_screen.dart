@@ -66,8 +66,7 @@ class AnnouncementListScreen extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -78,12 +77,10 @@ class AnnouncementListScreen extends ConsumerWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(priorityIcon,
-                                  color: priorityColor, size: 20),
+                              Icon(priorityIcon, color: priorityColor, size: 20),
                               const SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: priorityColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
@@ -102,36 +99,35 @@ class AnnouncementListScreen extends ConsumerWidget {
                           ),
                           Text(
                             dateStr,
-                            style: TextStyle(
-                                fontSize: 11, color: Colors.grey.shade600),
+                            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                           ),
                         ],
                       ),
                       const SizedBox(height: 10),
+
                       Text(
                         item.title,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 6),
+
                       Text(
                         item.content,
                         style: const TextStyle(fontSize: 14, height: 1.4),
                       ),
                       const SizedBox(height: 8),
+
                       Align(
                         alignment: Alignment.centerRight,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             'Target: ${item.targetType.replaceAll('_', ' ').toUpperCase()}',
-                            style: const TextStyle(
-                                fontSize: 10, color: Colors.grey),
+                            style: const TextStyle(fontSize: 10, color: Colors.grey),
                           ),
                         ),
                       ),
@@ -143,8 +139,7 @@ class AnnouncementListScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) =>
-            Center(child: Text('Error loading announcements: $err')),
+        error: (err, stack) => Center(child: Text('Error loading announcements: $err')),
       ),
       floatingActionButton: role == 'admin'
           ? FloatingActionButton.extended(

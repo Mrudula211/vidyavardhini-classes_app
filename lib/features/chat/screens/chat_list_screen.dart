@@ -42,8 +42,7 @@ class ChatListScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.chat_bubble_outline,
-                      size: 64, color: Colors.grey),
+                  const Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
                   Text(
                     role == 'student'
@@ -66,26 +65,20 @@ class ChatListScreen extends ConsumerWidget {
                   ? (room.teacherName ?? 'Teacher')
                   : (room.studentName ?? 'Student');
 
-              final dateStr = room.lastMessageAt != null &&
-                      room.lastMessageAt!.contains('T')
+              final dateStr = room.lastMessageAt != null && room.lastMessageAt!.contains('T')
                   ? room.lastMessageAt!.split('T').first
                   : '';
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: AppColors.primary.withOpacity(0.1),
                     child: Text(
-                      recipientName.isNotEmpty
-                          ? recipientName[0].toUpperCase()
-                          : 'U',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary),
+                      recipientName.isNotEmpty ? recipientName[0].toUpperCase() : 'U',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
                     ),
                   ),
                   title: Text(
@@ -123,8 +116,7 @@ class ChatListScreen extends ConsumerWidget {
     );
   }
 
-  void _showStartChatDialog(
-      BuildContext context, WidgetRef ref, String studentId) {
+  void _showStartChatDialog(BuildContext context, WidgetRef ref, String studentId) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -159,18 +151,14 @@ class ChatListScreen extends ConsumerWidget {
                           final teacher = teachers[index];
                           return ListTile(
                             leading: CircleAvatar(
-                              backgroundColor:
-                                  AppColors.primary.withOpacity(0.1),
+                              backgroundColor: AppColors.primary.withOpacity(0.1),
                               child: Text(teacher.fullName[0].toUpperCase()),
                             ),
                             title: Text(teacher.fullName),
-                            subtitle: Text(
-                                'Subjects: ${teacher.subjects.join(", ")}'),
+                            subtitle: Text('Subjects: ${teacher.subjects.join(", ")}'),
                             onTap: () async {
                               Navigator.pop(ctx);
-                              final roomId = await ref
-                                  .read(chatRepositoryProvider)
-                                  .getOrCreateChatRoom(
+                              final roomId = await ref.read(chatRepositoryProvider).getOrCreateChatRoom(
                                     studentId: studentId,
                                     teacherId: teacher.id,
                                   );
@@ -183,8 +171,7 @@ class ChatListScreen extends ConsumerWidget {
                         },
                       );
                     },
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
+                    loading: () => const Center(child: CircularProgressIndicator()),
                     error: (err, stack) => Text('Error: $err'),
                   ),
                 ],

@@ -46,9 +46,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                             lastDate: DateTime(2030),
                           );
                           if (picked != null) {
-                            ref
-                                    .read(selectedAttendanceDateProvider.notifier)
-                                    .state =
+                            ref.read(selectedAttendanceDateProvider.notifier).state =
                                 picked.toIso8601String().split('T').first;
                           }
                         },
@@ -64,16 +62,12 @@ class AdminAttendanceScreen extends ConsumerWidget {
                         value: selectedBoard,
                         decoration: const InputDecoration(labelText: 'Board'),
                         items: const [
-                          DropdownMenuItem(
-                              value: 'all', child: Text('All Boards')),
+                          DropdownMenuItem(value: 'all', child: Text('All Boards')),
                           DropdownMenuItem(value: 'SSC', child: Text('SSC')),
                           DropdownMenuItem(value: 'CBSE', child: Text('CBSE')),
                         ],
                         onChanged: (val) {
-                          if (val != null)
-                            ref
-                                .read(selectedAttendanceBoardProvider.notifier)
-                                .state = val;
+                          if (val != null) ref.read(selectedAttendanceBoardProvider.notifier).state = val;
                         },
                       ),
                     ),
@@ -81,38 +75,22 @@ class AdminAttendanceScreen extends ConsumerWidget {
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         value: selectedStandard,
-                        decoration:
-                            const InputDecoration(labelText: 'Standard'),
+                        decoration: const InputDecoration(labelText: 'Standard'),
                         items: const [
-                          DropdownMenuItem(
-                              value: 'all', child: Text('All Standards')),
-                          DropdownMenuItem(
-                              value: '1st', child: Text('1st Std')),
-                          DropdownMenuItem(
-                              value: '2nd', child: Text('2nd Std')),
-                          DropdownMenuItem(
-                              value: '3rd', child: Text('3rd Std')),
-                          DropdownMenuItem(
-                              value: '4th', child: Text('4th Std')),
-                          DropdownMenuItem(
-                              value: '5th', child: Text('5th Std')),
-                          DropdownMenuItem(
-                              value: '6th', child: Text('6th Std')),
-                          DropdownMenuItem(
-                              value: '7th', child: Text('7th Std')),
-                          DropdownMenuItem(
-                              value: '8th', child: Text('8th Std')),
-                          DropdownMenuItem(
-                              value: '9th', child: Text('9th Std')),
-                          DropdownMenuItem(
-                              value: '10th', child: Text('10th Std')),
+                          DropdownMenuItem(value: 'all', child: Text('All Standards')),
+                          DropdownMenuItem(value: '1st', child: Text('1st Std')),
+                          DropdownMenuItem(value: '2nd', child: Text('2nd Std')),
+                          DropdownMenuItem(value: '3rd', child: Text('3rd Std')),
+                          DropdownMenuItem(value: '4th', child: Text('4th Std')),
+                          DropdownMenuItem(value: '5th', child: Text('5th Std')),
+                          DropdownMenuItem(value: '6th', child: Text('6th Std')),
+                          DropdownMenuItem(value: '7th', child: Text('7th Std')),
+                          DropdownMenuItem(value: '8th', child: Text('8th Std')),
+                          DropdownMenuItem(value: '9th', child: Text('9th Std')),
+                          DropdownMenuItem(value: '10th', child: Text('10th Std')),
                         ],
                         onChanged: (val) {
-                          if (val != null)
-                            ref
-                                .read(
-                                    selectedAttendanceStandardProvider.notifier)
-                                .state = val;
+                          if (val != null) ref.read(selectedAttendanceStandardProvider.notifier).state = val;
                         },
                       ),
                     ),
@@ -127,13 +105,9 @@ class AdminAttendanceScreen extends ConsumerWidget {
             child: overviewAsync.when(
               data: (records) {
                 final total = records.length;
-                final present =
-                    records.where((r) => r.status == 'present').length;
-                final absent =
-                    records.where((r) => r.status == 'absent').length;
-                final rate = total > 0
-                    ? (present / total * 100).toStringAsFixed(1)
-                    : '0.0';
+                final present = records.where((r) => r.status == 'present').length;
+                final absent = records.where((r) => r.status == 'absent').length;
+                final rate = total > 0 ? (present / total * 100).toStringAsFixed(1) : '0.0';
 
                 return Column(
                   children: [
@@ -142,21 +116,13 @@ class AdminAttendanceScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
-                          Expanded(
-                              child: _buildBadgeCard(
-                                  'Total', '$total', Colors.blue)),
+                          Expanded(child: _buildBadgeCard('Total', '$total', Colors.blue)),
                           const SizedBox(width: 8),
-                          Expanded(
-                              child: _buildBadgeCard(
-                                  'Present', '$present', Colors.green)),
+                          Expanded(child: _buildBadgeCard('Present', '$present', Colors.green)),
                           const SizedBox(width: 8),
-                          Expanded(
-                              child: _buildBadgeCard(
-                                  'Absent', '$absent', Colors.red)),
+                          Expanded(child: _buildBadgeCard('Absent', '$absent', Colors.red)),
                           const SizedBox(width: 8),
-                          Expanded(
-                              child: _buildBadgeCard(
-                                  'Rate', '$rate%', AppColors.primary)),
+                          Expanded(child: _buildBadgeCard('Rate', '$rate%', AppColors.primary)),
                         ],
                       ),
                     ),
@@ -165,8 +131,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                     Expanded(
                       child: records.isEmpty
                           ? const Center(
-                              child: Text(
-                                  'No attendance recorded for this date/filter.'),
+                              child: Text('No attendance recorded for this date/filter.'),
                             )
                           : ListView.builder(
                               padding: const EdgeInsets.all(16.0),
@@ -179,53 +144,32 @@ class AdminAttendanceScreen extends ConsumerWidget {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   child: ListTile(
                                     leading: CircleAvatar(
-                                      backgroundColor: (isPresent
-                                              ? Colors.green
-                                              : Colors.red)
-                                          .withOpacity(0.1),
+                                      backgroundColor: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
                                       child: Icon(
                                         isPresent ? Icons.check : Icons.close,
-                                        color: isPresent
-                                            ? Colors.green
-                                            : Colors.red,
+                                        color: isPresent ? Colors.green : Colors.red,
                                       ),
                                     ),
-                                    title: Text(r.studentName ?? 'Student',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold)),
+                                    title: Text(r.studentName ?? 'Student', style: const TextStyle(fontWeight: FontWeight.bold)),
                                     subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text('ID: ${r.studentIdCode ?? "N/A"}'),
                                         if (r.absenceReason != null)
-                                          Text(
-                                              'Reason: ${r.absenceReason!.reason}',
-                                              style: const TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 12)),
+                                          Text('Reason: ${r.absenceReason!.reason}', style: const TextStyle(color: Colors.red, fontSize: 12)),
                                       ],
                                     ),
                                     trailing: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: (isPresent
-                                                ? Colors.green
-                                                : Colors.red)
-                                            .withOpacity(0.1),
+                                        color: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                            color: isPresent
-                                                ? Colors.green
-                                                : Colors.red),
+                                        border: Border.all(color: isPresent ? Colors.green : Colors.red),
                                       ),
                                       child: Text(
                                         r.status.toUpperCase(),
                                         style: TextStyle(
-                                          color: isPresent
-                                              ? Colors.green
-                                              : Colors.red,
+                                          color: isPresent ? Colors.green : Colors.red,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 10,
                                         ),
@@ -258,13 +202,9 @@ class AdminAttendanceScreen extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          Text(label,
-              style: TextStyle(
-                  fontSize: 10, color: color, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
         ],
       ),
     );

@@ -18,18 +18,8 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
   bool _isGenerating = false;
 
   final List<String> _months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
   @override
@@ -104,10 +94,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                       flex: 2,
                       child: DropdownButtonFormField<int>(
                         value: selectedMonth,
-                        decoration: const InputDecoration(
-                            labelText: 'Month',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8)),
+                        decoration: const InputDecoration(labelText: 'Month', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                         items: List.generate(12, (index) {
                           return DropdownMenuItem(
                             value: index + 1,
@@ -115,9 +102,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                           );
                         }),
                         onChanged: (val) {
-                          if (val != null)
-                            ref.read(selectedFeeMonthProvider.notifier).state =
-                                val;
+                          if (val != null) ref.read(selectedFeeMonthProvider.notifier).state = val;
                         },
                       ),
                     ),
@@ -126,19 +111,14 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                       flex: 1,
                       child: DropdownButtonFormField<int>(
                         value: selectedYear,
-                        decoration: const InputDecoration(
-                            labelText: 'Year',
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8)),
+                        decoration: const InputDecoration(labelText: 'Year', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                         items: const [
                           DropdownMenuItem(value: 2025, child: Text('2025')),
                           DropdownMenuItem(value: 2026, child: Text('2026')),
                           DropdownMenuItem(value: 2027, child: Text('2027')),
                         ],
                         onChanged: (val) {
-                          if (val != null)
-                            ref.read(selectedFeeYearProvider.notifier).state =
-                                val;
+                          if (val != null) ref.read(selectedFeeYearProvider.notifier).state = val;
                         },
                       ),
                     ),
@@ -158,13 +138,11 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
-                              ref.read(feeSearchQueryProvider.notifier).state =
-                                  '';
+                              ref.read(feeSearchQueryProvider.notifier).state = '';
                             },
                           )
                         : null,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onChanged: (val) {
                     ref.read(feeSearchQueryProvider.notifier).state = val;
@@ -189,16 +167,10 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                       ),
                     ),
                     ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
                       onPressed: _isGenerating ? null : _generateMonthlyFees,
                       icon: _isGenerating
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2))
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                           : const Icon(Icons.autorenew, size: 18),
                       label: const Text('Generate'),
                     ),
@@ -212,12 +184,9 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
           Expanded(
             child: feeOverviewAsync.when(
               data: (feeList) {
-                final totalExpected =
-                    feeList.fold<double>(0, (sum, f) => sum + f.expectedAmount);
-                final totalPaid =
-                    feeList.fold<double>(0, (sum, f) => sum + f.paidAmount);
-                final totalPending = feeList.fold<double>(
-                    0, (sum, f) => sum + f.remainingAmount);
+                final totalExpected = feeList.fold<double>(0, (sum, f) => sum + f.expectedAmount);
+                final totalPaid = feeList.fold<double>(0, (sum, f) => sum + f.paidAmount);
+                final totalPending = feeList.fold<double>(0, (sum, f) => sum + f.remainingAmount);
 
                 return Column(
                   children: [
@@ -226,23 +195,11 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
-                          Expanded(
-                              child: _buildSummaryCard(
-                                  'Expected',
-                                  '₹${totalExpected.toStringAsFixed(0)}',
-                                  Colors.blue)),
+                          Expanded(child: _buildSummaryCard('Expected', '₹${totalExpected.toStringAsFixed(0)}', Colors.blue)),
                           const SizedBox(width: 8),
-                          Expanded(
-                              child: _buildSummaryCard(
-                                  'Collected',
-                                  '₹${totalPaid.toStringAsFixed(0)}',
-                                  Colors.green)),
+                          Expanded(child: _buildSummaryCard('Collected', '₹${totalPaid.toStringAsFixed(0)}', Colors.green)),
                           const SizedBox(width: 8),
-                          Expanded(
-                              child: _buildSummaryCard(
-                                  'Pending',
-                                  '₹${totalPending.toStringAsFixed(0)}',
-                                  Colors.red)),
+                          Expanded(child: _buildSummaryCard('Pending', '₹${totalPending.toStringAsFixed(0)}', Colors.red)),
                         ],
                       ),
                     ),
@@ -252,12 +209,10 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     Expanded(
                       child: feeList.isEmpty
                           ? const Center(
-                              child: Text(
-                                  'No fee records for this period.\nTap "Generate" to create monthly fee records.'),
+                              child: Text('No fee records for this period.\nTap "Generate" to create monthly fee records.'),
                             )
                           : ListView.builder(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               itemCount: feeList.length,
                               itemBuilder: (context, index) {
                                 final item = feeList[index];
@@ -269,8 +224,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) =>
-                  Center(child: Text('Error loading fee overview: $err')),
+              error: (err, stack) => Center(child: Text('Error loading fee overview: $err')),
             ),
           ),
         ],
@@ -306,13 +260,9 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
       ),
       child: Column(
         children: [
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11, color: color, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+          Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
         ],
       ),
     );
@@ -344,11 +294,8 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                 CircleAvatar(
                   backgroundColor: AppColors.primary.withOpacity(0.1),
                   child: Text(
-                    item.studentName != null && item.studentName!.isNotEmpty
-                        ? item.studentName![0].toUpperCase()
-                        : 'S',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: AppColors.primary),
+                    item.studentName != null && item.studentName!.isNotEmpty ? item.studentName![0].toUpperCase() : 'S',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -358,20 +305,17 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     children: [
                       Text(
                         item.studentName ?? 'Student',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       Text(
                         '${item.studentIdCode ?? "STU0000"} • ${item.board ?? ""} Standard ${item.standard ?? ""}',
-                        style: TextStyle(
-                            color: Colors.grey.shade600, fontSize: 12),
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -379,34 +323,22 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                   ),
                   child: Text(
                     item.status.replaceAll('_', ' ').toUpperCase(),
-                    style: TextStyle(
-                        color: statusColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold),
+                    style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
             const Divider(),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Expected: ₹${item.expectedAmount.toStringAsFixed(0)}',
-                        style: const TextStyle(fontSize: 12)),
-                    Text('Paid: ₹${item.paidAmount.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.green,
-                            fontWeight: FontWeight.w600)),
-                    Text(
-                        'Remaining: ₹${item.remainingAmount.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.red,
-                            fontWeight: FontWeight.w600)),
+                    Text('Expected: ₹${item.expectedAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12)),
+                    Text('Paid: ₹${item.paidAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.w600)),
+                    Text('Remaining: ₹${item.remainingAmount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 if (item.status != 'paid')
@@ -422,8 +354,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                         context: context,
                         isScrollControlled: true,
                         shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(16)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                         ),
                         builder: (ctx) => AddPaymentSheet(monthlyFee: item),
                       );
