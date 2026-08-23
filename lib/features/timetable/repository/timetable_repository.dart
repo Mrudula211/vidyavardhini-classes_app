@@ -2,7 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/timetable_model.dart';
 
 class TimetableRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
+
+  TimetableRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   Future<void> createTimetableSlot({
     required String board,
@@ -20,8 +23,11 @@ class TimetableRepository {
         .eq('is_current', true)
         .maybeSingle();
 
-    final academicYearId = currentYearRes != null ? currentYearRes['id'] as String? : null;
-    if (academicYearId == null) throw Exception('No active academic year found');
+    final academicYearId =
+        currentYearRes != null ? currentYearRes['id'] as String? : null;
+    if (academicYearId == null) {
+      throw Exception('No active academic year found');
+    }
 
     await _client.from('timetable_slots').insert({
       'academic_year_id': academicYearId,
