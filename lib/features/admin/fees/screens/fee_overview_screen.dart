@@ -19,7 +19,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
 
   final List<String> _months = [
     'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
   @override
@@ -46,7 +46,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
           SnackBar(
             content: Text(count > 0
                 ? 'Generated $count fee records for ${_months[month - 1]} $year!'
-                : 'Fee records already exist for active students.'),
+                : 'Fee records already exist for active students.',),
             backgroundColor: count > 0 ? Colors.green : Colors.blue,
           ),
         );
@@ -93,7 +93,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     Expanded(
                       flex: 2,
                       child: DropdownButtonFormField<int>(
-                        value: selectedMonth,
+                        initialValue: selectedMonth,
                         decoration: const InputDecoration(labelText: 'Month', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                         items: List.generate(12, (index) {
                           return DropdownMenuItem(
@@ -110,7 +110,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     Expanded(
                       flex: 1,
                       child: DropdownButtonFormField<int>(
-                        value: selectedYear,
+                        initialValue: selectedYear,
                         decoration: const InputDecoration(labelText: 'Year', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                         items: const [
                           DropdownMenuItem(value: 2025, child: Text('2025')),

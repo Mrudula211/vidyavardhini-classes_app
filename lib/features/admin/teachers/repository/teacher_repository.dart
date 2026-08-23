@@ -80,7 +80,7 @@ class TeacherRepository {
         'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
         'p_monthly_salary': monthlySalary,
         'p_access_code': accessCode.trim(),
-      });
+      },);
 
       if (response is Map<String, dynamic> && response.isNotEmpty) {
         result = response;
@@ -170,7 +170,7 @@ class TeacherRepository {
       'board': a['board'],
       'standard': a['standard'],
       'subject': a['subject'],
-    }).toList();
+    },).toList();
 
     await _client.from('teacher_assignments').insert(rows);
   }

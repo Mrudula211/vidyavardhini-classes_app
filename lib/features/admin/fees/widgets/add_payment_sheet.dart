@@ -172,7 +172,7 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
               const SizedBox(height: 12),
 
               DropdownButtonFormField<String>(
-                value: _paymentMethod,
+                initialValue: _paymentMethod,
                 decoration: const InputDecoration(
                   labelText: 'Payment Method',
                   prefixIcon: Icon(Icons.payment),

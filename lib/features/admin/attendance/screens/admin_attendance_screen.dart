@@ -59,7 +59,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: selectedBoard,
+                        initialValue: selectedBoard,
                         decoration: const InputDecoration(labelText: 'Board'),
                         items: const [
                           DropdownMenuItem(value: 'all', child: Text('All Boards')),
@@ -74,7 +74,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: selectedStandard,
+                        initialValue: selectedStandard,
                         decoration: const InputDecoration(labelText: 'Standard'),
                         items: const [
                           DropdownMenuItem(value: 'all', child: Text('All Standards')),

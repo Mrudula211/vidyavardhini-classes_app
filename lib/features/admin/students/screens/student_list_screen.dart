@@ -124,7 +124,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: selectedBoard,
+                        initialValue: selectedBoard,
                         decoration: const InputDecoration(
                           labelText: 'Board',
                           contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -144,7 +144,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: selectedStandard,
+                        initialValue: selectedStandard,
                         decoration: const InputDecoration(
                           labelText: 'Standard',
                           contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),

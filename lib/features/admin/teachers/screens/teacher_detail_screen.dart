@@ -105,7 +105,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             DropdownButtonFormField<String>(
-              value: selectedBoard,
+              initialValue: selectedBoard,
               decoration: const InputDecoration(labelText: 'Board'),
               items: const [
                 DropdownMenuItem(value: 'SSC', child: Text('SSC')),
@@ -117,7 +117,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: selectedStandard,
+              initialValue: selectedStandard,
               decoration: const InputDecoration(labelText: 'Standard'),
               items: const [
                 DropdownMenuItem(value: '1st', child: Text('1st Std')),
@@ -331,7 +331,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                       ),
                       Switch(
                         value: teacher.isActive,
-                        activeColor: Colors.green,
+                        activeThumbColor: Colors.green,
                         onChanged: (val) => _toggleStatus(teacher.isActive),
                       ),
                       Text(
@@ -435,7 +435,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                     'board': a.board,
                     'standard': a.standard,
                     'subject': a.subject,
-                  })
+                  },)
               .toList();
         }
 

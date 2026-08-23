@@ -90,14 +90,14 @@ class StudentRepository {
         'academic_year_id': academicYearId,
         'monthly_fee': monthlyFee,
         'updated_at': now,
-      }, onConflict: 'student_id,academic_year_id');
+      }, onConflict: 'student_id,academic_year_id',);
 
       await _client.from('student_enrollments').upsert({
         'student_id': studentId,
         'academic_year_id': academicYearId,
         'board': student.board,
         'standard': student.standard,
-      }, onConflict: 'student_id,academic_year_id');
+      }, onConflict: 'student_id,academic_year_id',);
     }
   }
 
