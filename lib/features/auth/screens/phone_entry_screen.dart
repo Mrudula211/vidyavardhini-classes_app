@@ -19,8 +19,13 @@ class PhoneEntryScreen extends ConsumerStatefulWidget {
 
 class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
   final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
   bool _isLoading = false;
+  bool _useEmailLogin = true;
+  bool _passwordVisible = false;
   String _role = 'student';
 
   @override
@@ -33,6 +38,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
   @override
   void dispose() {
     _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -47,18 +54,59 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
     }
   }
 
-  Future<void> _sendOtp() async {
+  Future<void> _handleAuth() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
+
     try {
-      final phone = '+91${_phoneController.text.trim()}';
-      await ref.read(authRepositoryProvider).sendOtp(phone);
-      if (!mounted) return;
-      context.go(Routes.otp, extra: {'phone': phone, 'role': _role});
+      if (_useEmailLogin) {
+        final email = _emailController.text.trim();
+        final password = _passwordController.text.trim();
+
+        final session = await ref
+            .read(authRepositoryProvider)
+            .signInWithEmailAndPassword(email, password);
+
+        if (session == null) {
+          throw Exception('Check email & password.');
+        }
+
+        if (!mounted) return;
+
+        // Fetch user's role from DB
+        final userRole = await ref
+            .read(authRepositoryProvider)
+            .fetchUserRole(session.user.id);
+
+        if (userRole == 'admin') {
+          context.go(Routes.adminDashboard);
+        } else if (userRole == 'teacher') {
+          context.go(Routes.teacherDashboard);
+        } else {
+          context.go(Routes.studentDashboard);
+        }
+      } else {
+        final phone = '+91${_phoneController.text.trim()}';
+        await ref.read(authRepositoryProvider).sendOtp(phone);
+        if (!mounted) return;
+        context.go(Routes.otp, extra: {'phone': phone, 'role': _role});
+      }
     } catch (e) {
       if (!mounted) return;
+      String errorMsg = 'Invalid email or password.';
+      final rawStr = e.toString();
+      if (rawStr.contains('Database error querying schema') || rawStr.contains('500')) {
+        errorMsg = 'Account not registered for Student login. If you are Admin, please use Admin Login.';
+      } else if (rawStr.contains('Invalid login credentials')) {
+        errorMsg = 'Incorrect email or password. Please try again.';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: AppColors.maroon,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -68,6 +116,15 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Go back',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(Routes.roleSelect),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -76,9 +133,9 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 const AppLogoHeader(),
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
 
                 Text(
                   '$_roleLabel Login',
@@ -90,73 +147,162 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter your registered mobile number',
+                  _useEmailLogin
+                      ? 'Sign in with registered Email & Password'
+                      : 'Enter your registered mobile number for OTP',
                   style: AppTypography.poppins(
                     fontSize: 14,
                     color: AppColors.brown,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
-                // Phone field
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'Mobile Number',
-                    hintText: '9876543210',
-                    prefixIcon: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 14,
-                      ),
-                      child: Text(
-                        '+91',
-                        style: AppTypography.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.brown,
-                        ),
+                // Method Selector Toggle (Email / Mobile)
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Center(child: Text('Email & Password')),
+                        selected: _useEmailLogin,
+                        onSelected: (val) {
+                          if (val) setState(() => _useEmailLogin = true);
+                        },
                       ),
                     ),
-                    prefixIconConstraints:
-                        const BoxConstraints(minWidth: 0, minHeight: 0),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your mobile number';
-                    }
-                    if (value.trim().length != 10) {
-                      return 'Enter a valid 10-digit mobile number';
-                    }
-                    return null;
-                  },
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: const Center(child: Text('Mobile OTP')),
+                        selected: !_useEmailLogin,
+                        onSelected: (val) {
+                          if (val) setState(() => _useEmailLogin = false);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 24),
+
+                if (_useEmailLogin) ...[
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Email Address',
+                      hintText: 'student@gmail.com',
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Enter your email address';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: !_passwordVisible,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: const Icon(Icons.lock_outline_rounded),
+                      suffixIcon: IconButton(
+                        tooltip: _passwordVisible ? 'Hide password' : 'Show password',
+                        icon: Icon(
+                          _passwordVisible
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
+                        ),
+                        onPressed: () =>
+                            setState(() => _passwordVisible = !_passwordVisible),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enter your password';
+                      }
+                      return null;
+                    },
+                  ),
+                ] else ...[
+                  // Phone Field
+                  TextFormField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Mobile Number',
+                      hintText: '9876543210',
+                      prefixIcon: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 14,
+                        ),
+                        child: Text(
+                          '+91',
+                          style: AppTypography.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.brown,
+                          ),
+                        ),
+                      ),
+                      prefixIconConstraints:
+                          const BoxConstraints(minWidth: 0, minHeight: 0),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter your mobile number';
+                      }
+                      if (value.trim().length != 10) {
+                        return 'Enter a valid 10-digit mobile number';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+
                 const SizedBox(height: 32),
 
                 PrimaryButton(
-                  label: 'Send OTP',
+                  label: _useEmailLogin ? 'Login' : 'Send OTP',
                   isLoading: _isLoading,
-                  onPressed: _sendOtp,
+                  onPressed: _handleAuth,
                 ),
                 const SizedBox(height: 16),
 
-                Center(
-                  child: TextButton(
-                    onPressed: () => context.go(Routes.roleSelect),
-                    child: Text(
-                      'Change Role',
-                      style: AppTypography.poppins(
-                        fontSize: 14,
-                        color: AppColors.maroon,
-                        fontWeight: FontWeight.w500,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => context.go(Routes.adminLogin),
+                      child: Text(
+                        'Admin Login',
+                        style: AppTypography.poppins(
+                          fontSize: 13,
+                          color: AppColors.maroon,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
+                    TextButton(
+                      onPressed: () => context.go(Routes.roleSelect),
+                      child: Text(
+                        'Change Role',
+                        style: AppTypography.poppins(
+                          fontSize: 13,
+                          color: AppColors.brown,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

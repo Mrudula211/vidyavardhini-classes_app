@@ -14,6 +14,12 @@ class AppColors {
   static const Color brown = Color(0xFF4A2C1A);
   static const Color brownLight = Color(0xFF6B3F25);
 
+  // Primary & secondary aliases
+  static const Color primary = maroon;
+  static const Color primaryVariant = maroonDark;
+  static const Color secondary = gold;
+  static const Color secondaryVariant = goldDark;
+
   // Light mode
   static const Color lightBackground = parchment;
   static const Color lightSurface = Color(0xFFFDF8F0);

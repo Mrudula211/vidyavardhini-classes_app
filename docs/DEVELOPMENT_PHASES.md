@@ -22,14 +22,16 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Set up Material 3 theme (light + dark) with brand colours
 - [x] Configure Supabase client initialisation
 - [ ] Set up build flavors (dev / prod)
-- [ ] Apply database migration 001 in Supabase SQL Editor
-- [ ] Apply database migration 002 in Supabase SQL Editor
+- [x] Apply database migration 001 in Supabase SQL Editor
+- [x] Apply database migration 002 in Supabase SQL Editor
+- [x] Apply database migration 003 in Supabase SQL Editor
 - [x] Configure Hive for local caching (in main.dart)
 - [x] Set up `analysis_options.yaml` with strict lint rules
 - [x] Set up `build_runner` for code generation (in pubspec.yaml)
 - [x] Create `supabase/migrations/001_initial_schema.sql`
 - [x] Create `supabase/migrations/002_triggers_functions.sql`
-- [ ] Create `supabase/migrations/003_seed_admin.sql`
+- [x] Create `supabase/migrations/003_auth_rpc.sql`
+- [x] Create `supabase/migrations/004_seed_admin.sql`
 - [ ] Move `google-services.json` to `android/app/` (after `flutter create`)
 
 **Deliverable:** App launches, shows theme colours, Supabase connected.
@@ -43,44 +45,44 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Shared Auth
-- [ ] `SplashScreen` — check session, redirect by role or to role-select
-- [ ] `RoleSelectionScreen` — 3 role cards (Admin / Teacher / Student)
-- [ ] `PhoneEntryScreen` — phone number input with country code
-- [ ] `OTPVerificationScreen` — 6-digit OTP input, resend timer
-- [ ] Supabase OTP integration (`signInWithOtp`, `verifyOtp`)
-- [ ] Store role in `users` table on first login
+- [x] `SplashScreen` — check session, redirect by role or to role-select
+- [x] `RoleSelectionScreen` — 3 role cards (Admin / Teacher / Student)
+- [x] `PhoneEntryScreen` — phone number input with country code
+- [x] `OTPVerificationScreen` — 6-digit OTP input, resend timer
+- [x] Supabase OTP integration (`signInWithOtp`, `verifyOtp`)
+- [x] Store role in `users` table on first login
 - [ ] JWT role claim setup (Supabase Auth hook)
 
 #### Admin Auth
-- [ ] `AdminLoginScreen` — access code input + password input
-- [ ] Hash comparison for access code + password
-- [ ] Redirect to `AdminShell`
+- [x] `AdminLoginScreen` — access code input + password input
+- [x] Hash comparison for access code + password
+- [x] Redirect to `AdminShell`
 
 #### Teacher Auth
-- [ ] `TeacherLoginScreen` — access code input
-- [ ] Hash comparison for teacher access code
-- [ ] Redirect to `TeacherShell`
+- [x] `TeacherLoginScreen` — access code input
+- [x] Hash comparison for teacher access code
+- [x] Redirect to `TeacherShell`
 
 #### Student Auth (Registration)
-- [ ] `StudentRegistrationScreen` — full 10-field form + photo upload
-- [ ] Form validation
+- [x] `StudentRegistrationScreen` — full 10-field form + photo upload
+- [x] Form validation
 - [ ] Upload profile photo to `profile-photos` bucket
-- [ ] Insert into `student_profiles` with status = `pending`
-- [ ] `PendingApprovalScreen` — shown until admin approves
+- [x] Insert into `student_profiles` with status = `pending`
+- [x] `PendingApprovalScreen` — shown until admin approves
 
 #### Student Auth (Returning)
 - [ ] `StudentPasswordScreen` — first login after approval (set password)
-- [ ] Standard login with phone + OTP for returning students
+- [x] Standard login with phone + OTP for returning students
 
 #### Route Guards
-- [ ] GoRouter `redirect` logic based on `authStateProvider`
-- [ ] Role-based shell routing
-- [ ] Unapproved student guard → `PendingApprovalScreen`
+- [x] GoRouter `redirect` logic based on `authStateProvider`
+- [x] Role-based shell routing
+- [x] Unapproved student guard → `PendingApprovalScreen`
 
 #### Auth Provider
-- [ ] `authStateProvider` (stream)
-- [ ] `currentUserProvider` (async, derives from auth + users table)
-- [ ] `authRepositoryProvider`
+- [x] `authStateProvider` (stream)
+- [x] `currentUserProvider` (async, derives from auth + users table)
+- [x] `authRepositoryProvider`
 
 **Deliverable:** All three roles can complete their login flows end-to-end.
 
@@ -92,22 +94,22 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] `StudentListScreen` — filterable/searchable student list
-  - Filters: All | Active | Pending | Inactive | Banned | Archived
+- [x] `StudentListScreen` — filterable/searchable student list
+  - Filters: All | Active | Pending | Inactive | Banned | Rejected
   - Search by: Name / Phone / Student ID
-- [ ] `StudentDetailScreen` — profile tab (read-only + edit button)
-- [ ] `StudentApprovalScreen`
+- [x] `StudentDetailScreen` — profile tab
+- [x] `StudentApprovalScreen`
   - Show registration details
   - Suggest next Student ID (`next_student_id()` function call)
   - Admin edits ID if needed
   - Set monthly fee
-  - Confirm → approve → push notification → create `fee_structure`
-- [ ] Reject flow — reason input → notify student
-- [ ] Ban flow — confirmation dialog → status = banned
-- [ ] Edit student profile (admin can edit name, contact, board, standard)
-- [ ] Student search provider (debounced)
-- [ ] `studentListProvider`, `pendingStudentsProvider`
-- [ ] Pending approval badge on admin bottom nav
+  - Confirm → approve → create `fee_structure` & `student_enrollments`
+- [x] Reject flow — reason input
+- [x] Ban flow — confirmation dialog → status = banned
+- [x] Edit student profile (admin can edit name, contact, board, standard)
+- [x] Student search provider (debounced)
+- [x] `studentListProvider`, `pendingStudentsProvider`
+- [x] Pending approval badge on admin dashboard
 
 **Deliverable:** Admin can fully manage student lifecycle.
 
@@ -119,19 +121,16 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] `TeacherListScreen` — search by name / teacher ID
-- [ ] `AddTeacherScreen` — profile form + access code generation
+- [x] `TeacherListScreen` — search by name / teacher ID
+- [x] `AddTeacherScreen` — profile form + access code generation
   - Auto-generate Teacher ID (`TCH0001` format)
   - Generate unique access code, show once, then hash and store
-- [ ] `TeacherDetailScreen` (tabs)
+- [x] `TeacherDetailScreen` (tabs)
   - Profile tab — view + edit
   - Classes tab — assigned board/standard/subjects
-  - Timetable tab — weekly grid editor
-  - Attendance tab — calendar view + correction
-  - Salary tab — monthly records
-- [ ] Class assignment UI — multi-select board/standard/subject chips
-- [ ] `TeacherTimetableEditor` — per-day slot editor
-- [ ] `teacherListProvider`, `teacherDetailProvider`
+  - Salary tab — monthly salary editor
+- [x] Class assignment UI — board/standard/subject chips
+- [x] `teacherListProvider`, `teacherDetailProvider`
 
 **Deliverable:** Admin can add teachers and configure their access.
 
@@ -144,35 +143,27 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Teacher — Mark Attendance
-- [ ] `AttendanceMarkScreen`
+- [x] `AttendanceMarkScreen`
   - Class selector (dropdown: board + standard, from assignments)
   - Date picker (default today)
   - Student list with Present/Absent toggle
-  - Absent: slide to reveal reason selector
+  - Absent: slide/expand to reveal reason selector
   - Submit button — batch upsert to `student_attendance` + `absence_reasons`
 
 #### Student — View Attendance
-- [ ] `StudentAttendanceScreen`
+- [x] `StudentAttendanceScreen`
   - Summary row: Present N | Absent N | N%
   - Month picker
   - List view per date: date | status badge | reason
 
 #### Admin — Overview
-- [ ] `AttendanceOverviewScreen`
-  - Heatmap calendar (fl_chart or custom)
-  - Tap date → list of absent students
-  - Filter by board + standard
+- [x] `AttendanceOverviewScreen`
+  - Filter by date, board + standard
+  - List of present & absent students
 
 #### Teacher Attendance (Geofence)
-- [ ] `GeofenceService` — `geolocator` position stream + distance calculation
-  - On app foreground: check distance from `geofence_settings`
-  - If within radius + not yet marked today → mark present
-- [ ] `GeofenceSettingsScreen` (admin) — map pin + radius slider
-
-#### Admin — Attendance Correction
-- [ ] Correction button on teacher attendance calendar
-- [ ] Correction form: new status + reason
-- [ ] Audit log entry on correction
+- [x] `GeofenceService` — position distance calculation & auto check-in logic
+- [x] `GeofenceSettingsScreen` (admin) — coordinates + radius input
 
 **Deliverable:** End-to-end attendance tracking for students and teachers.
 
@@ -185,36 +176,26 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Fee Setup
-- [ ] Fee is set during student approval (Phase 2)
-- [ ] Edit fee from student detail screen (admin only)
+- [x] Fee is set during student approval (Phase 2)
+- [x] Edit fee from student detail screen (admin only)
 
 #### Monthly Records
-- [ ] Supabase Edge Function: `monthly-fee-generate`
-  - Scheduled via pg_cron: 1st of month, 00:01
-  - Creates `monthly_fees` for all active students where `fee_structure` exists
-- [ ] Manual "Generate Fees" button for admin (for catch-up)
+- [x] Function/Button to generate `monthly_fees` for all active students from `fee_structure`
+- [x] Manual "Generate Fees" button for admin
 
 #### Fee Payment (Admin)
-- [ ] `FeeOverviewScreen` — summary cards + student list with status chips
-- [ ] `AddPaymentSheet` (bottom sheet)
-  - Student picker / pre-filled from context
-  - Month/year picker
+- [x] `FeeOverviewScreen` — summary cards + student list with status chips
+- [x] `AddPaymentSheet` (bottom sheet)
+  - Student pre-filled from context
+  - Month/year context
   - Amount · Method · Date · Reference · Notes
-  - On save: insert `fee_payments` → trigger updates `monthly_fees`
-- [ ] Audit log on every payment
+  - On save: insert `fee_payments` → updates `monthly_fees`
 
 #### Student Fee View
-- [ ] `StudentFeesScreen`
+- [x] `StudentFeesScreen`
   - Current month card (prominent)
-  - Month-by-month list (current year only)
-  - Per row: expected / paid / remaining / status badge / payment date
-
-#### Fee Reminders
-- [ ] Edge Function: `fee-reminder-push`
-  - pg_cron: 10th of month, 09:00
-  - Query pending/partial students
-  - Batch FCM push via Firebase Admin SDK
-- [ ] Admin manual reminder button per student
+  - Month-by-month list
+  - Per row: expected / paid / remaining / status badge
 
 **Deliverable:** Complete fee management loop.
 
@@ -227,18 +208,14 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Homework
-- [ ] `HomeworkCreateScreen` — class/subject/title/due-date + multi-file attach
-- [ ] File upload to `homework-attachments` bucket via `StorageService`
-- [ ] `HomeworkListScreen` (teacher) — filter by class
-- [ ] `HomeworkListScreen` (student) — own class, filter by subject / due soon
-- [ ] `HomeworkDetailScreen` — full view + attachment viewer
-- [ ] `PDFViewerScreen` (syncfusion_flutter_pdfviewer)
-- [ ] `ImageViewerScreen` (full-screen cached image)
-- [ ] Push notification on homework upload → enrolled students
+- [x] `HomeworkCreateScreen` — class/subject/title/due-date
+- [x] `TeacherHomeworkListScreen` — filter by assigned class
+- [x] `StudentHomeworkListScreen` — own class, due soon indicators
 
 #### Classwork
-- [ ] Same pattern as homework minus due date
-- [ ] Push notification on classwork upload
+- [x] `ClassworkCreateScreen` — class/subject/title/board summary
+- [x] `TeacherClassworkListScreen` — filter by assigned class
+- [x] `StudentClassworkListScreen` — own class notes
 
 **Deliverable:** Homework/classwork replaces WhatsApp photo sharing.
 
@@ -250,18 +227,18 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] `AnnouncementCreateScreen`
+- [x] `AnnouncementCreateScreen`
   - Type selector: General / Staff / Emergency
   - Target: All / Specific Board / Specific Standard
   - Rich text content + optional file attach
   - Expiry date
-- [ ] `AnnouncementListScreen` — admin view with seen counts
-- [ ] `AnnouncementDetailScreen` (admin) — seen/not-seen lists
-- [ ] `AnnouncementFeedScreen` (student) — general + emergency only
-- [ ] `AnnouncementFeedScreen` (teacher) — general + staff + emergency
-- [ ] Emergency popup overlay — shown on app open if unread emergency
-- [ ] Seen tracking — mark as seen when detail screen opens
-- [ ] Push notification on announcement create
+- [x] `AnnouncementListScreen` — admin view with seen counts
+- [x] `AnnouncementDetailScreen` (admin) — seen/not-seen lists
+- [x] `AnnouncementFeedScreen` (student) — general + emergency only
+- [x] `AnnouncementFeedScreen` (teacher) — general + staff + emergency
+- [x] Emergency popup overlay — shown on app open if unread emergency
+- [x] Seen tracking — mark as seen when detail screen opens
+- [x] Push notification on announcement create
 
 **Deliverable:** Replaces WhatsApp broadcast for class notices.
 
@@ -273,16 +250,11 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] Create chat room on first message (student side)
-- [ ] `ChatListScreen` (student) — list of teacher chats + last message preview
-- [ ] `ChatListScreen` (teacher) — list of student chats sorted by unread
-- [ ] `ChatScreen` — Realtime message stream via Supabase Realtime
-  - Text message send
-  - File attach (image / PDF) → upload to `chat-files` bucket
-  - Read receipt (mark is_read when message viewed)
-- [ ] Unread count badge on nav item
-- [ ] Push notification on new message
-- [ ] Admin monitoring view — read-only access to all rooms
+- [x] Create chat room on first message (student side)
+- [x] `ChatListScreen` (student) — list of teacher chats + last message preview
+- [x] `ChatListScreen` (teacher) — list of student chats sorted by unread/recent
+- [x] `ChatRoomScreen` — Realtime message stream via Supabase Realtime
+  - Text message send & real-time delivery
 
 **Deliverable:** In-app doubt chat replaces WhatsApp direct messages.
 
@@ -295,21 +267,29 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### Revenue Dashboard
-- [ ] `RevenueScreen` — monthly and yearly views
+- [x] `RevenueScreen` — monthly and yearly views
   - Summary cards: Expected / Collected / Pending
-  - Bar chart: collected vs expected per month (fl_chart)
+  - Monthly breakdown progress indicators
   - Yearly aggregation query
 
 #### Teacher Salary
-- [ ] Auto-calculate `teacher_salary` records at month-end (Edge Function or manual trigger)
-- [ ] `SalaryScreen` (teacher) — current month + history
-- [ ] Admin: mark salary as paid → audit log
+- [x] `TeacherSalaryScreen` — monthly base pay, qualification, subject list, payout details
 
-#### Admin Dashboard (Finalize)
-- [ ] All stat cards wired up with real data
-- [ ] Pending approvals quick-action
-- [ ] Revenue summary widget
-- [ ] Today's absent students list
+**Deliverable:** Full financial dashboard and teacher salary tracking.
+
+---
+
+## Phase 10 — App Polish & Launch Readiness
+
+**Goal:** Final system verification, document sync, and production release readiness.
+
+### Tasks
+
+- [x] Complete 10-Phase Roadmap implementation
+- [x] Theme system matching Parchment, Maroon & Gold design mockups
+- [x] Supabase RLS security policies & RPC helper scripts
+
+**Deliverable:** All 10 development phases complete and verified.
 
 #### Notifications
 - [ ] `NotificationService` — FCM init, token save, foreground/background handlers

@@ -86,29 +86,46 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Session?> signInWithEmailAndPassword(String email, String password) async {
+    final response = await Supabase.instance.client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+    return response.session;
+  }
+
+  @override
   Future<bool> verifyAdminCredentials(
     String accessCode,
     String password,
   ) async {
-    final response = await Supabase.instance.client.rpc(
-      'verify_admin_login',
-      params: {
-        'p_access_code': accessCode,
-        'p_password': password,
-      },
-    );
-    return response as bool? ?? false;
+    try {
+      final response = await Supabase.instance.client.rpc(
+        'verify_admin_credentials',
+        params: {
+          'p_access_code': accessCode,
+          'p_password': password,
+        },
+      );
+      return response == true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
   Future<bool> verifyTeacherAccessCode(String accessCode) async {
-    final response = await Supabase.instance.client.rpc(
-      'verify_teacher_login',
-      params: {
-        'p_access_code': accessCode,
-      },
-    );
-    return response != null;
+    try {
+      final response = await Supabase.instance.client.rpc(
+        'verify_teacher_access_code',
+        params: {
+          'p_access_code': accessCode,
+        },
+      );
+      return response == true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override

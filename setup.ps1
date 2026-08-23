@@ -10,6 +10,12 @@ Write-Host "==================================="
 Write-Host "Vidyavardhini Classes App Setup"
 Write-Host "==================================="
 
+if (Test-Path ".env") {
+	Write-Host "`nFound .env with client-safe Supabase values."
+} else {
+	Write-Host "`nNo .env file found. Create one from .env.example with SUPABASE_URL and SUPABASE_ANON_KEY."
+}
+
 Write-Host "`nInstalling Flutter packages..."
 flutter pub get
 
@@ -26,6 +32,8 @@ Write-Host "`nSetup completed successfully."
 
 Write-Host ""
 Write-Host "Next Steps:"
-Write-Host "1. Configure Supabase credentials (if not already configured)."
-Write-Host "2. Configure Firebase (if the project uses Firebase)."
-Write-Host "3. Run: flutter run"
+Write-Host "1. Keep the Supabase service-role key only in server-side secrets or Edge Functions."
+Write-Host "2. Make sure android/app/google-services.json exists for Android Firebase."
+Write-Host "3. Add ios/Runner/GoogleService-Info.plist if you are building for iOS."
+Write-Host "4. On Windows, enable Developer Mode so Flutter can create plugin symlinks."
+Write-Host "5. Run: flutter run --dart-define-from-file=.env"

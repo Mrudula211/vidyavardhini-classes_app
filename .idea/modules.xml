@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/vidyavardhini_classes.iml" filepath="$PROJECT_DIR$/vidyavardhini_classes.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android/vidyavardhini_classes_android.iml" filepath="$PROJECT_DIR$/android/vidyavardhini_classes_android.iml" />
-    </modules>
-  </component>
-</project>

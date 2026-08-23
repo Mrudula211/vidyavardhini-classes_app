@@ -35,12 +35,12 @@ dependencies:
   fl_chart: ^0.68.0
 
   # File handling
-  file_picker: ^8.0.7
+  file_picker: ^12.0.0-beta.7
   image_picker: ^1.1.2
   cached_network_image: ^3.3.1
 
   # PDF
-  syncfusion_flutter_pdfviewer: ^26.2.14
+  syncfusion_flutter_pdfviewer: ^34.1.31
 
   # Location / Geofence
   geolocator: ^12.0.0
@@ -55,13 +55,12 @@ dependencies:
   url_launcher: ^6.3.0
   path_provider: ^2.1.4
   connectivity_plus: ^6.0.3
-  package_info_plus: ^8.0.2
+  package_info_plus: ^10.2.1
   flutter_svg: ^2.0.10+1
   dotted_border: ^2.1.0
 
   # Fonts
   google_fonts: ^6.2.1
-  bcrypt: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -71,17 +70,20 @@ dev_dependencies:
   build_runner: ^2.4.11
   freezed: ^2.5.7
   json_serializable: ^6.8.0
+  mocktail: ^1.0.5
 flutter:
   uses-material-design: true
 
   assets:
     - images/
     - images/logo.png
+    - assets/fonts/Cinzel-Regular.ttf
+    - assets/fonts/Cinzel-Bold.ttf
 
   fonts:
     - family: Cinzel
       fonts:
-        - asset: fonts/Cinzel-Regular.ttf
+        - asset: assets/fonts/Cinzel-Regular.ttf
           weight: 400
-        - asset: fonts/Cinzel-Bold.ttf
+        - asset: assets/fonts/Cinzel-Bold.ttf
           weight: 700

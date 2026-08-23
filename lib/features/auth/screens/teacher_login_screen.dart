@@ -38,6 +38,7 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
       if (!isValid) {
         throw Exception('Invalid access code');
       }
+      ref.read(teacherAuthenticatedProvider.notifier).state = true;
       if (!mounted) return;
       context.go(Routes.teacherDashboard);
     } catch (e) {

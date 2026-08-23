@@ -49,6 +49,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           .eq('id', userId)
           .maybeSingle();
 
+      if (!mounted) return;
+
       if (response is Map<String, dynamic>) {
         final role = response['role'] as String?;
         switch (role) {
@@ -64,6 +66,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 .select('status')
                 .eq('id', userId)
                 .maybeSingle();
+
+            if (!mounted) return;
+
             if (statusResponse is Map<String, dynamic>) {
               final status = statusResponse['status'] as String?;
               if (status == 'pending') {
