@@ -95,8 +95,10 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
       if (!mounted) return;
       String errorMsg = 'Invalid email or password.';
       final rawStr = e.toString();
-      if (rawStr.contains('Database error querying schema') || rawStr.contains('500')) {
-        errorMsg = 'Account not registered for Student login. If you are Admin, please use Admin Login.';
+      if (rawStr.contains('Database error querying schema') ||
+          rawStr.contains('500')) {
+        errorMsg =
+            'Account not registered for Student login. If you are Admin, please use Admin Login.';
       } else if (rawStr.contains('Invalid login credentials')) {
         errorMsg = 'Incorrect email or password. Please try again.';
       }
@@ -118,8 +120,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Back to Role Selection',
           icon: const Icon(Icons.arrow_back),
-          tooltip: 'Back',
           onPressed: () => context.go(Routes.roleSelect),
         ),
         backgroundColor: Colors.transparent,
@@ -210,14 +212,16 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                       labelText: 'Password',
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: IconButton(
+                        tooltip: _passwordVisible
+                            ? 'Hide Password'
+                            : 'Show Password',
                         icon: Icon(
                           _passwordVisible
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
                         ),
-                        tooltip: 'Toggle Password Visibility',
-                        onPressed: () =>
-                            setState(() => _passwordVisible = !_passwordVisible),
+                        onPressed: () => setState(
+                            () => _passwordVisible = !_passwordVisible),
                       ),
                     ),
                     validator: (value) {

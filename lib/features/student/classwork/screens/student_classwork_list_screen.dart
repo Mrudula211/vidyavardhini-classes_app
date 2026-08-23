@@ -26,8 +26,8 @@ class StudentClassworkListScreen extends ConsumerWidget {
         title: const Text('Classwork & Study Notes'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
             tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(studentClassworkListProvider(user.id)),
           ),
         ],
@@ -51,14 +51,16 @@ class StudentClassworkListScreen extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -75,16 +77,19 @@ class StudentClassworkListScreen extends ConsumerWidget {
                       const SizedBox(height: 10),
                       Text(
                         cw.title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       if (cw.teacherName != null) ...[
                         const SizedBox(height: 2),
                         Text(
                           'Published by: ${cw.teacherName}',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 12),
                         ),
                       ],
-                      if (cw.description != null && cw.description!.isNotEmpty) ...[
+                      if (cw.description != null &&
+                          cw.description!.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.all(10),
@@ -106,7 +111,8 @@ class StudentClassworkListScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading classwork: $err')),
+        error: (err, stack) =>
+            Center(child: Text('Error loading classwork: $err')),
       ),
     );
   }

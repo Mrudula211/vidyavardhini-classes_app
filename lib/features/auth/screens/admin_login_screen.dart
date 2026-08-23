@@ -59,7 +59,9 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
         } catch (_) {
           // Check standard admin email / code
           final lowerInput = input.toLowerCase();
-          if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
+          if ((lowerInput == 'siddhigharat81@gmail.com' ||
+                  input == '123456' ||
+                  input == '8888602496') &&
               password == 'Vidyavardhini-classes81') {
             success = true;
           }
@@ -69,11 +71,14 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
       // 3. Fallback check for exact registered Admin credentials
       if (!success) {
         final lowerInput = input.toLowerCase();
-        if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
+        if ((lowerInput == 'siddhigharat81@gmail.com' ||
+                input == '123456' ||
+                input == '8888602496') &&
             password == 'Vidyavardhini-classes81') {
           success = true;
         } else {
-          throw Exception('Invalid admin credentials. Please enter siddhigharat81@gmail.com or 123456.');
+          throw Exception(
+              'Invalid admin credentials. Please enter siddhigharat81@gmail.com or 123456.');
         }
       }
 
@@ -101,6 +106,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: 'Back to Role Selection',
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
           onPressed: () => context.go(Routes.roleSelect),
@@ -159,6 +165,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                     labelText: 'Password',
                     prefixIcon: const Icon(Icons.key_rounded),
                     suffixIcon: IconButton(
+                      tooltip: _passwordVisible ? 'Hide Password' : 'Show Password',
                       icon: Icon(
                         _passwordVisible
                             ? Icons.visibility_off_rounded
