@@ -158,6 +158,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                     labelText: 'Password',
                     prefixIcon: const Icon(Icons.key_rounded),
                     suffixIcon: IconButton(
+                      tooltip: _passwordVisible ? 'Hide password' : 'Show password',
                       icon: Icon(
                         _passwordVisible
                             ? Icons.visibility_off_rounded
