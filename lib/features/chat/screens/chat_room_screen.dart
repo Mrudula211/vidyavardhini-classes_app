@@ -80,7 +80,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           data: (room) {
             if (room == null) return const Text('Chat Room');
             final role = ref.watch(currentUserRoleProvider).value;
-            final name = role == 'student' ? room.teacherName : room.studentName;
+            final name =
+                role == 'student' ? room.teacherName : room.studentName;
             return Text(name ?? 'Doubt Clearing');
           },
           loading: () => const Text('Loading...'),
@@ -102,7 +103,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   );
                 }
 
-                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                WidgetsBinding.instance
+                    .addPostFrameCallback((_) => _scrollToBottom());
 
                 return ListView.builder(
                   controller: _scrollController,
@@ -113,20 +115,24 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     final isMe = msg.senderId == user?.id;
 
                     return Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment:
+                          isMe ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         constraints: BoxConstraints(
                           maxWidth: MediaQuery.of(context).size.width * 0.75,
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
                           color: isMe ? AppColors.primary : Colors.white,
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(12),
                             topRight: const Radius.circular(12),
-                            bottomLeft: isMe ? const Radius.circular(12) : Radius.zero,
-                            bottomRight: isMe ? Radius.zero : const Radius.circular(12),
+                            bottomLeft:
+                                isMe ? const Radius.circular(12) : Radius.zero,
+                            bottomRight:
+                                isMe ? Radius.zero : const Radius.circular(12),
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -149,7 +155,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading messages: $err')),
+              error: (err, stack) =>
+                  Center(child: Text('Error loading messages: $err')),
             ),
           ),
 
@@ -168,19 +175,25 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                     ),
                     onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton.filled(
+                  tooltip: 'Send message',
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                   ),
                   icon: _isSending
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
                       : const Icon(Icons.send),
                   onPressed: _sendMessage,
                 ),
