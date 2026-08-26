@@ -14,3 +14,7 @@
 **Learning:** This Flutter application uses custom interactive widgets like `InkWell` and `GestureDetector` for major navigation flows (e.g., dashboard and role cards). Without explicit accessibility tags, screen readers cannot properly announce these elements as buttons or provide context about their destination.
 **Action:** Always wrap the outer `Material`, `InkWell`, or `Card` widget of custom interactive elements acting as buttons in a `Semantics` widget with `button: true`, a clear `label`, and a descriptive `hint` (e.g., `hint: 'Navigate to $title'`) to ensure full accessibility.
 
+
+## 2024-05-18 - Missing Tooltips on FloatingActionButtons
+**Learning:** Found multiple instances where `FloatingActionButton.extended` widgets were missing tooltips. This prevents screen readers from announcing their purpose and removes hover context on desktop/web, hurting accessibility.
+**Action:** Always include a `tooltip` property on `FloatingActionButton` and `FloatingActionButton.extended` to ensure accessibility and clarity.

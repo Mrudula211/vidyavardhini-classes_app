@@ -98,6 +98,7 @@ class TeacherClassworkListScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        tooltip: 'Add Classwork',
         icon: const Icon(Icons.add),
         label: const Text('Add Classwork'),
         onPressed: () => context.push(Routes.teacherClassworkCreate),

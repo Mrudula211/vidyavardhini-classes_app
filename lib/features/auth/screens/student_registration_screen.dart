@@ -163,21 +163,26 @@ class _StudentRegistrationScreenState
             children: [
               // Photo picker
               Center(
-                child: GestureDetector(
-                  onTap: _pickPhoto,
-                  child: CircleAvatar(
-                    radius: 48,
-                    backgroundColor: AppColors.lightSurfaceVariant,
-                    backgroundImage: _profilePhoto != null
-                        ? FileImage(_profilePhoto!)
-                        : null,
-                    child: _profilePhoto == null
-                        ? const Icon(
-                            Icons.add_a_photo_rounded,
-                            size: 32,
-                            color: AppColors.maroon,
-                          )
-                        : null,
+                child: Semantics(
+                  button: true,
+                  label: 'Profile Photo',
+                  hint: 'Double tap to select a profile photo',
+                  child: GestureDetector(
+                    onTap: _pickPhoto,
+                    child: CircleAvatar(
+                      radius: 48,
+                      backgroundColor: AppColors.lightSurfaceVariant,
+                      backgroundImage: _profilePhoto != null
+                          ? FileImage(_profilePhoto!)
+                          : null,
+                      child: _profilePhoto == null
+                          ? const Icon(
+                              Icons.add_a_photo_rounded,
+                              size: 32,
+                              color: AppColors.maroon,
+                            )
+                          : null,
+                    ),
                   ),
                 ),
               ),
@@ -222,21 +227,26 @@ class _StudentRegistrationScreenState
               const SizedBox(height: 16),
 
               // DOB
-              GestureDetector(
-                onTap: _pickDob,
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Date of Birth',
-                      prefixIcon: const Icon(Icons.cake_rounded),
-                      hintText: _selectedDob == null
-                          ? 'Select date'
-                          : '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
-                    ),
-                    controller: TextEditingController(
-                      text: _selectedDob == null
-                          ? ''
-                          : '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
+              Semantics(
+                button: true,
+                label: 'Date of Birth Picker',
+                hint: 'Double tap to select date of birth',
+                child: GestureDetector(
+                  onTap: _pickDob,
+                  child: AbsorbPointer(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Date of Birth',
+                        prefixIcon: const Icon(Icons.cake_rounded),
+                        hintText: _selectedDob == null
+                            ? 'Select date'
+                            : '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
+                      ),
+                      controller: TextEditingController(
+                        text: _selectedDob == null
+                            ? ''
+                            : '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
+                      ),
                     ),
                   ),
                 ),
