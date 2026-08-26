@@ -112,53 +112,58 @@ class _RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.parchment.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
+    return Semantics(
+      button: true,
+      label: label,
+      hint: 'Select role: $label',
+      child: Material(
+        color: AppColors.parchment.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.gold.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: AppColors.gold, size: 26),
                 ),
-                child: Icon(icon, color: AppColors.gold, size: 26),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: AppTypography.cinzel(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.parchment,
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTypography.cinzel(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.parchment,
+                      ),
                     ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: AppTypography.poppins(
-                      fontSize: 12,
-                      color: AppColors.parchment.withValues(alpha: 0.6),
+                    Text(
+                      subtitle,
+                      style: AppTypography.poppins(
+                        fontSize: 12,
+                        color: AppColors.parchment.withValues(alpha: 0.6),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.gold),
-            ],
+                  ],
+                ),
+                const Spacer(),
+                const Icon(Icons.chevron_right_rounded, color: AppColors.gold),
+              ],
+            ),
           ),
         ),
       ),
