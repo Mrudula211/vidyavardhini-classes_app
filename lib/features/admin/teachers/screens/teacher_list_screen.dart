@@ -152,6 +152,7 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        tooltip: 'Add Teacher',
         icon: const Icon(Icons.person_add),
         label: const Text('Add Teacher'),
         onPressed: () => context.push(Routes.adminTeacherAdd),

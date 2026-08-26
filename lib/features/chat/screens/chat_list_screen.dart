@@ -107,6 +107,7 @@ class ChatListScreen extends ConsumerWidget {
           ? FloatingActionButton.extended(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
+              tooltip: 'Ask Doubt',
               icon: const Icon(Icons.question_answer),
               label: const Text('Ask Doubt'),
               onPressed: () => _showStartChatDialog(context, ref, user.id),

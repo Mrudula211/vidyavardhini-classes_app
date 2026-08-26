@@ -145,6 +145,7 @@ class AnnouncementListScreen extends ConsumerWidget {
           ? FloatingActionButton.extended(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
+              tooltip: 'New Announcement',
               icon: const Icon(Icons.add_comment),
               label: const Text('New Announcement'),
               onPressed: () => context.push(Routes.adminAnnouncementCreate),

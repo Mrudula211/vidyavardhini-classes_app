@@ -110,6 +110,7 @@ class TeacherHomeworkListScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        tooltip: 'Create Homework',
         icon: const Icon(Icons.add),
         label: const Text('Create Homework'),
         onPressed: () => context.push(Routes.teacherHomeworkCreate),

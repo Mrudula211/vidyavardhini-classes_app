@@ -153,6 +153,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        tooltip: 'Add Slot',
         icon: const Icon(Icons.add_alarm),
         label: const Text('Add Slot'),
         onPressed: () => _openAddSlotSheet(context, selectedBoard, selectedStandard, selectedDay),
