@@ -14,3 +14,6 @@
 **Learning:** This Flutter application uses custom interactive widgets like `InkWell` and `GestureDetector` for major navigation flows (e.g., dashboard and role cards). Without explicit accessibility tags, screen readers cannot properly announce these elements as buttons or provide context about their destination.
 **Action:** Always wrap the outer `Material`, `InkWell`, or `Card` widget of custom interactive elements acting as buttons in a `Semantics` widget with `button: true`, a clear `label`, and a descriptive `hint` (e.g., `hint: 'Navigate to $title'`) to ensure full accessibility.
 
+## 2026-08-27 - Form Pickers and FABs lack accessibility traits
+**Learning:** Custom form elements like photo and date pickers built with `GestureDetector` lack native accessibility metadata, making them completely invisible or confusing to screen readers in Flutter. Additionally, `FloatingActionButton.extended` widgets do not inherit default tooltips when `label` and `icon` are provided, which hinders hover context and screen reader narration.
+**Action:** Always wrap `GestureDetector` used for interaction in `Semantics(button: true, label: ..., hint: ...)` and explicitly define the `tooltip` property on all `FloatingActionButton.extended` widgets.
