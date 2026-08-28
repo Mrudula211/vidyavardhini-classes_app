@@ -151,6 +151,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        tooltip: 'Add new timetable slot',
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_alarm),
