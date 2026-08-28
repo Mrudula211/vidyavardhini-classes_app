@@ -143,6 +143,7 @@ class AnnouncementListScreen extends ConsumerWidget {
       ),
       floatingActionButton: role == 'admin'
           ? FloatingActionButton.extended(
+              tooltip: 'Create new announcement',
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add_comment),

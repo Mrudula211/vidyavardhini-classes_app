@@ -14,3 +14,6 @@
 **Learning:** This Flutter application uses custom interactive widgets like `InkWell` and `GestureDetector` for major navigation flows (e.g., dashboard and role cards). Without explicit accessibility tags, screen readers cannot properly announce these elements as buttons or provide context about their destination.
 **Action:** Always wrap the outer `Material`, `InkWell`, or `Card` widget of custom interactive elements acting as buttons in a `Semantics` widget with `button: true`, a clear `label`, and a descriptive `hint` (e.g., `hint: 'Navigate to $title'`) to ensure full accessibility.
 
+## 2026-08-28 - Tooltip and Semantics Additions
+**Learning:** Flutter's `FloatingActionButton.extended` and custom `GestureDetector` widgets require explicit accessibility configurations (`tooltip` and `Semantics` wrappers, respectively) to ensure proper screen reader support for key navigation and interaction flows.
+**Action:** Always verify that interactive widgets, especially custom ones or extended FABs, include appropriate accessibility properties during implementation.

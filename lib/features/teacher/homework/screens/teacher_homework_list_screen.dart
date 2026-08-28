@@ -108,6 +108,7 @@ class TeacherHomeworkListScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error loading homework: $err')),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        tooltip: 'Create new homework',
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
