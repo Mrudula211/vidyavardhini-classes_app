@@ -105,6 +105,7 @@ class ChatListScreen extends ConsumerWidget {
       ),
       floatingActionButton: role == 'student'
           ? FloatingActionButton.extended(
+              tooltip: 'Ask Doubt',
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.question_answer),
