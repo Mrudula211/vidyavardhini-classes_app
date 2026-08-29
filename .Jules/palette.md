@@ -14,3 +14,7 @@
 **Learning:** This Flutter application uses custom interactive widgets like `InkWell` and `GestureDetector` for major navigation flows (e.g., dashboard and role cards). Without explicit accessibility tags, screen readers cannot properly announce these elements as buttons or provide context about their destination.
 **Action:** Always wrap the outer `Material`, `InkWell`, or `Card` widget of custom interactive elements acting as buttons in a `Semantics` widget with `button: true`, a clear `label`, and a descriptive `hint` (e.g., `hint: 'Navigate to $title'`) to ensure full accessibility.
 
+
+## 2026-08-26 - Missing Semantic Wrappers on Form Input GestureDetectors
+**Learning:** Found custom `GestureDetector` widgets used for form inputs (like a profile photo picker and date of birth selector) that lacked semantic labeling. Screen reader users would be unable to understand the purpose of these touch targets.
+**Action:** Always wrap custom form input widgets like `GestureDetector` or `InkWell` (especially when masking another input like a disabled `TextFormField`) in a `Semantics` widget with `button: true` and a clear, descriptive `label` (e.g., `label: 'Select date of birth'`).
