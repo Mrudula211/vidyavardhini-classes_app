@@ -96,6 +96,7 @@ class TeacherClassworkListScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error loading classwork: $err')),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        tooltip: 'Add Classwork',
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
