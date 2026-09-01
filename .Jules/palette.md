@@ -17,3 +17,6 @@
 ## 2026-08-29 - Adding Semantics to GestureDetectors
 **Learning:** Found that `GestureDetector` and `InkWell` used for primary actions (like photo upload and date picking) lack inherent accessibility labels in Flutter, making them opaque to screen readers.
 **Action:** Always wrap custom touch targets (`GestureDetector`, `InkWell`, etc.) that act as buttons with a `Semantics` widget. Set `button: true`, a clear `label`, and a descriptive `hint` to ensure they are properly announced by accessibility services.
+## 2026-09-01 - Add Back Button to Teacher Login
+**Learning:** The Teacher Login screen was missing a critical navigation element (a back button) that was present on other login screens (Admin Login, Phone Entry). This forced users to restart the app or use system back gestures to return to the role selection if they selected the wrong role.
+**Action:** Always ensure consistent navigation options across all parallel flows (like role-based login screens). Missing navigation elements can create frustrating dead ends in the user journey.
