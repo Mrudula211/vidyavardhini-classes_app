@@ -9,7 +9,13 @@ class UserTimetableScreen extends ConsumerWidget {
   const UserTimetableScreen({super.key});
 
   final List<String> _days = const [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
 
   @override
@@ -64,11 +70,13 @@ class UserTimetableScreen extends ConsumerWidget {
                     selectedColor: AppColors.primary,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                     onSelected: (selected) {
                       if (selected) {
-                        ref.read(selectedTimetableDayProvider.notifier).state = day;
+                        ref.read(selectedTimetableDayProvider.notifier).state =
+                            day;
                       }
                     },
                   ),
@@ -83,10 +91,19 @@ class UserTimetableScreen extends ConsumerWidget {
             child: timetableAsync.when(
               data: (slots) {
                 if (slots.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No classes scheduled for this day.',
-                      style: TextStyle(color: Colors.grey),
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.event_available_rounded,
+                            size: 48, color: Colors.grey.shade400),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No classes scheduled for this day.',
+                          style: TextStyle(
+                              color: Colors.grey.shade600, fontSize: 15),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -99,22 +116,27 @@ class UserTimetableScreen extends ConsumerWidget {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: AppColors.primary.withOpacity(0.1),
-                          child: const Icon(Icons.schedule, color: AppColors.primary),
+                          child: const Icon(Icons.schedule,
+                              color: AppColors.primary),
                         ),
                         title: Text(
                           slot.subject,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         subtitle: Text(
                           '${slot.startTime} - ${slot.endTime}\nTeacher: ${slot.teacherName ?? "TBD"} • ${slot.roomNumber ?? "Room 101"}',
-                          style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                          style: TextStyle(
+                              color: Colors.grey.shade700, fontSize: 12),
                         ),
                         trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(6),
@@ -134,7 +156,8 @@ class UserTimetableScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading timetable: $err')),
+              error: (err, stack) =>
+                  Center(child: Text('Error loading timetable: $err')),
             ),
           ),
         ],
