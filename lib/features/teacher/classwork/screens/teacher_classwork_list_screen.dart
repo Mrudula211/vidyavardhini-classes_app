@@ -30,15 +30,31 @@ class TeacherClassworkListScreen extends ConsumerWidget {
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(teacherClassworkListProvider(user.id)),
+            onPressed: () =>
+                ref.invalidate(teacherClassworkListProvider(user.id)),
           ),
         ],
       ),
       body: classworkListAsync.when(
         data: (classworkList) {
           if (classworkList.isEmpty) {
-            return const Center(
-              child: Text('No classwork published yet.\nTap "+ Add Classwork" to publish class notes.'),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.note_alt_outlined,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No classwork published yet.\nTap "+ Add Classwork" to publish class notes.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
             );
           }
 
@@ -50,14 +66,16 @@ class TeacherClassworkListScreen extends ConsumerWidget {
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -74,15 +92,18 @@ class TeacherClassworkListScreen extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Text(
                         cw.title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      if (cw.description != null && cw.description!.isNotEmpty) ...[
+                      if (cw.description != null &&
+                          cw.description!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           cw.description!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                          style: TextStyle(
+                              color: Colors.grey.shade700, fontSize: 13),
                         ),
                       ],
                     ],
@@ -93,7 +114,8 @@ class TeacherClassworkListScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading classwork: $err')),
+        error: (err, stack) =>
+            Center(child: Text('Error loading classwork: $err')),
       ),
       floatingActionButton: FloatingActionButton.extended(
         tooltip: 'Add Classwork',
