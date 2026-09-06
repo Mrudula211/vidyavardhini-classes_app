@@ -35,10 +35,21 @@ class StudentClassworkListScreen extends ConsumerWidget {
       body: classworkListAsync.when(
         data: (classworkList) {
           if (classworkList.isEmpty) {
-            return const Center(
-              child: Text(
-                'No classwork notes published for your class yet.',
-                style: TextStyle(color: Colors.grey),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.folder_open,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No classwork notes published for your class yet.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
               ),
             );
           }
