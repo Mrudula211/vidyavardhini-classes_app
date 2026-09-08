@@ -111,9 +111,33 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                     onRefresh: _refreshTeachers,
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 100),
-                        Center(child: Text('No teachers found')),
+                      children: [
+                        const SizedBox(height: 100),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.person_off_outlined,
+                                  size: 64, color: Colors.grey.shade400),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No teachers found',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Try adjusting your search query.',
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   );

@@ -17,3 +17,7 @@
 ## 2026-08-29 - Adding Semantics to GestureDetectors
 **Learning:** Found that `GestureDetector` and `InkWell` used for primary actions (like photo upload and date picking) lack inherent accessibility labels in Flutter, making them opaque to screen readers.
 **Action:** Always wrap custom touch targets (`GestureDetector`, `InkWell`, etc.) that act as buttons with a `Semantics` widget. Set `button: true`, a clear `label`, and a descriptive `hint` to ensure they are properly announced by accessibility services.
+
+## 2024-05-18 - Improved Empty States with Guidance
+**Learning:** Returning a plain text string like 'No items found' in list views provides poor user feedback, especially when search and filters are involved. The user might feel stuck or unsure if the app is functioning properly.
+**Action:** When creating visual empty states for lists (e.g., when search yields no results), always use a centered `Column` containing an illustrative `Icon` (e.g., size 64, using a subdued color like `Colors.grey.shade400`), a bold title text (e.g., 'No items found'), and a subtitle text providing actionable advice below it (e.g., 'Try adjusting your filters or search query.').
