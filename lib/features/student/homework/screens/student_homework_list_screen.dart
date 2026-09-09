@@ -35,10 +35,18 @@ class StudentHomeworkListScreen extends ConsumerWidget {
       body: homeworkListAsync.when(
         data: (homeworkList) {
           if (homeworkList.isEmpty) {
-            return const Center(
-              child: Text(
-                'No active homework assigned for your class!',
-                style: TextStyle(color: Colors.grey),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.assignment_outlined, size: 64, color: Colors.grey.shade400),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No active homework assigned for your class!',
+                    style: TextStyle(color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             );
           }
