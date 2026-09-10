@@ -95,10 +95,17 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             child: messagesStream.when(
               data: (messages) {
                 if (messages.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No messages yet. Type your doubt below!',
-                      style: TextStyle(color: Colors.grey),
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey.shade400),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No messages yet. Type your doubt below!',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -136,7 +143,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),

@@ -29,10 +29,17 @@ class AnnouncementListScreen extends ConsumerWidget {
       body: announcementsAsync.when(
         data: (announcements) {
           if (announcements.isEmpty) {
-            return const Center(
-              child: Text(
-                'No announcements to display.',
-                style: TextStyle(color: Colors.grey),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.campaign, size: 64, color: Colors.grey.shade400),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No announcements to display.',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                ],
               ),
             );
           }
@@ -82,7 +89,7 @@ class AnnouncementListScreen extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: priorityColor.withOpacity(0.1),
+                                  color: priorityColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: priorityColor),
                                 ),
