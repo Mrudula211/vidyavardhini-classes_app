@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../content/providers/content_providers.dart';
 
@@ -35,10 +36,24 @@ class StudentHomeworkListScreen extends ConsumerWidget {
       body: homeworkListAsync.when(
         data: (homeworkList) {
           if (homeworkList.isEmpty) {
-            return const Center(
-              child: Text(
-                'No active homework assigned for your class!',
-                style: TextStyle(color: Colors.grey),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.menu_book_rounded,
+                    size: 64,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No active homework assigned for your class!',
+                    style: AppTypography.poppins(
+                      color: Colors.grey.shade600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             );
           }
