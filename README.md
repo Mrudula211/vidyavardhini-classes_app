@@ -21,8 +21,7 @@ Coaching class management ERP for Vidyavardhini Classes.
 
 ```bash
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter run --dart-define-from-file=.env
+flutter run
 ```
 
 ## Setup Script
@@ -39,14 +38,16 @@ If you are building on Windows, enable Developer Mode first so Flutter can creat
 
 ## Phase Status
 
-- [~] Phase 0 — Project Setup (in progress — Flutter install pending)
-- [ ] Phase 1 — Authentication
-- [ ] Phase 2 — Student Management
-- [ ] Phase 3 — Teacher Management
-- [ ] Phase 4 — Attendance
-- [ ] Phase 5 — Fees
-- [ ] Phase 6 — Homework & Classwork
-- [ ] Phase 7 — Announcements
-- [ ] Phase 8 — Private Chat
-- [ ] Phase 9 — Revenue, Salary & Notifications
-- [ ] Phase 10 — Polish & Deployment
+See [docs/DEVELOPMENT_PHASES.md](docs/DEVELOPMENT_PHASES.md) for the authoritative, task-level checklist. Summary:
+
+- [x] Phase 0 — Project Setup
+- [x] Phase 1 — Authentication
+- [x] Phase 2 — Student Management
+- [x] Phase 3 — Teacher Management
+- [x] Phase 4 — Attendance
+- [x] Phase 5 — Fees
+- [x] Phase 6 — Homework & Classwork
+- [x] Phase 7 — Announcements
+- [x] Phase 8 — Private Chat
+- [x] Phase 9 — Revenue, Salary & Notifications
+- [~] Phase 10 — Polish & Deployment (in progress)

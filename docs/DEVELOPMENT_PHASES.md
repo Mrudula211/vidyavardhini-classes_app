@@ -13,7 +13,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ### Tasks
 
-- [ ] Create Flutter project (`flutter create`) ← **FLUTTER NOT YET INSTALLED**
+- [x] Create Flutter project (`flutter create`)
 - [x] Set up Supabase project — URL: https://rcocjtblpbbslrivqpmm.supabase.co
 - [x] Configure Firebase project — Package: com.vidyavardhini.classes
 - [x] Add all dependencies to `pubspec.yaml`
@@ -27,14 +27,14 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Apply database migration 003 in Supabase SQL Editor
 - [x] Configure Hive for local caching (in main.dart)
 - [x] Set up `analysis_options.yaml` with strict lint rules
-- [x] Set up `build_runner` for code generation (in pubspec.yaml)
+- [x] ~~Set up `build_runner` for code generation~~ — removed; `riverpod_generator` crashed against the current Dart SDK's analyzer, so the one codegen usage (`app_router.dart`) was rewritten as a hand-written `Provider`. No codegen step is needed to build.
 - [x] Create `supabase/migrations/001_initial_schema.sql`
 - [x] Create `supabase/migrations/002_triggers_functions.sql`
 - [x] Create `supabase/migrations/003_auth_rpc.sql`
 - [x] Create `supabase/migrations/004_seed_admin.sql`
-- [ ] Move `google-services.json` to `android/app/` (after `flutter create`)
+- [x] Move `google-services.json` to `android/app/` (after `flutter create`)
 
-**Deliverable:** App launches, shows theme colours, Supabase connected.
+**Deliverable:** App launches, shows theme colours, Supabase connected. Verified on a physical Android device (Samsung SM-M146B, Android 15) — Supabase and Firebase both initialize successfully.
 
 ---
 
