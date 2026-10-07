@@ -66,7 +66,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 #### Student Auth (Registration)
 - [x] `StudentRegistrationScreen` — full 10-field form + photo upload
 - [x] Form validation
-- [ ] Upload profile photo to `profile-photos` bucket
+- [x] Upload profile photo to `profile-photos` bucket
 - [x] Insert into `student_profiles` with status = `pending`
 - [x] `PendingApprovalScreen` — shown until admin approves
 

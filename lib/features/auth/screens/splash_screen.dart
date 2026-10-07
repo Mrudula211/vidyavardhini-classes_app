@@ -69,12 +69,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
             if (!mounted) return;
 
-            if (statusResponse is Map<String, dynamic>) {
-              final status = statusResponse['status'] as String?;
-              if (status == 'pending') {
-                context.go(Routes.pendingApproval);
-                return;
-              }
+            final status = (statusResponse is Map<String, dynamic>)
+                ? statusResponse['status'] as String?
+                : null;
+
+            if (status == null || status == 'pending') {
+              context.go(Routes.pendingApproval);
+              return;
+            }
+            if (status == 'rejected' || status == 'banned') {
+              await Supabase.instance.client.auth.signOut();
+              if (!mounted) return;
+              context.go(Routes.roleSelect);
+              return;
+            }
+            if (session.user.email == null) {
+              context.go(Routes.studentSetPassword);
+              return;
             }
             context.go(Routes.studentDashboard);
             return;

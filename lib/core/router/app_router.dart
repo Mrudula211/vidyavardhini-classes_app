@@ -12,6 +12,7 @@ import '../../features/auth/screens/admin_login_screen.dart';
 import '../../features/auth/screens/teacher_login_screen.dart';
 import '../../features/auth/screens/student_registration_screen.dart';
 import '../../features/auth/screens/pending_approval_screen.dart';
+import '../../features/auth/screens/student_password_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
 import '../../features/admin/students/screens/student_list_screen.dart';
 import '../../features/admin/students/screens/student_approval_screen.dart';
@@ -143,6 +144,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.pendingApproval,
         builder: (context, state) => const PendingApprovalScreen(),
+      ),
+      GoRoute(
+        path: Routes.studentSetPassword,
+        builder: (context, state) => const StudentPasswordScreen(),
       ),
 
       // Role dashboards
