@@ -168,7 +168,12 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                       ),
                     ),
                     ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: Size.zero,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      ),
                       onPressed: _isGenerating ? null : _generateMonthlyFees,
                       icon: _isGenerating
                           ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
@@ -406,6 +411,8 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
+                      minimumSize: Size.zero,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     ),
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('Record Payment'),

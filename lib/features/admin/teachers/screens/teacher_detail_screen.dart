@@ -405,6 +405,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
+                          minimumSize: Size.zero,
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         ),
                         onPressed: _isSavingSalary ? null : _updateSalary,
@@ -452,6 +453,10 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size.zero,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    ),
                     onPressed: _showAddAssignmentDialog,
                     icon: const Icon(Icons.add),
                     label: const Text('Add Class'),

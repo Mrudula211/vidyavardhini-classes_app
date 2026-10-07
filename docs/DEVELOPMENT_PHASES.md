@@ -134,6 +134,8 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 **Deliverable:** Admin can add teachers and configure their access.
 
+**Fixed during first real-device testing:** `create_teacher_profile` (migration 005) inserted a random UUID into `public.users.id` without a matching `auth.users` row, so every call failed with a foreign-key violation (23503). The Flutter repository's `catch (_) {}` silently swallowed this and fell back to an even more broken manual insert that never set `id` (23502 not-null violation) — this produced the confusing error actually seen on-device. Fixed by `supabase/migrations/007_fix_teacher_creation.sql` (must be run manually in the Supabase SQL Editor), which creates a matching bare `auth.users` row, mirroring how the admin account is seeded in migration 004. This also means teachers can now sign in via phone + OTP with a real Supabase Auth session (previously only the access-code path existed, which never calls Supabase Auth — so `auth.uid()`-scoped RLS policies for teacher-owned data, e.g. `teacher_salary: own read`, could never actually match). The access-code-only login path itself still does not establish a session; worth revisiting if teacher-owned RLS policies need to work for that path specifically.
+
 ---
 
 ## Phase 4 — Attendance

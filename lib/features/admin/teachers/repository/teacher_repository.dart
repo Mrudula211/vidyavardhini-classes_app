@@ -67,57 +67,27 @@ class TeacherRepository {
       }
     }
 
-    Map<String, dynamic> result = {};
+    // 3. Create via RPC (SECURITY DEFINER — creates matching auth.users,
+    // public.users, and teacher_profiles rows atomically; see
+    // supabase/migrations/007_fix_teacher_creation.sql). There is no
+    // client-safe fallback: public.users.id is a foreign key to
+    // auth.users.id, which only a privileged function can satisfy.
+    final response = await _client.rpc('create_teacher_profile', params: {
+      'p_phone': phone.trim(),
+      'p_full_name': fullName.trim(),
+      'p_gender': (gender != null && gender.isNotEmpty) ? gender : null,
+      'p_dob': (dob != null && dob.isNotEmpty) ? dob : null,
+      'p_email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
+      'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
+      'p_monthly_salary': monthlySalary,
+      'p_access_code': accessCode.trim(),
+    },);
 
-    // 3. Try RPC creation first
-    try {
-      final response = await _client.rpc('create_teacher_profile', params: {
-        'p_phone': phone.trim(),
-        'p_full_name': fullName.trim(),
-        'p_gender': (gender != null && gender.isNotEmpty) ? gender : null,
-        'p_dob': (dob != null && dob.isNotEmpty) ? dob : null,
-        'p_email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
-        'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
-        'p_monthly_salary': monthlySalary,
-        'p_access_code': accessCode.trim(),
-      },);
-
-      if (response is Map<String, dynamic> && response.isNotEmpty) {
-        result = response;
-      }
-    } catch (_) {}
-
-    // 4. Direct table insert fallback if RPC returned empty or failed
-    if (result.isEmpty) {
-      // Create user entry first
-      final userRes = await _client.from('users').insert({
-        'phone': phone.trim(),
-        'role': 'teacher',
-        'is_active': true,
-      }).select('id').single();
-
-      final userId = userRes['id'] as String;
-
-      final existingRes = await _client.from('teacher_profiles').select('id');
-      final count = (existingRes as List).length + 1;
-      final assignedId = 'TCH${count.toString().padLeft(4, '0')}';
-
-      final insertData = await _client.from('teacher_profiles').insert({
-        'id': userId,
-        'teacher_id': assignedId,
-        'full_name': fullName.trim(),
-        'gender': (gender != null && gender.isNotEmpty) ? gender : null,
-        'dob': (dob != null && dob.isNotEmpty) ? dob : null,
-        'email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
-        'joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : DateTime.now().toIso8601String().split('T')[0],
-        'monthly_salary': monthlySalary,
-        'is_active': true,
-      }).select().single();
-
-      result = Map<String, dynamic>.from(insertData);
+    if (response is! Map<String, dynamic> || response.isEmpty) {
+      throw Exception('Teacher creation did not return the expected result.');
     }
 
-    return result;
+    return response;
   }
 
   Future<void> deleteTeacher(String teacherId) async {

@@ -220,6 +220,13 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size.zero,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                    ),
                     onPressed: _generateAccessCode,
                     icon: const Icon(Icons.autorenew),
                     label: const Text('Generate PIN'),
