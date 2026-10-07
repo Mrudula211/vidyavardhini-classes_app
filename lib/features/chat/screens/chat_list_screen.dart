@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../admin/teachers/providers/teacher_providers.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/chat_providers.dart';
@@ -35,27 +36,66 @@ class ChatListScreen extends ConsumerWidget {
         ],
       ),
       body: chatRoomsAsync.when(
+        loading: () => ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 6,
+          itemBuilder: (context, index) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppColors.lightSurfaceVariant.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
+                const SizedBox(height: 12),
+                Text(
+                  'Could not load chats.\n$err',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.poppins(fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => ref.invalidate(userChatRoomsProvider),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
         data: (rooms) {
           if (rooms.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text(
-                    role == 'student'
-                        ? 'No active doubt conversations.\nTap "+ Ask Doubt" to start chatting with your teacher.'
-                        : 'No doubt chat requests yet.',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.chat_bubble_outline, size: 48, color: AppColors.lightOutline),
+                    const SizedBox(height: 12),
+                    Text(
+                      role == 'student'
+                          ? 'No active doubt conversations.\nTap "+ Ask Doubt" to start chatting with your teacher.'
+                          : 'No doubt chat requests yet.',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
-          return ListView.builder(
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(userChatRoomsProvider),
+            child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: rooms.length,
             itemBuilder: (context, index) {
@@ -98,10 +138,9 @@ class ChatListScreen extends ConsumerWidget {
                 ),
               );
             },
+            ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading chats: $err')),
       ),
       floatingActionButton: role == 'student'
           ? FloatingActionButton.extended(

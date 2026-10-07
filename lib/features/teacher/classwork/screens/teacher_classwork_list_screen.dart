@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../content/providers/content_providers.dart';
 
@@ -35,14 +36,64 @@ class TeacherClassworkListScreen extends ConsumerWidget {
         ],
       ),
       body: classworkListAsync.when(
+        loading: () => ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 6,
+          itemBuilder: (context, index) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            height: 96,
+            decoration: BoxDecoration(
+              color: AppColors.lightSurfaceVariant.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
+                const SizedBox(height: 12),
+                Text(
+                  'Could not load classwork.\n$err',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.poppins(fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => ref.invalidate(teacherClassworkListProvider(user.id)),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
         data: (classworkList) {
           if (classworkList.isEmpty) {
-            return const Center(
-              child: Text('No classwork published yet.\nTap "+ Add Classwork" to publish class notes.'),
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.menu_book_outlined, size: 48, color: AppColors.lightOutline),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No classwork published yet.\nTap "+ Add Classwork" to publish class notes.',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
 
-          return ListView.builder(
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(teacherClassworkListProvider(user.id)),
+            child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: classworkList.length,
             itemBuilder: (context, index) {
@@ -90,10 +141,9 @@ class TeacherClassworkListScreen extends ConsumerWidget {
                 ),
               );
             },
+            ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading classwork: $err')),
       ),
       floatingActionButton: FloatingActionButton.extended(
         tooltip: 'Add Classwork',

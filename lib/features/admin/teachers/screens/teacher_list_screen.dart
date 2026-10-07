@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/teacher_model.dart';
 import '../providers/teacher_providers.dart';
 
@@ -111,9 +112,28 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                     onRefresh: _refreshTeachers,
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 100),
-                        Center(child: Text('No teachers found')),
+                      children: [
+                        const SizedBox(height: 80),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.school_outlined,
+                                    size: 48, color: AppColors.lightOutline),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'No teachers found.',
+                                  style: AppTypography.poppins(
+                                    fontSize: 14,
+                                    color: AppColors.lightOutline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -131,18 +151,39 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: 6,
+                itemBuilder: (context, index) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  height: 88,
+                  decoration: BoxDecoration(
+                    color: AppColors.lightSurfaceVariant.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
               error: (err, stack) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Error: $err'),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: _refreshTeachers,
-                      child: const Text('Retry'),
-                    ),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded,
+                          size: 40, color: AppColors.maroon),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Could not load teachers.\n$err',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.poppins(fontSize: 13),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: _refreshTeachers,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

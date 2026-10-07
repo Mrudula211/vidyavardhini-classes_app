@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/routes.dart';
 import '../../features/auth/providers/auth_providers.dart';
@@ -51,11 +52,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final userRole = ref.watch(currentUserRoleProvider);
   final isAdminLoggedIn = ref.watch(adminAuthenticatedProvider);
   final isTeacherLoggedIn = ref.watch(teacherAuthenticatedProvider);
+  final studentStatus = ref.watch(currentStudentStatusProvider);
 
   return GoRouter(
     initialLocation: Routes.splash,
     debugLogDiagnostics: true,
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final uri = state.uri.toString();
       final isAuthRoute = uri.startsWith('/auth') ||
           uri == Routes.roleSelect ||
@@ -94,6 +96,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return Routes.roleSelect;
         }
         return null;
+      }
+
+      // A student's account must be 'active' to use the app. Pending
+      // students are parked on the pending-approval screen; rejected/banned
+      // students are signed out immediately, even if they still hold a
+      // valid Supabase session token.
+      if (role == 'student' && !isAdminLoggedIn && !isTeacherLoggedIn) {
+        if (studentStatus.isLoading) {
+          return Routes.splash;
+        }
+        final status = studentStatus.value;
+        if (status == 'rejected' || status == 'banned') {
+          await Supabase.instance.client.auth.signOut();
+          return Routes.roleSelect;
+        }
+        if (status == null || status == 'pending') {
+          if (uri != Routes.pendingApproval) {
+            return Routes.pendingApproval;
+          }
+          return null;
+        }
       }
 
       // Check route against roles

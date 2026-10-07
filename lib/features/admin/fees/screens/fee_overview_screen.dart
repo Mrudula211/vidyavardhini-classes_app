@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/fee_model.dart';
 import '../../../fees/providers/fee_providers.dart';
 import '../widgets/add_payment_sheet.dart';
@@ -208,23 +209,82 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     // Student Fee List
                     Expanded(
                       child: feeList.isEmpty
-                          ? const Center(
-                              child: Text('No fee records for this period.\nTap "Generate" to create monthly fee records.'),
+                          ? RefreshIndicator(
+                              onRefresh: () async =>
+                                  ref.invalidate(adminFeeOverviewProvider),
+                              child: ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  const SizedBox(height: 60),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.receipt_long_outlined,
+                                            size: 48,
+                                            color: AppColors.lightOutline,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            'No fee records for this period.\n'
+                                            'Tap "Generate" to create monthly fee records.',
+                                            textAlign: TextAlign.center,
+                                            style: AppTypography.poppins(
+                                              fontSize: 14,
+                                              color: AppColors.lightOutline,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             )
-                          : ListView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              itemCount: feeList.length,
-                              itemBuilder: (context, index) {
-                                final item = feeList[index];
-                                return _buildFeeCard(context, item);
-                              },
+                          : RefreshIndicator(
+                              onRefresh: () async =>
+                                  ref.invalidate(adminFeeOverviewProvider),
+                              child: ListView.builder(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                itemCount: feeList.length,
+                                itemBuilder: (context, index) {
+                                  final item = feeList[index];
+                                  return _buildFeeCard(context, item);
+                                },
+                              ),
                             ),
                     ),
                   ],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading fee overview: $err')),
+              error: (err, stack) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded,
+                          size: 40, color: AppColors.maroon),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Could not load fee overview.\n$err',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.poppins(fontSize: 13),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () => ref.invalidate(adminFeeOverviewProvider),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],

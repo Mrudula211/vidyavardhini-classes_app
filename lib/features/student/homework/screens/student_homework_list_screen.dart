@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../content/providers/content_providers.dart';
 
@@ -33,17 +34,64 @@ class StudentHomeworkListScreen extends ConsumerWidget {
         ],
       ),
       body: homeworkListAsync.when(
+        loading: () => ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 6,
+          itemBuilder: (context, index) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            height: 96,
+            decoration: BoxDecoration(
+              color: AppColors.lightSurfaceVariant.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
+                const SizedBox(height: 12),
+                Text(
+                  'Could not load homework.\n$err',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.poppins(fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => ref.invalidate(studentHomeworkListProvider(user.id)),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
         data: (homeworkList) {
           if (homeworkList.isEmpty) {
-            return const Center(
-              child: Text(
-                'No active homework assigned for your class!',
-                style: TextStyle(color: Colors.grey),
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.assignment_outlined, size: 48, color: AppColors.lightOutline),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No active homework assigned for your class!',
+                      textAlign: TextAlign.center,
+                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
-          return ListView.builder(
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(studentHomeworkListProvider(user.id)),
+            child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: homeworkList.length,
             itemBuilder: (context, index) {
@@ -123,10 +171,9 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                 ),
               );
             },
+            ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading homework: $err')),
       ),
     );
   }

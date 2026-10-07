@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/timetable_model.dart';
 import '../../../timetable/providers/timetable_providers.dart';
 import '../widgets/add_timetable_slot_sheet.dart';
@@ -116,36 +117,84 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
             child: timetableAsync.when(
               data: (slots) {
                 if (slots.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        ref.invalidate(adminClassTimetableProvider),
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       children: [
-                        const Text(
-                          'No schedule slots for this day.',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 8),
-                        ElevatedButton.icon(
-                          onPressed: () => _openAddSlotSheet(context, selectedBoard, selectedStandard, selectedDay),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add Schedule Slot'),
+                        const SizedBox(height: 60),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.event_note_outlined,
+                                    size: 48, color: AppColors.lightOutline),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'No schedule slots for this day.',
+                                  style: AppTypography.poppins(
+                                    fontSize: 14,
+                                    color: AppColors.lightOutline,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () => _openAddSlotSheet(
+                                      context, selectedBoard, selectedStandard, selectedDay),
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Add Schedule Slot'),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: slots.length,
-                  itemBuilder: (context, index) {
-                    final slot = slots[index];
-                    return _buildSlotTile(context, slot);
-                  },
+                return RefreshIndicator(
+                  onRefresh: () async =>
+                      ref.invalidate(adminClassTimetableProvider),
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: slots.length,
+                    itemBuilder: (context, index) {
+                      final slot = slots[index];
+                      return _buildSlotTile(context, slot);
+                    },
+                  ),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading timetable: $err')),
+              error: (err, stack) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded,
+                          size: 40, color: AppColors.maroon),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Could not load timetable.\n$err',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.poppins(fontSize: 13),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () =>
+                            ref.invalidate(adminClassTimetableProvider),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],

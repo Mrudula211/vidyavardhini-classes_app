@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/student_model.dart';
 import '../providers/student_providers.dart';
 
@@ -184,9 +185,28 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                     onRefresh: _refreshStudents,
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      children: const [
-                        SizedBox(height: 100),
-                        Center(child: Text('No students found')),
+                      children: [
+                        const SizedBox(height: 80),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.people_outline_rounded,
+                                    size: 48, color: AppColors.lightOutline),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'No students found.',
+                                  style: AppTypography.poppins(
+                                    fontSize: 14,
+                                    color: AppColors.lightOutline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -204,18 +224,39 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: 6,
+                itemBuilder: (context, index) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  height: 88,
+                  decoration: BoxDecoration(
+                    color: AppColors.lightSurfaceVariant.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
               error: (err, stack) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Error: $err'),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: _refreshStudents,
-                      child: const Text('Retry'),
-                    ),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded,
+                          size: 40, color: AppColors.maroon),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Could not load students.\n$err',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.poppins(fontSize: 13),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: _refreshStudents,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

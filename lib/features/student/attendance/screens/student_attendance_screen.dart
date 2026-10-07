@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../attendance/providers/attendance_providers.dart';
 
@@ -89,13 +90,26 @@ class StudentAttendanceScreen extends ConsumerWidget {
               // Attendance History List
               Expanded(
                 child: records.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No attendance records found yet.',
-                          style: TextStyle(color: Colors.grey),
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.event_busy_outlined, size: 48, color: AppColors.lightOutline),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No attendance records found yet.',
+                                textAlign: TextAlign.center,
+                                style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                              ),
+                            ],
+                          ),
                         ),
                       )
-                    : ListView.builder(
+                    : RefreshIndicator(
+                        onRefresh: () async => ref.invalidate(studentAttendanceHistoryProvider(user.id)),
+                        child: ListView.builder(
                         padding: const EdgeInsets.all(16.0),
                         itemCount: records.length,
                         itemBuilder: (context, index) {
@@ -138,13 +152,35 @@ class StudentAttendanceScreen extends ConsumerWidget {
                             ),
                           );
                         },
+                        ),
                       ),
               ),
             ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading attendance: $err')),
+        error: (err, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
+                const SizedBox(height: 12),
+                Text(
+                  'Could not load attendance.\n$err',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.poppins(fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => ref.invalidate(studentAttendanceHistoryProvider(user.id)),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

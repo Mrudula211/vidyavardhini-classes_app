@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../attendance/providers/attendance_providers.dart';
 
 class AdminAttendanceScreen extends ConsumerWidget {
@@ -130,10 +131,45 @@ class AdminAttendanceScreen extends ConsumerWidget {
 
                     Expanded(
                       child: records.isEmpty
-                          ? const Center(
-                              child: Text('No attendance recorded for this date/filter.'),
+                          ? RefreshIndicator(
+                              onRefresh: () async =>
+                                  ref.invalidate(adminAttendanceOverviewProvider),
+                              child: ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  const SizedBox(height: 60),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.event_busy_outlined,
+                                            size: 48,
+                                            color: AppColors.lightOutline,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            'No attendance recorded for this date/filter.',
+                                            textAlign: TextAlign.center,
+                                            style: AppTypography.poppins(
+                                              fontSize: 14,
+                                              color: AppColors.lightOutline,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             )
-                          : ListView.builder(
+                          : RefreshIndicator(
+                              onRefresh: () async =>
+                                  ref.invalidate(adminAttendanceOverviewProvider),
+                              child: ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
                               padding: const EdgeInsets.all(16.0),
                               itemCount: records.length,
                               itemBuilder: (context, index) {
@@ -178,13 +214,37 @@ class AdminAttendanceScreen extends ConsumerWidget {
                                   ),
                                 );
                               },
+                              ),
                             ),
                     ),
                   ],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              error: (err, stack) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded,
+                          size: 40, color: AppColors.maroon),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Could not load attendance overview.\n$err',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.poppins(fontSize: 13),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () =>
+                            ref.invalidate(adminAttendanceOverviewProvider),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],

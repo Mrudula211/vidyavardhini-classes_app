@@ -317,10 +317,10 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 ### Tasks
 
 #### UI Polish
-- [ ] Shimmer loading states on all list screens
-- [ ] Empty state illustrations on all list screens
-- [ ] Error states with retry buttons
-- [ ] Pull-to-refresh on all data screens
+- [x] Shimmer loading states on simple list screens (notifications, students, teachers, homework/classwork x4, chat list). Multi-section screens (fees overview, attendance overview, timetable, student fees, student attendance) intentionally kept a plain spinner instead — a fake-stat shimmer would misrepresent their card/summary layout.
+- [x] Empty state icon+message on all audited list screens
+- [x] Error states with retry buttons on all audited list screens (several had no Retry button at all before this pass — fee overview, admin attendance, admin timetable, chat list)
+- [x] Pull-to-refresh on all audited data screens (fee overview, admin attendance, and admin timetable had none at all before this pass)
 - [ ] Smooth page transitions
 - [ ] Dark mode QA pass — every screen
 
@@ -330,16 +330,17 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [ ] Graceful offline mode (show cached data, disable write actions)
 
 #### Performance
-- [ ] All list views paginated (page size 25)
+- [ ] All list views paginated (page size 25) — audited, not yet implemented. Unbounded queries found in: `student_repository.fetchStudents()` (highest risk — student count only grows, IDs never reused), `attendance_repository`'s student attendance history query (grows daily forever, highest risk of all), `content_repository`'s homework/classwork queries, `chat_repository`'s messages-per-room query. Lower risk (naturally bounded): teacher list, fee overview (per-month), admin attendance overview (per-day), timetable, monthly fees history (~12 rows/year), chat room list.
 - [ ] Image caching via `cached_network_image`
 - [ ] Query debouncing on search inputs
 - [ ] Profile photo compression before upload
 
 #### Security QA
-- [ ] RLS policy audit — every table tested with each role
-- [ ] Route guard audit — no screen accessible to wrong role
-- [ ] No secrets in source code
-- [ ] No PII in logs
+- [x] RLS policy audit — static cross-check of `audit_logs`, `student_profiles`, `monthly_fees`/`fee_payments`, `teacher_salary` RLS vs. repository code; no violations found (audit_logs immutability confirmed enforced at the DB level — no UPDATE/DELETE policy exists for any role). Live per-role testing against real Supabase still pending (DB was unreachable during this pass).
+- [x] Route guard audit — found and fixed a real gap: the GoRouter `redirect` only checked role, not student `status`, so a pending/rejected/banned student with a still-valid session could reach `/student/*` routes directly (e.g. via deep link), bypassing the one-time splash-screen check. Now watches `currentStudentStatusProvider` and gates on status too (signs out rejected/banned students, routes pending ones to the pending-approval screen).
+- [x] No secrets in source code — grepped for `service_role`, JWT-shaped literals, and hardcoded credentials; only the safe-by-design anon/publishable key was found. Fixed a related hygiene issue: `lib/core/constants/supabase_keys.dart` was tracked in git despite CLAUDE.md saying it should be gitignored — now untracked, gitignored, and replaced with a `supabase_keys.example.dart` template.
+- [x] No PII in logs — all `debugPrint`/`print` call sites checked; none log phone numbers, emails, passwords, or OTPs.
+- [ ] Known gap: the student "set password on first login" step is also splash-only, not router-enforced — an active student who hasn't set a password yet could skip it via deep link. Lower severity (RLS still scopes them to their own data) but worth closing in a future pass.
 
 #### Testing
 - [ ] Unit tests for: formatters, validators, fee calculation logic
