@@ -24,11 +24,14 @@ import '../../features/admin/attendance/screens/admin_attendance_screen.dart';
 import '../../features/admin/fees/screens/fee_overview_screen.dart';
 import '../../features/admin/revenue/screens/revenue_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
+import '../../features/admin/audit_logs/screens/audit_logs_screen.dart';
+import '../../features/admin/backup/screens/backup_screen.dart';
 import '../../features/admin/announcements/screens/announcement_create_screen.dart';
 import '../../features/admin/timetable/screens/admin_timetable_screen.dart';
 import '../../features/announcements/screens/announcement_list_screen.dart';
 import '../../features/timetable/screens/user_timetable_screen.dart';
 import '../../features/chat/screens/chat_list_screen.dart';
+import '../../features/notifications/screens/notification_list_screen.dart';
 import '../../features/chat/screens/chat_room_screen.dart';
 import '../../features/teacher/screens/teacher_dashboard_screen.dart';
 import '../../features/teacher/attendance/screens/attendance_mark_screen.dart';
@@ -205,6 +208,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const GeofenceSettingsScreen(),
       ),
       GoRoute(
+        path: Routes.adminAuditLogs,
+        builder: (context, state) => const AuditLogsScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminBackup,
+        builder: (context, state) => const BackupScreen(),
+      ),
+      GoRoute(
         path: Routes.adminAnnouncementCreate,
         builder: (context, state) => const AnnouncementCreateScreen(),
       ),
@@ -215,6 +226,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.announcementList,
         builder: (context, state) => const AnnouncementListScreen(),
+      ),
+      GoRoute(
+        path: Routes.notifications,
+        builder: (context, state) => const NotificationListScreen(),
       ),
       GoRoute(
         path: Routes.userTimetable,

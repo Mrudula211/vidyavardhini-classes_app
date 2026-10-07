@@ -153,48 +153,4 @@ class FeeRepository {
 
     return generatedCount;
   }
-
-  Future<Map<String, dynamic>> fetchAnnualRevenueAnalytics(
-      {required int year}) async {
-    final data = await _client
-        .from('monthly_fees')
-        .select('month, expected_amount, paid_amount, remaining_amount')
-        .eq('year', year);
-
-    double totalExpected = 0.0;
-    double totalCollected = 0.0;
-    double totalPending = 0.0;
-
-    final Map<int, Map<String, double>> monthlyBreakdown = {};
-    for (int i = 1; i <= 12; i++) {
-      monthlyBreakdown[i] = {'expected': 0.0, 'collected': 0.0, 'pending': 0.0};
-    }
-
-    for (final row in data as List) {
-      final month = row['month'] as int? ?? 1;
-      final exp = (row['expected_amount'] as num?)?.toDouble() ?? 0.0;
-      final paid = (row['paid_amount'] as num?)?.toDouble() ?? 0.0;
-      final rem = (row['remaining_amount'] as num?)?.toDouble() ?? (exp - paid);
-
-      totalExpected += exp;
-      totalCollected += paid;
-      totalPending += rem;
-
-      if (monthlyBreakdown.containsKey(month)) {
-        monthlyBreakdown[month]!['expected'] =
-            (monthlyBreakdown[month]!['expected'] ?? 0.0) + exp;
-        monthlyBreakdown[month]!['collected'] =
-            (monthlyBreakdown[month]!['collected'] ?? 0.0) + paid;
-        monthlyBreakdown[month]!['pending'] =
-            (monthlyBreakdown[month]!['pending'] ?? 0.0) + rem;
-      }
-    }
-
-    return {
-      'totalExpected': totalExpected,
-      'totalCollected': totalCollected,
-      'totalPending': totalPending,
-      'monthlyBreakdown': monthlyBreakdown,
-    };
-  }
 }

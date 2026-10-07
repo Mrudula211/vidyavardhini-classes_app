@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../fees/providers/fee_providers.dart';
+import '../../../fees/providers/fee_providers.dart' show selectedFeeYearProvider;
+import '../providers/revenue_providers.dart';
 
 class RevenueScreen extends ConsumerWidget {
   const RevenueScreen({super.key});
@@ -15,7 +16,7 @@ class RevenueScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedYear = ref.watch(selectedFeeYearProvider);
-    final revenueAsync = ref.watch(annualRevenueAnalyticsProvider);
+    final revenueAsync = ref.watch(yearlyRevenueProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -24,7 +25,7 @@ class RevenueScreen extends ConsumerWidget {
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(annualRevenueAnalyticsProvider),
+            onPressed: () => ref.invalidate(yearlyRevenueProvider),
           ),
         ],
       ),

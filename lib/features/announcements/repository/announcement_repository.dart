@@ -1,8 +1,14 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/announcement_model.dart';
+import '../../notifications/repository/notification_repository.dart';
 
 class AnnouncementRepository {
+  AnnouncementRepository({NotificationRepository? notificationRepository})
+      : _notificationRepository =
+            notificationRepository ?? NotificationRepository();
+
   final SupabaseClient _client = Supabase.instance.client;
+  final NotificationRepository _notificationRepository;
 
   Future<void> createAnnouncement({
     required String title,
@@ -22,6 +28,19 @@ class AnnouncementRepository {
       'target_standard': targetStandard,
       'created_by': createdBy,
     });
+
+    final recipients =
+        await _notificationRepository.resolveAnnouncementRecipients(
+      targetType: targetType,
+      board: targetBoard,
+      standard: targetStandard,
+    );
+    await _notificationRepository.notifyUsers(
+      userIds: recipients,
+      title: title,
+      body: content,
+      type: 'announcement',
+    );
   }
 
   Future<List<AnnouncementModel>> fetchUserAnnouncements({

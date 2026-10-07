@@ -210,6 +210,14 @@ class AdminDashboardScreen extends ConsumerWidget {
                       ),
                       _buildDashboardCard(
                         context,
+                        title: 'Audit Logs',
+                        subtitle: 'System Activity',
+                        icon: Icons.history_rounded,
+                        color: const Color(0xFF616161),
+                        onTap: () => context.push(Routes.adminAuditLogs),
+                      ),
+                      _buildDashboardCard(
+                        context,
                         title: 'Private Chat',
                         subtitle: 'Doubt Clearing',
                         icon: Icons.chat_bubble_outline_rounded,

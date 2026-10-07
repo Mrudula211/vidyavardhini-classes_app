@@ -51,7 +51,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] `OTPVerificationScreen` — 6-digit OTP input, resend timer
 - [x] Supabase OTP integration (`signInWithOtp`, `verifyOtp`)
 - [x] Store role in `users` table on first login
-- [ ] JWT role claim setup (Supabase Auth hook)
+- [x] JWT role claim setup (Supabase Auth hook) — `supabase/migrations/006_jwt_role_claim_hook.sql`; requires enabling the hook in Supabase Dashboard → Authentication → Hooks (see migration file for steps)
 
 #### Admin Auth
 - [x] `AdminLoginScreen` — access code input + password input
@@ -271,9 +271,11 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
   - Summary cards: Expected / Collected / Pending
   - Monthly breakdown progress indicators
   - Yearly aggregation query
+- [x] `RevenueRepository` (`fetchYearlyRevenue`, `fetchMonthlyRevenue`) + `revenue_providers.dart` — extracted from the inline `fee_providers.dart` analytics call so the screen follows the standard repository pattern
 
 #### Teacher Salary
-- [x] `TeacherSalaryScreen` — monthly base pay, qualification, subject list, payout details
+- [x] `TeacherSalaryScreen` — current month highlighted with a paid/pending status chip, plus month-by-month salary history, loading/empty/error states, pull-to-refresh
+- [x] `TeacherSalaryRepository` (`fetchSalaryHistory`, `fetchSalaryForMonth`) + `teacher_salary_providers.dart` — reads `teacher_salary`, scoped to the signed-in teacher's own id (defense in depth alongside the `teacher_salary: own read` RLS policy)
 
 **Deliverable:** Full financial dashboard and teacher salary tracking.
 
@@ -302,7 +304,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 #### Backup
 - [ ] Edge Function: `backup-trigger` (daily cron)
-- [ ] `BackupScreen` — list + manual trigger + restore (placeholder for v1)
+- [x] `BackupScreen` — list + manual trigger + restore (placeholder for v1). Manual trigger inserts a `pending` `backup_logs` row (honest UI copy: no automated backup job exists yet). Restore action is visibly disabled with a tooltip.
 
 **Deliverable:** Full admin control centre operational.
 
