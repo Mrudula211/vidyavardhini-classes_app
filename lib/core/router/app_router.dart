@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../constants/routes.dart';
 import '../../features/auth/providers/auth_providers.dart';
@@ -42,10 +42,7 @@ import '../../features/student/fees/screens/student_fees_screen.dart';
 import '../../features/student/homework/screens/student_homework_list_screen.dart';
 import '../../features/student/classwork/screens/student_classwork_list_screen.dart';
 
-part 'app_router.g.dart';
-
-@riverpod
-GoRouter appRouter(AppRouterRef ref) {
+final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
   final userRole = ref.watch(currentUserRoleProvider);
   final isAdminLoggedIn = ref.watch(adminAuthenticatedProvider);
@@ -284,7 +281,7 @@ GoRouter appRouter(AppRouterRef ref) {
       ),
     ),
   );
-}
+});
 
 String _getDashboardRoute(String role) {
   switch (role) {
