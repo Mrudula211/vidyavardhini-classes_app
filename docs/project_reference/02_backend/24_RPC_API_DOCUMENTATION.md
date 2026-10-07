@@ -4,23 +4,27 @@
 Documents the planned and existing Remote Procedure Calls (RPCs) implemented via Supabase PostgreSQL functions, and how they interact with the Flutter frontend.
 
 ## Current State
-Currently, most logic is written directly in SQL or Flutter. Several RPCs are required to fix security vulnerabilities (Technical Debt).
+Most auth-critical logic now runs server-side via RPCs (migration `003_auth_rpc.sql`). Student promotion is still pending.
 
-## Required RPCs (To Be Implemented)
+## Implemented RPCs
 
-### 1. `verify_admin_login(p_access_code TEXT, p_password TEXT)`
+### 1. `verify_admin_credentials(p_access_code TEXT, p_password TEXT)`
 - **Purpose:** Securely validates admin credentials on the server.
 - **Input:** Plain text access code and password.
 - **Logic:** Fetches hashes from `admin_profiles`, uses `crypt()` (pgcrypto extension) to verify.
-- **Output:** Returns a custom JWT or a Boolean indicating success.
+- **Output:** Boolean indicating success.
 - **Caller:** `AdminLoginScreen` via `SupabaseAuthRepository`.
+- **Defined in:** `supabase/migrations/003_auth_rpc.sql`
 
-### 2. `verify_teacher_login(p_access_code TEXT)`
+### 2. `verify_teacher_access_code(p_access_code TEXT)`
 - **Purpose:** Securely validates teacher access codes on the server.
 - **Input:** Plain text access code.
-- **Logic:** Queries `teacher_profiles`, verifies `access_code_hash`.
-- **Output:** Returns the `teacher_id` (UUID) or Null.
+- **Logic:** Queries `teacher_profiles`, verifies `access_code_hash` against all teachers.
+- **Output:** Boolean indicating whether the code matches any teacher.
 - **Caller:** `TeacherLoginScreen` via `SupabaseAuthRepository`.
+- **Defined in:** `supabase/migrations/003_auth_rpc.sql`
+
+## Required RPCs (To Be Implemented)
 
 ### 3. `promote_students(p_from_year UUID, p_to_year UUID)`
 - **Purpose:** Batch promotes active students from one academic year to the next.
