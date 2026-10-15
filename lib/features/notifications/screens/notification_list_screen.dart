@@ -44,7 +44,7 @@ class NotificationListScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.error_outline_rounded,
-                    size: 40, color: AppColors.maroon),
+                    size: 40, color: AppColors.maroon,),
                 const SizedBox(height: 12),
                 Text(
                   'Could not load notifications.\n$err',
@@ -69,7 +69,7 @@ class NotificationListScreen extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.notifications_none_rounded,
-                        size: 48, color: AppColors.lightOutline),
+                        size: 48, color: AppColors.lightOutline,),
                     const SizedBox(height: 12),
                     Text(
                       'No notifications yet.',

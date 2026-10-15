@@ -155,7 +155,7 @@ class StudentFeesScreen extends ConsumerWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: _getStatusColor(item.status).withOpacity(0.1),
+                          backgroundColor: _getStatusColor(item.status).withValues(alpha: 0.1),
                           child: Icon(
                             item.status == 'paid' ? Icons.check_circle : Icons.pending,
                             color: _getStatusColor(item.status),

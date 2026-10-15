@@ -31,7 +31,7 @@ class FeeRepository {
     if (searchQuery != null && searchQuery.trim().isNotEmpty) {
       final q = '%${searchQuery.trim()}%';
       query = query.or(
-          'student_profiles.full_name.ilike.$q,student_profiles.student_id.ilike.$q');
+          'student_profiles.full_name.ilike.$q,student_profiles.student_id.ilike.$q',);
     }
 
     final data = await query.order('created_at', ascending: false);

@@ -79,7 +79,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
               // Summary Cards
               Container(
                 padding: const EdgeInsets.all(16.0),
-                color: AppColors.primary.withOpacity(0.05),
+                color: AppColors.primary.withValues(alpha: 0.05),
                 child: Column(
                   children: [
                     Row(
@@ -154,7 +154,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
+                                backgroundColor: (isPresent ? Colors.green : Colors.red).withValues(alpha: 0.1),
                                 child: Icon(
                                   isPresent ? Icons.check : Icons.close,
                                   color: isPresent ? Colors.green : Colors.red,
@@ -170,7 +170,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
+                                  color: (isPresent ? Colors.green : Colors.red).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(color: isPresent ? Colors.green : Colors.red),
                                 ),
@@ -233,7 +233,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
         child: Row(
           children: [
             CircleAvatar(
-              backgroundColor: color.withOpacity(0.1),
+              backgroundColor: color.withValues(alpha: 0.1),
               child: Icon(icon, color: color),
             ),
             const SizedBox(width: 12),

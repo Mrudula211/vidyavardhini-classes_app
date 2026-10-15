@@ -78,6 +78,8 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
             .read(authRepositoryProvider)
             .fetchUserRole(session.user.id);
 
+        if (!mounted) return;
+
         if (userRole == 'admin') {
           context.go(Routes.adminDashboard);
         } else if (userRole == 'teacher') {

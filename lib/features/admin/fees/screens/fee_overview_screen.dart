@@ -73,7 +73,6 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
   Widget build(BuildContext context) {
     final selectedMonth = ref.watch(selectedFeeMonthProvider);
     final selectedYear = ref.watch(selectedFeeYearProvider);
-    final selectedStatus = ref.watch(selectedFeeStatusFilterProvider);
     final feeOverviewAsync = ref.watch(adminFeeOverviewProvider);
 
     return Scaffold(
@@ -286,7 +285,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon),
+                          size: 40, color: AppColors.maroon,),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load fee overview.\n$err',
@@ -318,7 +317,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
       child: FilterChip(
         selected: isSelected,
         label: Text(label),
-        selectedColor: AppColors.primary.withOpacity(0.2),
+        selectedColor: AppColors.primary.withValues(alpha: 0.2),
         checkmarkColor: AppColors.primary,
         onSelected: (selected) {
           ref.read(selectedFeeStatusFilterProvider.notifier).state = value;
@@ -331,9 +330,9 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
@@ -369,7 +368,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   child: Text(
                     item.studentName != null && item.studentName!.isNotEmpty ? item.studentName![0].toUpperCase() : 'S',
                     style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
@@ -394,7 +393,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: statusColor),
                   ),

@@ -50,7 +50,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
       ref.read(auditLogFilterProvider.notifier).state = filter.copyWith(
         from: DateTime(range.start.year, range.start.month, range.start.day),
         to: DateTime(
-            range.end.year, range.end.month, range.end.day, 23, 59, 59),
+            range.end.year, range.end.month, range.end.day, 23, 59, 59,),
         page: 0,
       );
     }
@@ -101,7 +101,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                               _searchController.clear();
                               ref.read(auditLogFilterProvider.notifier).state =
                                   filter.copyWith(
-                                      clearAction: true, page: 0);
+                                      clearAction: true, page: 0,);
                             },
                           )
                         : null,
@@ -123,7 +123,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                         decoration: InputDecoration(
                           labelText: 'Entity Type',
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
+                              horizontal: 12, vertical: 8,),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -201,7 +201,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon),
+                          size: 40, color: AppColors.maroon,),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load audit logs.\n$err',
@@ -229,7 +229,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                           child: Column(
                             children: [
                               const Icon(Icons.fact_check_outlined,
-                                  size: 48, color: AppColors.lightOutline),
+                                  size: 48, color: AppColors.lightOutline,),
                               const SizedBox(height: 12),
                               Text(
                                 'No audit log entries found.',
@@ -280,7 +280,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                         : null,
                   ),
                   Text('Page ${filter.page + 1}',
-                      style: AppTypography.poppins(fontSize: 12)),
+                      style: AppTypography.poppins(fontSize: 12),),
                   TextButton.icon(
                     icon: const Icon(Icons.chevron_right_rounded),
                     label: const Text('Next'),
@@ -336,24 +336,24 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                   Text(
                     log['action']?.toString() ?? 'Audit Entry',
                     style: AppTypography.cinzel(
-                        fontSize: 18, fontWeight: FontWeight.w600),
+                        fontSize: 18, fontWeight: FontWeight.w600,),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Entity: ${log['entity_type'] ?? '-'}  (${log['entity_id'] ?? '-'})',
                     style: AppTypography.poppins(
-                        fontSize: 12, color: AppColors.lightOutline),
+                        fontSize: 12, color: AppColors.lightOutline,),
                   ),
                   const SizedBox(height: 16),
                   Text('Old Value',
                       style: AppTypography.poppins(
-                          fontSize: 13, fontWeight: FontWeight.w600)),
+                          fontSize: 13, fontWeight: FontWeight.w600,),),
                   const SizedBox(height: 6),
                   _JsonBox(text: oldPretty),
                   const SizedBox(height: 16),
                   Text('New Value',
                       style: AppTypography.poppins(
-                          fontSize: 13, fontWeight: FontWeight.w600)),
+                          fontSize: 13, fontWeight: FontWeight.w600,),),
                   const SizedBox(height: 6),
                   _JsonBox(text: newPretty),
                   const SizedBox(height: 16),
@@ -416,14 +416,14 @@ class _AuditLogCard extends ConsumerWidget {
             Text(
               'By: ${performedByAsync.value ?? performedBy ?? '-'}',
               style: AppTypography.poppins(
-                  fontSize: 11, color: AppColors.lightOutline),
+                  fontSize: 11, color: AppColors.lightOutline,),
             ),
             if (createdAt != null) ...[
               const SizedBox(height: 2),
               Text(
                 dateFormat.format(createdAt),
                 style: AppTypography.poppins(
-                    fontSize: 11, color: AppColors.lightOutline),
+                    fontSize: 11, color: AppColors.lightOutline,),
               ),
             ],
           ],

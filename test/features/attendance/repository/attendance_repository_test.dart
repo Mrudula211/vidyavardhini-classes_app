@@ -51,7 +51,7 @@ class FakePostgrestFilterBuilder extends Fake
 
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> limit(int count,
-      {String? referencedTable}) {
+      {String? referencedTable,}) {
     return this;
   }
 
@@ -78,14 +78,14 @@ class FakePostgrestFilterBuilder extends Fake
   @override
   Future<R> then<R>(
       FutureOr<R> Function(List<Map<String, dynamic>> value) onValue,
-      {Function? onError}) {
+      {Function? onError,}) {
     if (_error != null) {
       final fut = Future<List<Map<String, dynamic>>>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
     }
     final list = (_returnValue is List)
         ? List<Map<String, dynamic>>.from(
-            (_returnValue as List).map((x) => Map<String, dynamic>.from(x as Map)))
+            (_returnValue).map((x) => Map<String, dynamic>.from(x as Map)),)
         : <Map<String, dynamic>>[];
     return Future.value(list)
         .then((val) => onValue(val), onError: onError);
@@ -115,13 +115,13 @@ class FakePostgrestSingleTransformBuilder extends Fake
   @override
   Future<R> then<R>(
       FutureOr<R> Function(Map<String, dynamic> value) onValue,
-      {Function? onError}) {
+      {Function? onError,}) {
     if (_error != null) {
       final fut = Future<Map<String, dynamic>>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
     }
     final res = (_returnValue is Map<String, dynamic>)
-        ? _returnValue as Map<String, dynamic>
+        ? _returnValue
         : {'id': 'att_123'};
     return Future.value(res).then((val) => onValue(val), onError: onError);
   }
@@ -137,7 +137,7 @@ class FakePostgrestTransformBuilder extends Fake
   @override
   Future<R> then<R>(
       FutureOr<R> Function(Map<String, dynamic>? value) onValue,
-      {Function? onError}) {
+      {Function? onError,}) {
     if (_error != null) {
       final fut = Future<Map<String, dynamic>?>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
@@ -151,7 +151,7 @@ void main() {
   late AttendanceRepository repository;
   late MockSupabaseClient mockClient;
 
-  final testStudent = StudentModel(
+  const testStudent = StudentModel(
     id: 'student_1',
     fullName: 'Test Student',
     gender: 'Male',
@@ -256,7 +256,7 @@ void main() {
 
       when(() => mockClient.from('teacher_attendance')).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(
-            null, const PostgrestException(message: 'Database error')),
+            null, const PostgrestException(message: 'Database error'),),
       );
 
       try {
@@ -355,7 +355,7 @@ void main() {
           date: '2024-01-01',
           markedBy: 'teacher_1',
           records: [
-            {'student': testStudent, 'status': 'present'}
+            {'student': testStudent, 'status': 'present'},
           ],
         ),
         throwsA(
@@ -376,7 +376,7 @@ void main() {
       );
       when(() => mockClient.from('student_attendance')).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(
-            null, const PostgrestException(message: 'Database error')),
+            null, const PostgrestException(message: 'Database error'),),
       );
 
       await expectLater(
@@ -384,7 +384,7 @@ void main() {
           date: '2024-01-01',
           markedBy: 'teacher_1',
           records: [
-            {'student': testStudent, 'status': 'present', 'reason': null}
+            {'student': testStudent, 'status': 'present', 'reason': null},
           ],
         ),
         throwsA(isA<PostgrestException>()),

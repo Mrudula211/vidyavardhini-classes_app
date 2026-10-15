@@ -121,7 +121,7 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.school_outlined,
-                                    size: 48, color: AppColors.lightOutline),
+                                    size: 48, color: AppColors.lightOutline,),
                                 const SizedBox(height: 12),
                                 Text(
                                   'No teachers found.',
@@ -170,7 +170,7 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon),
+                          size: 40, color: AppColors.maroon,),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load teachers.\n$err',
@@ -209,7 +209,7 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.1),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           foregroundColor: AppColors.primary,
           radius: 26,
           child: Text(
@@ -228,7 +228,7 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: (teacher.isActive ? Colors.green : Colors.grey).withOpacity(0.1),
+                color: (teacher.isActive ? Colors.green : Colors.grey).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: teacher.isActive ? Colors.green : Colors.grey),
               ),

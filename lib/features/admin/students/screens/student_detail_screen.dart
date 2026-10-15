@@ -64,7 +64,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
     if (confirm == true) {
       await ref.read(studentRepositoryProvider).banStudent(widget.studentId);
       ref.invalidate(studentListProvider);
-      _loadStudent();
+      await _loadStudent();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Student status updated to Banned')),
@@ -117,7 +117,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                   children: [
                     CircleAvatar(
                       radius: 40,
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       child: Text(
                         student.fullName.isNotEmpty ? student.fullName[0].toUpperCase() : 'S',
                         style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary),
@@ -139,7 +139,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                         student.status.toUpperCase(),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                       ),
-                      backgroundColor: _getStatusColor(student.status).withOpacity(0.2),
+                      backgroundColor: _getStatusColor(student.status).withValues(alpha: 0.2),
                       side: BorderSide(color: _getStatusColor(student.status)),
                     ),
                   ],

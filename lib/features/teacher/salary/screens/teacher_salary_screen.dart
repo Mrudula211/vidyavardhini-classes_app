@@ -61,7 +61,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.error_outline_rounded,
-                    size: 40, color: AppColors.maroon),
+                    size: 40, color: AppColors.maroon,),
                 const SizedBox(height: 12),
                 Text(
                   'Could not load salary records.\n$err',
@@ -94,7 +94,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(Icons.payments_outlined,
-                                size: 48, color: AppColors.lightOutline),
+                                size: 48, color: AppColors.lightOutline,),
                             const SizedBox(height: 12),
                             Text(
                               'No salary records yet.',
@@ -181,7 +181,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.bold,),
                 ),
                 Container(
                   padding:
@@ -195,7 +195,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
-                        fontWeight: FontWeight.bold),
+                        fontWeight: FontWeight.bold,),
                   ),
                 ),
               ],
@@ -209,16 +209,16 @@ class TeacherSalaryScreen extends ConsumerWidget {
             Text(
               '₹${record.earnedSalary.toStringAsFixed(0)}',
               style: const TextStyle(
-                  color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                  color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold,),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _summaryColumn('Base Salary',
-                    '₹${record.monthlySalary.toStringAsFixed(0)}'),
+                    '₹${record.monthlySalary.toStringAsFixed(0)}',),
                 _summaryColumn(
-                    'Present Days', '${record.presentDays}/${record.workingDays}'),
+                    'Present Days', '${record.presentDays}/${record.workingDays}',),
                 _summaryColumn('Absent Days', '${record.absentDays}'),
               ],
             ),
@@ -235,7 +235,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
         Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
         Text(value,
             style: const TextStyle(
-                color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold,),),
       ],
     );
   }

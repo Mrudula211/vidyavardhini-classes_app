@@ -50,7 +50,7 @@ class NotificationRepository {
               'type': type,
               'data': data,
               'sent_at': DateTime.now().toIso8601String(),
-            })
+            },)
         .toList();
     await _client.from('notifications').insert(rows);
   }

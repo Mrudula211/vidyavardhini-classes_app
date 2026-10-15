@@ -305,7 +305,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     child: Text(
                       teacher.fullName.isNotEmpty ? teacher.fullName[0].toUpperCase() : 'T',
                       style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary),
@@ -482,7 +482,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: AppColors.primary.withOpacity(0.1),
+                                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                                 child: Text(a['board'] ?? 'S', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
                               ),
                               title: Text('${a['board']} • Standard ${a['standard']}', style: const TextStyle(fontWeight: FontWeight.bold)),

@@ -206,7 +206,7 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                     children: [
                       CircleAvatar(
                         radius: 32,
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         child: Text(
                           student.fullName[0].toUpperCase(),
                           style: const TextStyle(

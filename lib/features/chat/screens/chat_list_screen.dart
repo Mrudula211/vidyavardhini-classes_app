@@ -43,7 +43,7 @@ class ChatListScreen extends ConsumerWidget {
             margin: const EdgeInsets.only(bottom: 12),
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.lightSurfaceVariant.withOpacity(0.5),
+              color: AppColors.lightSurfaceVariant.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -114,7 +114,7 @@ class ChatListScreen extends ConsumerWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     child: Text(
                       recipientName.isNotEmpty ? recipientName[0].toUpperCase() : 'U',
                       style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
@@ -190,7 +190,7 @@ class ChatListScreen extends ConsumerWidget {
                           final teacher = teachers[index];
                           return ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: AppColors.primary.withOpacity(0.1),
+                              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                               child: Text(teacher.fullName[0].toUpperCase()),
                             ),
                             title: Text(teacher.fullName),
@@ -203,7 +203,7 @@ class ChatListScreen extends ConsumerWidget {
                                   );
                               ref.invalidate(userChatRoomsProvider);
                               if (context.mounted) {
-                                context.push('/chat/$roomId');
+                                await context.push('/chat/$roomId');
                               }
                             },
                           );

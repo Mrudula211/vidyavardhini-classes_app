@@ -125,7 +125,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           maxWidth: MediaQuery.of(context).size.width * 0.75,
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
+                            horizontal: 14, vertical: 10,),
                         decoration: BoxDecoration(
                           color: isMe ? AppColors.primary : Colors.white,
                           borderRadius: BorderRadius.only(
@@ -138,7 +138,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -178,7 +178,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         borderRadius: BorderRadius.circular(24),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                          horizontal: 16, vertical: 10,),
                     ),
                     onSubmitted: (_) => _sendMessage(),
                   ),
@@ -195,7 +195,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2))
+                              color: Colors.white, strokeWidth: 2,),)
                       : const Icon(Icons.send),
                   onPressed: _sendMessage,
                 ),

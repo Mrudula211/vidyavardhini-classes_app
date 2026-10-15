@@ -43,7 +43,7 @@ class TeacherClassworkListScreen extends ConsumerWidget {
             margin: const EdgeInsets.only(bottom: 12),
             height: 96,
             decoration: BoxDecoration(
-              color: AppColors.lightSurfaceVariant.withOpacity(0.5),
+              color: AppColors.lightSurfaceVariant.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -110,7 +110,7 @@ class TeacherClassworkListScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

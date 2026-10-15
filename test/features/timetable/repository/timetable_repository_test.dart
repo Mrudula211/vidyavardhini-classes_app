@@ -1,9 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vidyavardhini_classes/features/timetable/repository/timetable_repository.dart';
 import 'package:vidyavardhini_classes/shared/models/timetable_model.dart';
-import 'dart:async';
 
 class FakeSupabaseClient extends Fake implements SupabaseClient {
   dynamic timetableSlotsBuilder;
@@ -21,23 +19,26 @@ class FakeSupabaseClient extends Fake implements SupabaseClient {
 }
 
 class FakeSupabaseQueryBuilder extends Fake implements SupabaseQueryBuilder {
-  dynamic
-      filterBuilder; // Can be FakePostgrestFilterBuilder or FakePostgrestFilterBuilderSingle
+  final dynamic filterBuilder;
+
+  FakeSupabaseQueryBuilder([this.filterBuilder]);
 
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> select(
-      [String columns = '*']) {
+      [String columns = '*',]) {
     return filterBuilder! as PostgrestFilterBuilder<List<Map<String, dynamic>>>;
   }
 }
 
 class FakeSupabaseQueryBuilderSingle extends Fake
     implements SupabaseQueryBuilder {
-  dynamic filterBuilder;
+  final dynamic filterBuilder;
+
+  FakeSupabaseQueryBuilderSingle([this.filterBuilder]);
 
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> select(
-      [String columns = '*']) {
+      [String columns = '*',]) {
     // We need to return dynamic or fake it out if `select` is strictly typed.
     return filterBuilder as PostgrestFilterBuilder<List<Map<String, dynamic>>>;
   }
@@ -63,7 +64,7 @@ class FakePostgrestFilterBuilder extends Fake
 
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> eq(
-      String column, Object value) {
+      String column, Object value,) {
     appliedFilters[column] = value;
     return this;
   }
@@ -72,7 +73,7 @@ class FakePostgrestFilterBuilder extends Fake
   PostgrestTransformBuilder<List<Map<String, dynamic>>> order(String column,
       {bool ascending = false,
       bool nullsFirst = false,
-      String? referencedTable}) {
+      String? referencedTable,}) {
     return FakePostgrestTransformBuilder(_result, shouldThrow: shouldThrow);
   }
 }
@@ -87,13 +88,14 @@ class FakePostgrestTransformBuilder extends Fake
   @override
   dynamic noSuchMethod(Invocation invocation) {
     if (invocation.memberName == #then) {
-      final Function onValue = invocation.positionalArguments[0];
+      final onValue = invocation.positionalArguments[0]
+          as FutureOr<dynamic> Function(List<Map<String, dynamic>>);
 
       if (shouldThrow) {
         return Future<List<Map<String, dynamic>>>.error(_result);
       }
       return Future.value(_result as List<Map<String, dynamic>>)
-          .then((val) => onValue(val));
+          .then(onValue);
     }
     return super.noSuchMethod(invocation);
   }
@@ -274,7 +276,7 @@ class FakePostgrestFilterBuilderSingle extends Fake
 
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> eq(
-      String column, Object value) {
+      String column, Object value,) {
     appliedFilters[column] = value;
     return this;
   }
@@ -297,7 +299,7 @@ class FakePostgrestTransformBuilderSingle extends Fake
   dynamic noSuchMethod(Invocation invocation) {
     if (invocation.memberName == #then) {
       final Function onValue = invocation.positionalArguments[0];
-      return Future.value(_result).then((val) => onValue(val));
+      return Future.value(_result).then(onValue);
     }
     return super.noSuchMethod(invocation);
   }

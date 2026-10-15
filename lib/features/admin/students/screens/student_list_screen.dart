@@ -216,7 +216,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.people_outline_rounded,
-                                    size: 48, color: AppColors.lightOutline),
+                                    size: 48, color: AppColors.lightOutline,),
                                 const SizedBox(height: 12),
                                 Text(
                                   'No students found.',
@@ -265,7 +265,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon),
+                          size: 40, color: AppColors.maroon,),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load students.\n$err',
@@ -298,7 +298,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
       child: FilterChip(
         selected: isSelected,
         label: Text(label),
-        selectedColor: AppColors.primary.withOpacity(0.2),
+        selectedColor: AppColors.primary.withValues(alpha: 0.2),
         checkmarkColor: AppColors.primary,
         onSelected: (selected) {
           ref.read(studentFilterStatusProvider.notifier).state = value;
@@ -332,7 +332,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.1),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           foregroundColor: AppColors.primary,
           radius: 26,
           child: student.profilePhotoUrl != null
@@ -383,7 +383,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: statusColor),
               ),

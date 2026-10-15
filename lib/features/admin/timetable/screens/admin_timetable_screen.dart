@@ -131,7 +131,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.event_note_outlined,
-                                    size: 48, color: AppColors.lightOutline),
+                                    size: 48, color: AppColors.lightOutline,),
                                 const SizedBox(height: 12),
                                 Text(
                                   'No schedule slots for this day.',
@@ -143,7 +143,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                                 const SizedBox(height: 16),
                                 ElevatedButton.icon(
                                   onPressed: () => _openAddSlotSheet(
-                                      context, selectedBoard, selectedStandard, selectedDay),
+                                      context, selectedBoard, selectedStandard, selectedDay,),
                                   icon: const Icon(Icons.add),
                                   label: const Text('Add Schedule Slot'),
                                 ),
@@ -178,7 +178,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon),
+                          size: 40, color: AppColors.maroon,),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load timetable.\n$err',
@@ -232,7 +232,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.1),
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           child: Text(
             slotsIndex(slot.startTime),
             style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 12),

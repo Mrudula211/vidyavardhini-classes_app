@@ -180,7 +180,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   child: ListTile(
                                     leading: CircleAvatar(
-                                      backgroundColor: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
+                                      backgroundColor: (isPresent ? Colors.green : Colors.red).withValues(alpha: 0.1),
                                       child: Icon(
                                         isPresent ? Icons.check : Icons.close,
                                         color: isPresent ? Colors.green : Colors.red,
@@ -198,7 +198,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                                     trailing: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: (isPresent ? Colors.green : Colors.red).withOpacity(0.1),
+                                        color: (isPresent ? Colors.green : Colors.red).withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(color: isPresent ? Colors.green : Colors.red),
                                       ),
@@ -228,7 +228,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon),
+                          size: 40, color: AppColors.maroon,),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load attendance overview.\n$err',
@@ -256,9 +256,9 @@ class AdminAttendanceScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
