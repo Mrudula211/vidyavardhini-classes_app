@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/fee_model.dart';
+import '../../../../shared/widgets/offline_banner.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../fees/providers/fee_providers.dart';
 
@@ -50,6 +51,7 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
 
   Future<void> _submitPayment() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!guardOnline(context, ref)) return;
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) return;
 

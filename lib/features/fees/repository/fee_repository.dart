@@ -1,4 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/online_cache_fetch.dart';
 import '../../../shared/models/fee_model.dart';
 
 class FeeRepository {
@@ -76,17 +79,21 @@ class FeeRepository {
 
   Future<List<MonthlyFeeModel>> fetchStudentFeeHistory({
     required String studentId,
-  }) async {
-    final data = await _client
-        .from('monthly_fees')
-        .select('*, student_profiles(*)')
-        .eq('student_id', studentId)
-        .order('year', ascending: false)
-        .order('month', ascending: false);
-
-    return (data as List)
-        .map((json) => MonthlyFeeModel.fromJson(json))
-        .toList();
+  }) {
+    return fetchWithCacheFallback<MonthlyFeeModel>(
+      cacheKey: 'fees_student_$studentId',
+      ttlMinutes: AppConstants.feeCacheMins,
+      fromJson: MonthlyFeeModel.fromJson,
+      load: () async {
+        final data = await _client
+            .from('monthly_fees')
+            .select('*, student_profiles(*)')
+            .eq('student_id', studentId)
+            .order('year', ascending: false)
+            .order('month', ascending: false);
+        return normalizeCacheRows(data as List);
+      },
+    );
   }
 
   Future<List<FeePaymentModel>> fetchFeePayments(String monthlyFeeId) async {

@@ -1,10 +1,16 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/constants/app_constants.dart';
 import '../../../shared/models/chat_model.dart';
 
 class ChatRepository {
   final SupabaseClient _client;
 
-  ChatRepository({SupabaseClient? client}) : _client = client ?? Supabase.instance.client;
+  /// Max messages kept in the realtime stream window (UI + memory).
+  static const int messageWindowSize = AppConstants.pageSize * 4;
+
+  ChatRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
 
   Future<List<ChatRoomModel>> fetchUserChatRooms({
     required String userId,
@@ -80,7 +86,11 @@ class ChatRepository {
         .stream(primaryKey: ['id'])
         .eq('room_id', roomId)
         .order('created_at', ascending: true)
-        .map((data) => data.map(ChatMessageModel.fromJson).toList());
+        .map((data) {
+      final all = data.map(ChatMessageModel.fromJson).toList();
+      if (all.length <= messageWindowSize) return all;
+      return all.sublist(all.length - messageWindowSize);
+    });
   }
 
   Future<ChatRoomModel?> fetchChatRoomById(String roomId) async {

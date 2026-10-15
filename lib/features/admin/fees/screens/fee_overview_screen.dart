@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/fee_model.dart';
+import '../../../../shared/widgets/offline_banner.dart';
 import '../../../fees/providers/fee_providers.dart';
 import '../widgets/add_payment_sheet.dart';
 
@@ -16,6 +19,7 @@ class FeeOverviewScreen extends ConsumerStatefulWidget {
 
 class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
   bool _isGenerating = false;
 
   final List<String> _months = [
@@ -25,11 +29,13 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
   Future<void> _generateMonthlyFees() async {
+    if (!guardOnline(context, ref)) return;
     final month = ref.read(selectedFeeMonthProvider);
     final year = ref.read(selectedFeeYearProvider);
 
@@ -146,7 +152,13 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onChanged: (val) {
-                    ref.read(feeSearchQueryProvider.notifier).state = val;
+                    _searchDebounce?.cancel();
+                    _searchDebounce = Timer(
+                      const Duration(milliseconds: 350),
+                      () {
+                        ref.read(feeSearchQueryProvider.notifier).state = val;
+                      },
+                    );
                   },
                 ),
                 const SizedBox(height: 12),

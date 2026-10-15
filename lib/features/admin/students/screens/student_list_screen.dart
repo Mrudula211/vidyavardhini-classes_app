@@ -1,7 +1,11 @@
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/student_model.dart';
@@ -16,10 +20,12 @@ class StudentListScreen extends ConsumerStatefulWidget {
 
 class _StudentListScreenState extends ConsumerState<StudentListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
   bool _isRefreshing = false;
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -92,7 +98,10 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
-                              ref.read(studentSearchQueryProvider.notifier).state = '';
+                              ref.read(studentSearchQueryProvider.notifier).state =
+                                  '';
+                              ref.read(studentListPageProvider.notifier).state =
+                                  0;
                             },
                           )
                         : null,
@@ -101,7 +110,15 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                     ),
                   ),
                   onChanged: (value) {
-                    ref.read(studentSearchQueryProvider.notifier).state = value;
+                    _searchDebounce?.cancel();
+                    _searchDebounce = Timer(
+                      const Duration(milliseconds: 350),
+                      () {
+                        ref.read(studentSearchQueryProvider.notifier).state =
+                            value;
+                        ref.read(studentListPageProvider.notifier).state = 0;
+                      },
+                    );
                   },
                 ),
                 const SizedBox(height: 12),
@@ -137,7 +154,9 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                         ],
                         onChanged: (val) {
                           if (val != null) {
-                            ref.read(studentFilterBoardProvider.notifier).state = val;
+                            ref.read(studentFilterBoardProvider.notifier).state =
+                                val;
+                            ref.read(studentListPageProvider.notifier).state = 0;
                           }
                         },
                       ),
@@ -165,7 +184,10 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                         ],
                         onChanged: (val) {
                           if (val != null) {
-                            ref.read(studentFilterStandardProvider.notifier).state = val;
+                            ref
+                                .read(studentFilterStandardProvider.notifier)
+                                .state = val;
+                            ref.read(studentListPageProvider.notifier).state = 0;
                           }
                         },
                       ),
@@ -261,6 +283,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
               ),
             ),
           ),
+          _StudentListPager(studentsAsync: studentsAsync),
         ],
       ),
     );
@@ -279,6 +302,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
         checkmarkColor: AppColors.primary,
         onSelected: (selected) {
           ref.read(studentFilterStatusProvider.notifier).state = value;
+          ref.read(studentListPageProvider.notifier).state = 0;
         },
       ),
     );
@@ -311,15 +335,42 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
           backgroundColor: AppColors.primary.withOpacity(0.1),
           foregroundColor: AppColors.primary,
           radius: 26,
-          backgroundImage: student.profilePhotoUrl != null
-              ? NetworkImage(student.profilePhotoUrl!)
-              : null,
-          child: student.profilePhotoUrl == null
-              ? Text(
-                  student.fullName.isNotEmpty ? student.fullName[0].toUpperCase() : 'S',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          child: student.profilePhotoUrl != null
+              ? ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: student.profilePhotoUrl!,
+                    width: 52,
+                    height: 52,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Text(
+                      student.fullName.isNotEmpty
+                          ? student.fullName[0].toUpperCase()
+                          : 'S',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Text(
+                      student.fullName.isNotEmpty
+                          ? student.fullName[0].toUpperCase()
+                          : 'S',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
                 )
-              : null,
+              : Text(
+                  student.fullName.isNotEmpty
+                      ? student.fullName[0].toUpperCase()
+                      : 'S',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
         ),
         title: Row(
           children: [
@@ -370,6 +421,50 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
             context.push('/admin/students/${student.id}');
           }
         },
+      ),
+    );
+  }
+}
+
+class _StudentListPager extends ConsumerWidget {
+  const _StudentListPager({required this.studentsAsync});
+
+  final AsyncValue<List<StudentModel>> studentsAsync;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final page = ref.watch(studentListPageProvider);
+    final length = studentsAsync.value?.length ?? 0;
+    if (page == 0 && length < AppConstants.pageSize) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          TextButton.icon(
+            icon: const Icon(Icons.chevron_left_rounded),
+            label: const Text('Previous'),
+            onPressed: page > 0
+                ? () =>
+                    ref.read(studentListPageProvider.notifier).state = page - 1
+                : null,
+          ),
+          Text(
+            'Page ${page + 1}',
+            style: AppTypography.poppins(fontSize: 12),
+          ),
+          TextButton.icon(
+            icon: const Icon(Icons.chevron_right_rounded),
+            label: const Text('Next'),
+            onPressed: length >= AppConstants.pageSize
+                ? () =>
+                    ref.read(studentListPageProvider.notifier).state = page + 1
+                : null,
+          ),
+        ],
       ),
     );
   }

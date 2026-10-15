@@ -10,6 +10,7 @@ final studentFilterStatusProvider = StateProvider<String>((ref) => 'all');
 final studentSearchQueryProvider = StateProvider<String>((ref) => '');
 final studentFilterBoardProvider = StateProvider<String>((ref) => 'all');
 final studentFilterStandardProvider = StateProvider<String>((ref) => 'all');
+final studentListPageProvider = StateProvider<int>((ref) => 0);
 
 final studentListProvider = FutureProvider<List<StudentModel>>((ref) async {
   final repo = ref.watch(studentRepositoryProvider);
@@ -17,12 +18,14 @@ final studentListProvider = FutureProvider<List<StudentModel>>((ref) async {
   final search = ref.watch(studentSearchQueryProvider);
   final board = ref.watch(studentFilterBoardProvider);
   final standard = ref.watch(studentFilterStandardProvider);
+  final page = ref.watch(studentListPageProvider);
 
   return repo.fetchStudents(
     status: status,
     searchQuery: search,
     board: board,
     standard: standard,
+    page: page,
   );
 });
 

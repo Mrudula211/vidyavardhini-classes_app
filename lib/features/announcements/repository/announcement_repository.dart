@@ -1,13 +1,19 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/online_cache_fetch.dart';
 import '../../../shared/models/announcement_model.dart';
 import '../../notifications/repository/notification_repository.dart';
 
 class AnnouncementRepository {
-  AnnouncementRepository({NotificationRepository? notificationRepository})
-      : _notificationRepository =
+  AnnouncementRepository({
+    SupabaseClient? client,
+    NotificationRepository? notificationRepository,
+  })  : _client = client ?? Supabase.instance.client,
+        _notificationRepository =
             notificationRepository ?? NotificationRepository();
 
-  final SupabaseClient _client = Supabase.instance.client;
+  final SupabaseClient _client;
   final NotificationRepository _notificationRepository;
 
   Future<void> createAnnouncement({
@@ -46,40 +52,51 @@ class AnnouncementRepository {
   Future<List<AnnouncementModel>> fetchUserAnnouncements({
     required String userId,
     required String role,
-  }) async {
-    final dynamic query = _client.from('announcements').select();
+  }) {
+    final cacheKey = 'announcements_${role}_$userId';
 
-    if (role == 'admin') {
-      // Admin sees all announcements
-      final data = await query.order('created_at', ascending: false);
-      return (data as List).map((j) => AnnouncementModel.fromJson(j)).toList();
-    }
+    return fetchWithCacheFallback<AnnouncementModel>(
+      cacheKey: cacheKey,
+      ttlMinutes: AppConstants.announcementCacheMins,
+      fromJson: AnnouncementModel.fromJson,
+      load: () async {
+        final dynamic query = _client.from('announcements').select();
 
-    if (role == 'teacher') {
-      final data = await query
-          .or('target_type.eq.all,target_type.eq.teachers')
-          .order('created_at', ascending: false);
-      return (data as List).map((j) => AnnouncementModel.fromJson(j)).toList();
-    }
+        if (role == 'admin') {
+          final data = await query.order('created_at', ascending: false);
+          return normalizeCacheRows(data as List);
+        }
 
-    if (role == 'student') {
-      final profile = await _client
-          .from('student_profiles')
-          .select('board, standard')
-          .eq('id', userId)
-          .single();
+        if (role == 'teacher') {
+          final data = await query
+              .or('target_type.eq.all,target_type.eq.teachers')
+              .order('created_at', ascending: false);
+          return normalizeCacheRows(data as List);
+        }
 
-      final board = profile['board'] as String?;
-      final standard = profile['standard'] as String?;
+        if (role == 'student') {
+          final profile = await _client
+              .from('student_profiles')
+              .select('board, standard')
+              .eq('id', userId)
+              .single();
 
-      final data = await query.or(
-        'target_type.eq.all,target_type.eq.students,and(target_type.eq.specific_class,target_board.eq.$board,target_standard.eq.$standard)',
-      ).order('created_at', ascending: false);
+          final board = profile['board'] as String?;
+          final standard = profile['standard'] as String?;
 
-      return (data as List).map((j) => AnnouncementModel.fromJson(j)).toList();
-    }
+          final data = await query
+              .or(
+                'target_type.eq.all,target_type.eq.students,and(target_type.eq.specific_class,target_board.eq.$board,target_standard.eq.$standard)',
+              )
+              .order('created_at', ascending: false);
+          return normalizeCacheRows(data as List);
+        }
 
-    final data = await query.eq('target_type', 'all').order('created_at', ascending: false);
-    return (data as List).map((j) => AnnouncementModel.fromJson(j)).toList();
+        final data = await query
+            .eq('target_type', 'all')
+            .order('created_at', ascending: false);
+        return normalizeCacheRows(data as List);
+      },
+    );
   }
 }

@@ -145,9 +145,19 @@ Shell widgets wrap feature screens with role-appropriate navigation bars.
                               ↓
           GoRouter redirect logic reads authStateProvider
           → routes to correct shell
+          → student: also gates on status (pending / rejected / banned)
+            and forces StudentPasswordScreen when email is unset
 ```
 
 Role is stored in the `users` table and embedded in JWT via a Supabase Auth hook (PostgreSQL function).
+
+`NotificationService` registers FCM, saves `users.fcm_token` (including on auth state change), and exposes foreground/background handlers. Dashboards use `NotificationBellButton` with an unread badge backed by `unreadNotificationCountProvider`.
+
+### Offline & cache
+
+- `CacheService` (Hive box `app_cache`) stores JSON list payloads with TTL.
+- Read repositories for announcements, homework, student attendance (month), and student fees use `fetchWithCacheFallback` so a failed network call returns last-good cache when available.
+- `connectivityStatusProvider` / `isOnlineProvider` drive a global `OfflineBanner`; write screens call `guardOnline()` before mutating.
 
 ---
 

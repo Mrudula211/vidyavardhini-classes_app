@@ -31,9 +31,16 @@ final studentsForAttendanceProvider = FutureProvider<List<Map<String, dynamic>>>
   );
 });
 
-final studentAttendanceHistoryProvider = FutureProvider.family<List<StudentAttendanceModel>, String>((ref, studentId) async {
+final studentAttendanceMonthProvider = StateProvider<DateTime>((ref) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month);
+});
+
+final studentAttendanceHistoryProvider =
+    FutureProvider.family<List<StudentAttendanceModel>, String>((ref, studentId) async {
   final repo = ref.watch(attendanceRepositoryProvider);
-  return repo.fetchStudentAttendanceHistory(studentId: studentId);
+  final month = ref.watch(studentAttendanceMonthProvider);
+  return repo.fetchStudentAttendanceHistory(studentId: studentId, month: month);
 });
 
 final adminAttendanceOverviewProvider = FutureProvider<List<StudentAttendanceModel>>((ref) async {

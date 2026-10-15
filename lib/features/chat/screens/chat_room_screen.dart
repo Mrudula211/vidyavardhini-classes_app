@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/offline_banner.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/chat_providers.dart';
 
@@ -32,6 +33,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
+    if (!guardOnline(context, ref)) return;
 
     final user = ref.read(currentUserProvider);
     if (user == null) return;

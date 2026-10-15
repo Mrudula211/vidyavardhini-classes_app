@@ -1,14 +1,21 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/models/student_model.dart';
 
 class StudentRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  StudentRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
+
+  final SupabaseClient _client;
 
   Future<List<StudentModel>> fetchStudents({
     String? status,
     String? searchQuery,
     String? board,
     String? standard,
+    int page = 0,
+    int pageSize = AppConstants.pageSize,
   }) async {
     dynamic query = _client.from('student_profiles').select();
 
@@ -26,10 +33,15 @@ class StudentRepository {
 
     if (searchQuery != null && searchQuery.trim().isNotEmpty) {
       final q = '%${searchQuery.trim()}%';
-      query = query.or('full_name.ilike.$q,parent_phone.ilike.$q,student_id.ilike.$q');
+      query = query.or(
+        'full_name.ilike.$q,parent_phone.ilike.$q,student_id.ilike.$q',
+      );
     }
 
-    final data = await query.order('created_at', ascending: false);
+    final start = page * pageSize;
+    final end = start + pageSize - 1;
+    final data =
+        await query.order('created_at', ascending: false).range(start, end);
     return (data as List).map((json) => StudentModel.fromJson(json)).toList();
   }
 

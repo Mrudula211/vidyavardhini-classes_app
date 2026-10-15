@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/notification_bell_button.dart';
 
-class StudentDashboardScreen extends StatelessWidget {
+class StudentDashboardScreen extends ConsumerWidget {
   const StudentDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Student Dashboard'),
+        actions: const [
+          NotificationBellButton(iconColor: AppColors.primary),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

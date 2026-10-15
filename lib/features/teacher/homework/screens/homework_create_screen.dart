@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/offline_banner.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../attendance/providers/attendance_providers.dart';
 import '../../../content/providers/content_providers.dart';
@@ -43,6 +44,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
 
   Future<void> _submitHomework() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!guardOnline(context, ref)) return;
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) return;
 

@@ -1,6 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/online_cache_fetch.dart';
 import '../../../shared/models/attendance_model.dart';
 import '../../../shared/models/student_model.dart';
 
@@ -146,18 +150,38 @@ class AttendanceRepository {
     }
   }
 
+  /// Attendance for [studentId] within [month] (year+month). Defaults to the
+  /// current calendar month so the query stays bounded as history grows.
   Future<List<StudentAttendanceModel>> fetchStudentAttendanceHistory({
     required String studentId,
-  }) async {
-    final data = await _client
-        .from('student_attendance')
-        .select('*, absence_reasons(*)')
-        .eq('student_id', studentId)
-        .order('date', ascending: false);
+    DateTime? month,
+  }) {
+    final target = month ?? DateTime.now();
+    final start =
+        DateTime(target.year, target.month, 1).toIso8601String().split('T').first;
+    final endDay = DateTime(target.year, target.month + 1, 0).day;
+    final end = DateTime(target.year, target.month, endDay)
+        .toIso8601String()
+        .split('T')
+        .first;
+    final cacheKey =
+        'attendance_${studentId}_${target.year}_${target.month}';
 
-    return (data as List)
-        .map((j) => StudentAttendanceModel.fromJson(j))
-        .toList();
+    return fetchWithCacheFallback<StudentAttendanceModel>(
+      cacheKey: cacheKey,
+      ttlMinutes: AppConstants.attendanceCacheMins,
+      fromJson: StudentAttendanceModel.fromJson,
+      load: () async {
+        final data = await _client
+            .from('student_attendance')
+            .select('*, absence_reasons(*)')
+            .eq('student_id', studentId)
+            .gte('date', start)
+            .lte('date', end)
+            .order('date', ascending: false);
+        return normalizeCacheRows(data as List);
+      },
+    );
   }
 
   Future<List<StudentAttendanceModel>> fetchAdminAttendanceOverview({

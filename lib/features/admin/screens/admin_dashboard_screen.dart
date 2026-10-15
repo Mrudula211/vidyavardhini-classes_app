@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../shared/widgets/notification_bell_button.dart';
 import '../students/providers/student_providers.dart';
 import '../../auth/providers/auth_providers.dart';
 
@@ -34,6 +35,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          const NotificationBellButton(),
           IconButton(
             tooltip: 'Announcements',
             icon: const Icon(Icons.campaign_outlined, color: AppColors.gold),

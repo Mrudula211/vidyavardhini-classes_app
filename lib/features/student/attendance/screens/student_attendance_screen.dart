@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -8,6 +9,21 @@ import '../../../attendance/providers/attendance_providers.dart';
 
 class StudentAttendanceScreen extends ConsumerWidget {
   const StudentAttendanceScreen({super.key});
+
+  Future<void> _pickMonth(BuildContext context, WidgetRef ref) async {
+    final current = ref.read(studentAttendanceMonthProvider);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: current,
+      firstDate: DateTime(current.year - 3),
+      lastDate: DateTime.now(),
+      helpText: 'Select month',
+    );
+    if (picked != null) {
+      ref.read(studentAttendanceMonthProvider.notifier).state =
+          DateTime(picked.year, picked.month);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,15 +37,23 @@ class StudentAttendanceScreen extends ConsumerWidget {
     }
 
     final historyAsync = ref.watch(studentAttendanceHistoryProvider(user.id));
+    final selectedMonth = ref.watch(studentAttendanceMonthProvider);
+    final monthLabel = DateFormat('MMMM yyyy').format(selectedMonth);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Attendance'),
         actions: [
           IconButton(
+            tooltip: 'Pick month',
+            icon: const Icon(Icons.calendar_month_rounded),
+            onPressed: () => _pickMonth(context, ref),
+          ),
+          IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(studentAttendanceHistoryProvider(user.id)),
+            onPressed: () =>
+                ref.invalidate(studentAttendanceHistoryProvider(user.id)),
           ),
         ],
       ),
@@ -38,10 +62,20 @@ class StudentAttendanceScreen extends ConsumerWidget {
           final totalDays = records.length;
           final presentDays = records.where((r) => r.status == 'present').length;
           final absentDays = records.where((r) => r.status == 'absent').length;
-          final percentage = totalDays > 0 ? (presentDays / totalDays * 100).toStringAsFixed(1) : '0.0';
+          final percentage = totalDays > 0
+              ? (presentDays / totalDays * 100).toStringAsFixed(1)
+              : '0.0';
 
           return Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: OutlinedButton.icon(
+                  onPressed: () => _pickMonth(context, ref),
+                  icon: const Icon(Icons.calendar_month_rounded, size: 18),
+                  label: Text(monthLabel),
+                ),
+              ),
               // Summary Cards
               Container(
                 padding: const EdgeInsets.all(16.0),

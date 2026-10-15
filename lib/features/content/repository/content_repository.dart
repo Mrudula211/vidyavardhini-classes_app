@@ -1,8 +1,14 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/online_cache_fetch.dart';
 import '../../../shared/models/content_model.dart';
 
 class ContentRepository {
-  final SupabaseClient _client = Supabase.instance.client;
+  ContentRepository({SupabaseClient? client})
+      : _client = client ?? Supabase.instance.client;
+
+  final SupabaseClient _client;
 
   // ── Homework Operations ──────────────────────────────────────────
   Future<void> createHomework({
@@ -36,35 +42,49 @@ class ContentRepository {
     });
   }
 
-  Future<List<HomeworkModel>> fetchTeacherHomeworkList(String teacherId) async {
-    final data = await _client
-        .from('homework')
-        .select('*, teacher_profiles(*), homework_attachments(*)')
-        .eq('teacher_id', teacherId)
-        .order('created_at', ascending: false);
-
-    return (data as List).map((j) => HomeworkModel.fromJson(j)).toList();
+  Future<List<HomeworkModel>> fetchTeacherHomeworkList(String teacherId) {
+    return fetchWithCacheFallback<HomeworkModel>(
+      cacheKey: 'homework_teacher_$teacherId',
+      ttlMinutes: AppConstants.homeworkCacheMins,
+      fromJson: HomeworkModel.fromJson,
+      load: () async {
+        final data = await _client
+            .from('homework')
+            .select('*, teacher_profiles(*), homework_attachments(*)')
+            .eq('teacher_id', teacherId)
+            .order('created_at', ascending: false)
+            .limit(AppConstants.pageSize);
+        return normalizeCacheRows(data as List);
+      },
+    );
   }
 
-  Future<List<HomeworkModel>> fetchStudentHomeworkList(String studentId) async {
-    final profile = await _client
-        .from('student_profiles')
-        .select('board, standard')
-        .eq('id', studentId)
-        .single();
+  Future<List<HomeworkModel>> fetchStudentHomeworkList(String studentId) {
+    return fetchWithCacheFallback<HomeworkModel>(
+      cacheKey: 'homework_student_$studentId',
+      ttlMinutes: AppConstants.homeworkCacheMins,
+      fromJson: HomeworkModel.fromJson,
+      load: () async {
+        final profile = await _client
+            .from('student_profiles')
+            .select('board, standard')
+            .eq('id', studentId)
+            .single();
 
-    final board = profile['board'] as String;
-    final standard = profile['standard'] as String;
+        final board = profile['board'] as String;
+        final standard = profile['standard'] as String;
 
-    final data = await _client
-        .from('homework')
-        .select('*, teacher_profiles(*), homework_attachments(*)')
-        .eq('board', board)
-        .eq('standard', standard)
-        .eq('is_active', true)
-        .order('due_date', ascending: true);
-
-    return (data as List).map((j) => HomeworkModel.fromJson(j)).toList();
+        final data = await _client
+            .from('homework')
+            .select('*, teacher_profiles(*), homework_attachments(*)')
+            .eq('board', board)
+            .eq('standard', standard)
+            .eq('is_active', true)
+            .order('due_date', ascending: true)
+            .limit(AppConstants.pageSize);
+        return normalizeCacheRows(data as List);
+      },
+    );
   }
 
   // ── Classwork Operations ─────────────────────────────────────────
@@ -102,7 +122,8 @@ class ContentRepository {
         .from('classwork')
         .select('*, teacher_profiles(*), classwork_attachments(*)')
         .eq('teacher_id', teacherId)
-        .order('created_at', ascending: false);
+        .order('created_at', ascending: false)
+        .limit(AppConstants.pageSize);
 
     return (data as List).map((j) => ClassworkModel.fromJson(j)).toList();
   }
@@ -123,7 +144,8 @@ class ContentRepository {
         .eq('board', board)
         .eq('standard', standard)
         .eq('is_active', true)
-        .order('created_at', ascending: false);
+        .order('created_at', ascending: false)
+        .limit(AppConstants.pageSize);
 
     return (data as List).map((j) => ClassworkModel.fromJson(j)).toList();
   }

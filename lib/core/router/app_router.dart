@@ -117,6 +117,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           }
           return null;
         }
+
+        // Active students without an email/password must set one before
+        // reaching student routes (splash already does this once; enforce
+        // here too so deep links cannot skip the step).
+        if (status == 'active') {
+          final email = session?.user.email;
+          final needsPassword = email == null || email.trim().isEmpty;
+          if (needsPassword && uri != Routes.studentSetPassword) {
+            return Routes.studentSetPassword;
+          }
+          if (!needsPassword && uri == Routes.studentSetPassword) {
+            return Routes.studentDashboard;
+          }
+        }
       }
 
       // Check route against roles
@@ -131,7 +145,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       }
 
       // If user goes to auth routes while logged in, redirect to dashboard
-      if (isAuthRoute && uri != Routes.splash && uri != Routes.pendingApproval) {
+      if (isAuthRoute &&
+          uri != Routes.splash &&
+          uri != Routes.pendingApproval &&
+          uri != Routes.studentSetPassword) {
         return _getDashboardRoute(role);
       }
 

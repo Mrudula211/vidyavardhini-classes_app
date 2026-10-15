@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'app_page_transitions.dart';
 import 'app_typography.dart';
 
 class AppTheme {
@@ -8,6 +9,7 @@ class AppTheme {
   static ThemeData get light => ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
+        pageTransitionsTheme: appPageTransitionsTheme,
         colorScheme: const ColorScheme.light(
           primary: AppColors.maroon,
           onPrimary: AppColors.parchment,
@@ -169,6 +171,7 @@ class AppTheme {
           onError: AppColors.darkBackground,
         ),
         scaffoldBackgroundColor: AppColors.darkBackground,
+        pageTransitionsTheme: appPageTransitionsTheme,
         textTheme: AppTypography.darkTextTheme,
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.darkSurface,

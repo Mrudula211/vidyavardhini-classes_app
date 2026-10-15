@@ -71,7 +71,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] `PendingApprovalScreen` — shown until admin approves
 
 #### Student Auth (Returning)
-- [ ] `StudentPasswordScreen` — first login after approval (set password)
+- [x] `StudentPasswordScreen` — first login after approval (set password)
 - [x] Standard login with phone + OTP for returning students
 
 #### Route Guards
@@ -296,13 +296,13 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 **Deliverable:** All 10 development phases complete and verified.
 
 #### Notifications
-- [ ] `NotificationService` — FCM init, token save, foreground/background handlers
-- [ ] `NotificationListScreen` — in-app notification history
-- [ ] Unread badge on notification bell icon
+- [x] `NotificationService` — FCM init, token save, foreground/background handlers; re-saves token on auth state change
+- [x] `NotificationListScreen` — in-app notification history
+- [x] Unread badge on notification bell icon — `NotificationBellButton` on admin/teacher/student dashboards
 
 #### Audit Logs
-- [ ] `AuditLogsScreen` — filter by action type / date / user
-- [ ] Detail view with JSON diff display
+- [x] `AuditLogsScreen` — filter by action type / date / user
+- [x] Detail view with JSON diff display
 
 #### Backup
 - [ ] Edge Function: `backup-trigger` (daily cron)
@@ -323,18 +323,18 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Empty state icon+message on all audited list screens
 - [x] Error states with retry buttons on all audited list screens (several had no Retry button at all before this pass — fee overview, admin attendance, admin timetable, chat list)
 - [x] Pull-to-refresh on all audited data screens (fee overview, admin attendance, and admin timetable had none at all before this pass)
-- [ ] Smooth page transitions
+- [x] Smooth page transitions — app-wide fade+slide via `FadeSlidePageTransitionsBuilder` on light/dark themes
 - [ ] Dark mode QA pass — every screen
 
 #### Offline
-- [ ] Hive caching for: announcements, homework list, attendance, fees (read-only)
-- [ ] Offline banner widget
-- [ ] Graceful offline mode (show cached data, disable write actions)
+- [x] Hive caching for: announcements, homework list, attendance (per month), student fees (read-only) via `CacheService` + `fetchWithCacheFallback`
+- [x] Offline banner widget — global `OfflineBanner` in `MaterialApp.router` builder
+- [x] Graceful offline mode — cached reads on failure; `guardOnline()` blocks attendance submit, fee payment, announcements, homework create, and chat send
 
 #### Performance
-- [ ] All list views paginated (page size 25) — audited, not yet implemented. Unbounded queries found in: `student_repository.fetchStudents()` (highest risk — student count only grows, IDs never reused), `attendance_repository`'s student attendance history query (grows daily forever, highest risk of all), `content_repository`'s homework/classwork queries, `chat_repository`'s messages-per-room query. Lower risk (naturally bounded): teacher list, fee overview (per-month), admin attendance overview (per-day), timetable, monthly fees history (~12 rows/year), chat room list.
-- [ ] Image caching via `cached_network_image`
-- [ ] Query debouncing on search inputs
+- [x] High-risk list queries bounded (page size 25 / month scope): `student_repository.fetchStudents()` paginated with Previous/Next UI; student attendance history scoped to selected month; homework/classwork list queries limited to `AppConstants.pageSize`; chat message stream windowed to last 100 messages client-side.
+- [x] Image caching via `cached_network_image` on student list avatars (extend to remaining avatar sites as they are touched)
+- [x] Query debouncing on student list and fee overview search (350ms)
 - [ ] Profile photo compression before upload
 
 #### Security QA
@@ -342,7 +342,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Route guard audit — found and fixed a real gap: the GoRouter `redirect` only checked role, not student `status`, so a pending/rejected/banned student with a still-valid session could reach `/student/*` routes directly (e.g. via deep link), bypassing the one-time splash-screen check. Now watches `currentStudentStatusProvider` and gates on status too (signs out rejected/banned students, routes pending ones to the pending-approval screen).
 - [x] No secrets in source code — grepped for `service_role`, JWT-shaped literals, and hardcoded credentials; only the safe-by-design anon/publishable key was found. Fixed a related hygiene issue: `lib/core/constants/supabase_keys.dart` was tracked in git despite CLAUDE.md saying it should be gitignored — now untracked, gitignored, and replaced with a `supabase_keys.example.dart` template.
 - [x] No PII in logs — all `debugPrint`/`print` call sites checked; none log phone numbers, emails, passwords, or OTPs.
-- [ ] Known gap: the student "set password on first login" step is also splash-only, not router-enforced — an active student who hasn't set a password yet could skip it via deep link. Lower severity (RLS still scopes them to their own data) but worth closing in a future pass.
+- [x] Student "set password on first login" is now router-enforced (active student with empty email is redirected to `StudentPasswordScreen`; that route is excluded from the logged-in auth-route bounce).
 
 #### Testing
 - [ ] Unit tests for: formatters, validators, fee calculation logic

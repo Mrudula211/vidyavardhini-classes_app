@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/offline_banner.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../announcements/providers/announcement_providers.dart';
 
@@ -33,6 +34,7 @@ class _AnnouncementCreateScreenState extends ConsumerState<AnnouncementCreateScr
 
   Future<void> _publishAnnouncement() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!guardOnline(context, ref)) return;
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) return;
 

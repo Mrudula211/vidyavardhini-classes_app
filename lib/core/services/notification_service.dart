@@ -17,8 +17,12 @@ class NotificationService {
 
   final SupabaseClient _client;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  bool _initialized = false;
 
   Future<void> initialize() async {
+    if (_initialized) return;
+    _initialized = true;
+
     try {
       await _messaging.requestPermission(
         alert: true,
@@ -30,11 +34,32 @@ class NotificationService {
         firebaseMessagingBackgroundHandler,
       );
 
+      // Foreground messages — OS does not auto-display these on Android.
+      FirebaseMessaging.onMessage.listen((message) {
+        final title = message.notification?.title ?? message.data['title'];
+        final body = message.notification?.body ?? message.data['body'];
+        debugPrint('Foreground FCM: $title — $body');
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        debugPrint('FCM opened app: ${message.messageId}');
+      });
+
       final token = await _messaging.getToken();
       if (token != null) {
         await _saveToken(token);
       }
       _messaging.onTokenRefresh.listen(_saveToken);
+
+      // Token save at cold start often runs before login — re-save when the
+      // session appears so `users.fcm_token` is populated after OTP auth.
+      _client.auth.onAuthStateChange.listen((data) async {
+        if (data.session == null) return;
+        final refreshed = await _messaging.getToken();
+        if (refreshed != null) {
+          await _saveToken(refreshed);
+        }
+      });
     } catch (e) {
       debugPrint('NotificationService initialization skipped: $e');
     }

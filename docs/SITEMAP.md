@@ -31,8 +31,9 @@ Auth Flow (shared OTP step, then diverges)                      │  │  │
 | `/auth/admin-login` | AdminLoginScreen | Access code + password |
 | `/auth/teacher-login` | TeacherLoginScreen | Access code only |
 | `/auth/student-register` | StudentRegistrationScreen | Full registration form |
-| `/auth/student-login` | StudentPasswordScreen | Returning students |
+| `/auth/student-set-password` | StudentPasswordScreen | First login after approval (set password); router-enforced for active students without email |
 | `/auth/pending` | PendingApprovalScreen | Shown until admin approves |
+| `/notifications` | NotificationListScreen | Bell icon on all role dashboards; unread badge via `unreadNotificationCountProvider` |
 
 ---
 

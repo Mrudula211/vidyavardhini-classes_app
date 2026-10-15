@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'shared/widgets/offline_banner.dart';
 
 class VidyavardhiniApp extends ConsumerWidget {
   const VidyavardhiniApp({super.key});
@@ -18,6 +19,14 @@ class VidyavardhiniApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
       routerConfig: router,
+      builder: (context, child) {
+        return Column(
+          children: [
+            const OfflineBanner(),
+            Expanded(child: child ?? const SizedBox.shrink()),
+          ],
+        );
+      },
     );
   }
 }
