@@ -352,7 +352,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 #### Deployment
 - [ ] Configure Android signing
-- [ ] Update `AndroidManifest.xml` permissions (location, notifications, storage)
+- [x] Update `AndroidManifest.xml` permissions (location and notifications); photo and document selection use Android system pickers, so broad storage permission is not required.
 - [ ] Add `google-services.json`
 - [x] Set `minSdkVersion` to 21
 - [ ] Configure ProGuard / R8 rules
