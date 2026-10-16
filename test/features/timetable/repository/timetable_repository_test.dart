@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vidyavardhini_classes/features/timetable/repository/timetable_repository.dart';
@@ -129,8 +131,7 @@ void main() {
 
     test('fetches timetable with day specific filter', () async {
       final filterBuilder = FakePostgrestFilterBuilder(sampleData);
-      final queryBuilder = FakeSupabaseQueryBuilder()
-        ..filterBuilder = filterBuilder;
+      final queryBuilder = FakeSupabaseQueryBuilder(filterBuilder);
       fakeClient.timetableSlotsBuilder = queryBuilder;
 
       final result = await repository.fetchClassTimetable(
@@ -152,8 +153,7 @@ void main() {
 
     test('fetches timetable without day filter (all days)', () async {
       final filterBuilder = FakePostgrestFilterBuilder(sampleData);
-      final queryBuilder = FakeSupabaseQueryBuilder()
-        ..filterBuilder = filterBuilder;
+      final queryBuilder = FakeSupabaseQueryBuilder(filterBuilder);
       fakeClient.timetableSlotsBuilder = queryBuilder;
 
       final result = await repository.fetchClassTimetable(
@@ -173,8 +173,7 @@ void main() {
 
     test('fetches timetable with null day filter', () async {
       final filterBuilder = FakePostgrestFilterBuilder(sampleData);
-      final queryBuilder = FakeSupabaseQueryBuilder()
-        ..filterBuilder = filterBuilder;
+      final queryBuilder = FakeSupabaseQueryBuilder(filterBuilder);
       fakeClient.timetableSlotsBuilder = queryBuilder;
 
       final result = await repository.fetchClassTimetable(
@@ -190,8 +189,7 @@ void main() {
     test('fetches empty result', () async {
       final filterBuilder =
           FakePostgrestFilterBuilder(<Map<String, dynamic>>[]);
-      final queryBuilder = FakeSupabaseQueryBuilder()
-        ..filterBuilder = filterBuilder;
+      final queryBuilder = FakeSupabaseQueryBuilder(filterBuilder);
       fakeClient.timetableSlotsBuilder = queryBuilder;
 
       final result = await repository.fetchClassTimetable(
@@ -237,14 +235,13 @@ void main() {
         'board': 'CBSE',
         'standard': '10th',
       });
-      final profileQueryBuilder = FakeSupabaseQueryBuilderSingle()
-        ..filterBuilder = profileFilterBuilder;
+      final profileQueryBuilder =
+          FakeSupabaseQueryBuilderSingle(profileFilterBuilder);
       fakeClient.studentProfilesBuilder = profileQueryBuilder;
 
       // Mock class timetable fetch
       final classFilterBuilder = FakePostgrestFilterBuilder(sampleData);
-      final classQueryBuilder = FakeSupabaseQueryBuilder()
-        ..filterBuilder = classFilterBuilder;
+      final classQueryBuilder = FakeSupabaseQueryBuilder(classFilterBuilder);
       fakeClient.timetableSlotsBuilder = classQueryBuilder;
 
       final result = await repository.fetchStudentTimetable(
@@ -298,7 +295,8 @@ class FakePostgrestTransformBuilderSingle extends Fake
   @override
   dynamic noSuchMethod(Invocation invocation) {
     if (invocation.memberName == #then) {
-      final Function onValue = invocation.positionalArguments[0];
+      final onValue = invocation.positionalArguments[0]
+          as FutureOr<dynamic> Function(Map<String, dynamic>);
       return Future.value(_result).then(onValue);
     }
     return super.noSuchMethod(invocation);
