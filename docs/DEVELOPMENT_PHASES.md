@@ -335,7 +335,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] High-risk list queries bounded (page size 25 / month scope): `student_repository.fetchStudents()` paginated with Previous/Next UI; student attendance history scoped to selected month; homework/classwork list queries limited to `AppConstants.pageSize`; chat message stream windowed to last 100 messages client-side.
 - [x] Image caching via `cached_network_image` on student list avatars (extend to remaining avatar sites as they are touched)
 - [x] Query debouncing on student list and fee overview search (350ms)
-- [ ] Profile photo compression before upload
+- [x] Profile photo compression before upload — student registration uses `image_picker` with JPEG quality 70 and a 512×512 maximum before upload.
 
 #### Security QA
 - [x] RLS policy audit — static cross-check of `audit_logs`, `student_profiles`, `monthly_fees`/`fee_payments`, `teacher_salary` RLS vs. repository code; no violations found (audit_logs immutability confirmed enforced at the DB level — no UPDATE/DELETE policy exists for any role). Live per-role testing against real Supabase still pending (DB was unreachable during this pass).
@@ -354,7 +354,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [ ] Configure Android signing
 - [ ] Update `AndroidManifest.xml` permissions (location, notifications, storage)
 - [ ] Add `google-services.json`
-- [ ] Set `minSdkVersion` to 21
+- [x] Set `minSdkVersion` to 21
 - [ ] Configure ProGuard / R8 rules
 - [ ] Build release APK + AAB
 - [ ] Test on 3+ Android devices (different screen sizes)
