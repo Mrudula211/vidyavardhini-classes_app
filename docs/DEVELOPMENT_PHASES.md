@@ -340,6 +340,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 #### Security QA
 - [x] RLS policy audit — static cross-check of `audit_logs`, `student_profiles`, `monthly_fees`/`fee_payments`, `teacher_salary` RLS vs. repository code; no violations found (audit_logs immutability confirmed enforced at the DB level — no UPDATE/DELETE policy exists for any role). Live per-role testing against real Supabase still pending (DB was unreachable during this pass).
 - [x] Route guard audit — found and fixed a real gap: the GoRouter `redirect` only checked role, not student `status`, so a pending/rejected/banned student with a still-valid session could reach `/student/*` routes directly (e.g. via deep link), bypassing the one-time splash-screen check. Now watches `currentStudentStatusProvider` and gates on status too (signs out rejected/banned students, routes pending ones to the pending-approval screen).
+- [x] **Correction (later pass):** the claim below was wrong. Admin credentials were hardcoded in `admin_login_screen.dart` and seeded in `004_seed_admin.sql`. The login-screen fallbacks are removed; the credentials in `004` and git history must be rotated (see `docs/OWNER_TODO.md` section 0).
 - [x] No secrets in source code — grepped for `service_role`, JWT-shaped literals, and hardcoded credentials; only the safe-by-design anon/publishable key was found. Fixed a related hygiene issue: `lib/core/constants/supabase_keys.dart` was tracked in git despite CLAUDE.md saying it should be gitignored — now untracked, gitignored, and replaced with a `supabase_keys.example.dart` template.
 - [x] No PII in logs — all `debugPrint`/`print` call sites checked; none log phone numbers, emails, passwords, or OTPs.
 - [x] Student "set password on first login" is now router-enforced (active student with empty email is redirected to `StudentPasswordScreen`; that route is excluded from the logged-in auth-route bounce).
@@ -347,7 +348,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 #### Testing
 - [x] Unit tests for: `formatBytes`, fee/attendance model parsing (`test/shared/models_test.dart`); fee generation covered in `fee_repository_test.dart`. (Validators are inline in screens — no shared validators file exists.)
 - [x] Widget tests for: `StudentAttendanceCard` (`test/features/teacher/student_attendance_card_test.dart`)
-- [ ] Widget test for login form
+- [x] Widget test for admin login form (`test/features/auth/screens/admin_login_screen_test.dart`)
 - [ ] Integration tests: auth flow, fee payment flow
 - [ ] Manual QA checklist on real Android device
 
@@ -360,7 +361,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [ ] Build release APK + AAB
 - [ ] Test on 3+ Android devices (different screen sizes)
 - [ ] Upload to Play Store (internal testing track)
-- [ ] App icon + splash screen (branded)
+- [x] App icon + splash screen (branded) — `flutter_launcher_icons` / `flutter_native_splash` configured in `pubspec.yaml`, Android assets generated from `images/logo-icon.png` (parchment light / dark-brown dark splash). Owner may supply a higher-resolution source (current is ~580px).
 - [ ] Play Store listing (screenshots, description)
 
 **Deliverable:** App live on Play Store.

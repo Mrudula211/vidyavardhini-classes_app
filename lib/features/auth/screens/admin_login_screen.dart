@@ -40,7 +40,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
 
       bool success = false;
 
-      // 1. Try verifyAdminCredentials via database RPC
+      // 1. Access code + password, verified server-side via database RPC.
       try {
         success = await ref
             .read(authRepositoryProvider)
@@ -49,7 +49,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
         success = false;
       }
 
-      // 2. If RPC fails or returns false, try Supabase Email Auth
+      // 2. Email + password through Supabase Auth.
       if (!success && input.contains('@')) {
         try {
           final session = await ref
@@ -57,24 +57,12 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
               .signInWithEmailAndPassword(input, password);
           success = session != null;
         } catch (_) {
-          // Check standard admin email / code
-          final lowerInput = input.toLowerCase();
-          if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
-              password == 'Vidyavardhini-classes81') {
-            success = true;
-          }
+          success = false;
         }
       }
 
-      // 3. Fallback check for exact registered Admin credentials
       if (!success) {
-        final lowerInput = input.toLowerCase();
-        if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
-            password == 'Vidyavardhini-classes81') {
-          success = true;
-        } else {
-          throw Exception('Invalid admin credentials. Please enter siddhigharat81@gmail.com or 123456.');
-        }
+        throw Exception('Invalid admin credentials.');
       }
 
       // Grant Admin session flag so router allows navigation to /admin
@@ -141,7 +129,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                     labelText: 'Email or Admin Access Code',
-                    hintText: 'siddhigharat81@gmail.com or 123456',
+                    hintText: 'Email or 6-digit access code',
                     prefixIcon: Icon(Icons.person_outline_rounded),
                   ),
                   validator: (value) {

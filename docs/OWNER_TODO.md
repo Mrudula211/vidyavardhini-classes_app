@@ -2,7 +2,24 @@
 
 Everything in the repo that can be built without your accounts, devices or secrets is done.
 What remains needs your Supabase / Firebase / Google Play access or a physical phone.
-Do the sections in order; each is independent of the ones after it.
+Do the sections in order, starting with section 0; each is independent of the ones after it.
+
+---
+
+## 0. URGENT — rotate the admin credentials (do this first)
+
+The admin password, email, phone and 6-digit access code were hardcoded in the app's login screen and seeded in `supabase/migrations/004_seed_admin.sql`, so they are also in git history. Anyone with the APK or the repository can read them and sign in as admin. The hardcoded fallbacks are now removed from the app, but the old password stays compromised until you change it.
+
+You need to do the following manually:
+
+1. Open Supabase Dashboard -> **Authentication -> Users** and open the admin user.
+2. Set a new strong random password (12+ characters, not reused anywhere).
+3. Change the admin access code (stored hashed in `admin_profiles`; see `supabase/migrations/003_auth_rpc.sql` for how it is checked). Tell me and I will write the SQL, without you pasting the code into chat.
+4. Keep the new values in a password manager only. Never put them in code, docs or chat.
+5. If the GitHub repository is public, make it private now.
+6. Sign in on a phone with the new credentials to confirm they work.
+
+Known limitation: access-code-only login is verified on the server but creates no Supabase session, so RLS-protected data still needs an email and password sign-in. Tell me if you want that flow redesigned.
 
 ---
 
@@ -84,7 +101,7 @@ The RLS audit so far was static (code read-through only). Live per-role testing 
 
 ## 5. Store assets (need your design decisions)
 
-1. **App icon**: provide a 1024×1024 PNG of the logo (`images/logo.png` exists; tell me if you want it used as-is) — I can then wire up `flutter_launcher_icons` and a native splash.
+1. **App icon / splash**: already generated from `images/logo-icon.png` (about 580px). Check how it looks on a phone. For a crisper result, supply a 1024×1024 PNG and ask me to regenerate.
 2. **Play Store listing**: app name, short description (80 chars), full description, 2–8 phone screenshots, a 512×512 icon and a 1024×500 feature graphic.
 3. **Privacy policy URL** — required by Play because the app collects phone numbers, location and photos. Host a page and paste the URL into the Play Console.
 4. Fill the Play Console **Data safety** form (phone, location, photos, files, FCM token).
