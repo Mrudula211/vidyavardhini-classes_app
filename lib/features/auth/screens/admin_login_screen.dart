@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../l10n/l10n_context.dart';
 
 class AdminLoginScreen extends ConsumerStatefulWidget {
   const AdminLoginScreen({super.key});
@@ -66,10 +67,10 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
         await ref.read(authRepositoryProvider).signOut();
       }
       if (!mounted) return;
-      var message = e.toString().replaceAll('Exception: ', '');
-      if (!message.startsWith('Too many') && !message.startsWith('Invalid')) {
-        message = 'Invalid admin credentials.';
-      }
+      final l10n = context.l10n;
+      final message = e.toString().contains('Too many')
+          ? l10n.tooManyAttempts
+          : l10n.invalidAdminCredentials;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -87,7 +88,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Go back',
+          tooltip: context.l10n.goBack,
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Routes.roleSelect),
         ),
@@ -106,7 +107,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                 const AppLogoHeader(),
                 const SizedBox(height: 32),
                 Text(
-                  'Admin Login',
+                  context.l10n.adminLoginTitle,
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -115,7 +116,9 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in with your email, password and 6-digit access code',
+                  ref.watch(currentUserProvider) == null
+                      ? context.l10n.adminLoginSubtitleFull
+                      : context.l10n.adminLoginSubtitle,
                   style: AppTypography.poppins(
                     fontSize: 14,
                     color: AppColors.brown,
@@ -126,13 +129,13 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   TextFormField(
                     controller: _identifierController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Admin Email',
-                      prefixIcon: Icon(Icons.person_outline_rounded),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.adminEmail,
+                      prefixIcon: const Icon(Icons.person_outline_rounded),
                     ),
                     validator: (value) {
                       if (value == null || !value.contains('@')) {
-                        return 'Enter your admin email';
+                        return context.l10n.enterAdminEmail;
                       }
                       return null;
                     },
@@ -143,10 +146,12 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   controller: _passwordController,
                   obscureText: !_passwordVisible,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: context.l10n.password,
                     prefixIcon: const Icon(Icons.key_rounded),
                     suffixIcon: IconButton(
-                      tooltip: _passwordVisible ? 'Hide password' : 'Show password',
+                      tooltip: _passwordVisible
+                          ? context.l10n.hidePassword
+                          : context.l10n.showPassword,
                       icon: Icon(
                         _passwordVisible
                             ? Icons.visibility_off_rounded
@@ -158,7 +163,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your password';
+                      return context.l10n.enterPassword;
                     }
                     return null;
                   },
@@ -168,31 +173,34 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   controller: _accessCodeController,
                   keyboardType: TextInputType.number,
                   maxLength: 6,
-                  decoration: const InputDecoration(
-                    labelText: 'Admin Access Code',
-                    hintText: '6-digit code',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.accessCode,
+                    hintText: context.l10n.accessCodeHint,
                     counterText: '',
-                    prefixIcon: Icon(Icons.pin_outlined),
+                    prefixIcon: const Icon(Icons.pin_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().length != 6) {
-                      return 'Enter the 6-digit access code';
+                      return context.l10n.enterAccessCode;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 PrimaryButton(
-                  label: 'Login',
+                  label: context.l10n.loginButton,
                   isLoading: _isLoading,
                   onPressed: _login,
                 ),
                 const SizedBox(height: 16),
                 Center(
                   child: TextButton(
-                    onPressed: () => context.go(Routes.roleSelect),
+                    onPressed: () async {
+                      await ref.read(authRepositoryProvider).signOut();
+                      if (context.mounted) context.go(Routes.roleSelect);
+                    },
                     child: Text(
-                      'Change Role',
+                      context.l10n.useDifferentAccount,
                       style: AppTypography.poppins(
                         fontSize: 14,
                         color: AppColors.maroon,

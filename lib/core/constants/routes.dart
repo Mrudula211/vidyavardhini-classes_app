@@ -47,7 +47,6 @@ class Routes {
   static const String studentFees = '/student/fees';
 
   // Shared
-  static const String announcements = '/announcements';
   static const String announcementList = '/announcements';
   static const String adminTimetable = '/admin/timetable';
   static const String userTimetable = '/timetable';

@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../attendance/providers/attendance_providers.dart';
+import '../../../../l10n/l10n_context.dart';
 
 class StudentAttendanceScreen extends ConsumerWidget {
   const StudentAttendanceScreen({super.key});
@@ -17,7 +18,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
       initialDate: current,
       firstDate: DateTime(current.year - 3),
       lastDate: DateTime.now(),
-      helpText: 'Select month',
+      helpText: context.l10n.selectMonth,
     );
     if (picked != null) {
       ref.read(studentAttendanceMonthProvider.notifier).state =
@@ -31,26 +32,29 @@ class StudentAttendanceScreen extends ConsumerWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('My Attendance')),
-        body: const Center(child: Text('User session not found')),
+        appBar: AppBar(title: Text(context.l10n.attendanceTitle)),
+        body: Center(child: Text(context.l10n.userSessionMissing)),
       );
     }
 
     final historyAsync = ref.watch(studentAttendanceHistoryProvider(user.id));
     final selectedMonth = ref.watch(studentAttendanceMonthProvider);
-    final monthLabel = DateFormat('MMMM yyyy').format(selectedMonth);
+    final monthLabel = DateFormat(
+      'MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    ).format(selectedMonth);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Attendance'),
+        title: Text(context.l10n.attendanceTitle),
         actions: [
           IconButton(
-            tooltip: 'Pick month',
+            tooltip: context.l10n.pickMonth,
             icon: const Icon(Icons.calendar_month_rounded),
             onPressed: () => _pickMonth(context, ref),
           ),
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () =>
                 ref.invalidate(studentAttendanceHistoryProvider(user.id)),
@@ -86,7 +90,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: _buildSummaryCard(
-                            title: 'Attendance',
+                            title: context.l10n.attendancePercent,
                             value: '$percentage%',
                             color: double.parse(percentage) >= 75 ? Colors.green : Colors.orange,
                             icon: Icons.pie_chart,
@@ -95,7 +99,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildSummaryCard(
-                            title: 'Present Days',
+                            title: context.l10n.presentDays,
                             value: '$presentDays / $totalDays',
                             color: Colors.green,
                             icon: Icons.check_circle,
@@ -108,7 +112,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: _buildSummaryCard(
-                            title: 'Absent Days',
+                            title: context.l10n.absentDays,
                             value: '$absentDays',
                             color: Colors.red,
                             icon: Icons.cancel,
@@ -133,7 +137,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                               const Icon(Icons.event_busy_outlined, size: 48, color: AppColors.lightOutline),
                               const SizedBox(height: 12),
                               Text(
-                                'No attendance records found yet.',
+                                context.l10n.noAttendanceRecords,
                                 textAlign: TextAlign.center,
                                 style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
                               ),
@@ -165,7 +169,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                                 style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               subtitle: item.absenceReason != null
-                                  ? Text('Reason: ${item.absenceReason!.reason.toUpperCase()}')
+                                  ? Text(context.l10n.reasonLabel(item.absenceReason!.reason))
                                   : null,
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -175,7 +179,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                                   border: Border.all(color: isPresent ? Colors.green : Colors.red),
                                 ),
                                 child: Text(
-                                  item.status.toUpperCase(),
+                                  isPresent ? context.l10n.statusPresent : context.l10n.statusAbsent,
                                   style: TextStyle(
                                     color: isPresent ? Colors.green : Colors.red,
                                     fontWeight: FontWeight.bold,
@@ -202,14 +206,14 @@ class StudentAttendanceScreen extends ConsumerWidget {
                 const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
                 const SizedBox(height: 12),
                 Text(
-                  'Could not load attendance.\n$err',
+                  context.l10n.couldNotLoadAttendance,
                   textAlign: TextAlign.center,
                   style: AppTypography.poppins(fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => ref.invalidate(studentAttendanceHistoryProvider(user.id)),
-                  child: const Text('Retry'),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ),

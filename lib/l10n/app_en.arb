@@ -1,0 +1,321 @@
+{
+  "@@locale": "en",
+  "retry": "Retry",
+  "refresh": "Refresh",
+  "logout": "Logout",
+  "goBack": "Go back",
+  "language": "Language",
+  "announcements": "Announcements",
+  "userSessionMissing": "Your session has ended. Please log in again.",
+  "errorWithDetails": "Something went wrong.\n{details}",
+  "@errorWithDetails": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "offlineBanner": "You are offline. Showing saved data where available. Changes are disabled until you reconnect.",
+  "offlineSnack": "You are offline. Reconnect to make changes.",
+  "welcomeTagline": "Nurturing Minds, Shaping Futures",
+  "welcomeLogin": "Login",
+  "welcomeRegister": "New student? Register here",
+  "welcomeHint": "Students, parents and teachers log in with their registered mobile number.",
+  "loginTitle": "Welcome back",
+  "registerTitle": "New student registration",
+  "loginSubtitle": "Enter your mobile number. We will send you a 6-digit code.",
+  "registerSubtitle": "Enter your mobile number to begin. We will send you a 6-digit code.",
+  "emailLoginSubtitle": "Log in with your email and password.",
+  "mobileNumber": "Mobile number",
+  "sendCode": "Send code",
+  "useEmailInstead": "Log in with email & password instead",
+  "usePhoneInstead": "Log in with mobile number instead",
+  "emailAddress": "Email address",
+  "password": "Password",
+  "loginButton": "Login",
+  "enterEmail": "Enter your email address",
+  "enterPassword": "Enter your password",
+  "enterMobile": "Enter your mobile number",
+  "invalidMobile": "Enter a valid 10-digit mobile number",
+  "loginFailedCredentials": "Incorrect email or password. Please try again.",
+  "loginFailedGeneric": "Could not log in. Please check your details and try again.",
+  "sendCodeFailed": "Could not send the code. Check the number and try again.",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "otpTitle": "Verify the code",
+  "otpSubtitle": "Enter the 6-digit code sent to {phone}",
+  "@otpSubtitle": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "otpVerify": "Verify",
+  "otpInvalid": "That code is not correct. Please try again.",
+  "otpResendIn": "Resend code in {seconds} seconds",
+  "@otpResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "otpResend": "Resend code",
+  "otpResent": "A new code has been sent.",
+  "teacherLoginTitle": "Teacher verification",
+  "teacherLoginSubtitle": "Enter the access code given by the admin.",
+  "accessCode": "Access code",
+  "accessCodeHint": "6-digit code",
+  "enterAccessCode": "Enter the 6-digit access code",
+  "invalidAccessCode": "Invalid access code. Please check with the admin.",
+  "tooManyAttempts": "Too many wrong attempts. Please try again in a few minutes.",
+  "adminLoginTitle": "Admin verification",
+  "adminLoginSubtitle": "Enter your password and 6-digit access code.",
+  "adminLoginSubtitleFull": "Log in with your email, password and 6-digit access code.",
+  "adminEmail": "Admin email",
+  "enterAdminEmail": "Enter your admin email",
+  "invalidAdminCredentials": "Invalid admin credentials.",
+  "useDifferentAccount": "Use a different account",
+  "registrationSubmitted": "Registration submitted",
+  "awaitingApproval": "Your registration is waiting for approval from the admin.",
+  "notifyOnApproval": "You will get a notification once your account is approved. Please check back later.",
+  "statusPending": "Status: Pending",
+  "checkStatus": "Check status",
+  "stillPending": "Still waiting for approval.",
+  "setPasswordTitle": "Set your password",
+  "setPasswordBody": "Your registration is approved. Create a password so you can also log in with email & password next time.",
+  "newPassword": "New password",
+  "confirmPassword": "Confirm password",
+  "passwordTooShort": "Password must be at least 6 characters",
+  "passwordsDontMatch": "Passwords do not match",
+  "setPasswordContinue": "Set password & continue",
+  "sessionExpired": "Session expired. Please log in again.",
+  "couldNotSetPassword": "Could not set the password. Please try again.",
+  "studentRegistration": "Student registration",
+  "addPhotoOptional": "Add photo (optional)",
+  "addPhotoHint": "Tap to choose a photo from your gallery",
+  "sectionPersonal": "Student details",
+  "sectionParent": "Parent / guardian",
+  "sectionContact": "Contact & school",
+  "fullName": "Full name",
+  "gender": "Gender",
+  "male": "Male",
+  "female": "Female",
+  "other": "Other",
+  "dateOfBirth": "Date of birth",
+  "selectDate": "Select date",
+  "parentName": "Parent name",
+  "parentMobile": "Parent mobile number",
+  "whatsappNumber": "WhatsApp number",
+  "schoolName": "School name",
+  "board": "Board",
+  "standardClass": "Standard / class",
+  "submitRegistration": "Submit registration",
+  "registrationReviewNote": "The admin will review your registration.",
+  "pleaseSelectGender": "Please select gender",
+  "pleaseSelectDob": "Please select date of birth",
+  "pleaseSelectBoard": "Please select board",
+  "pleaseSelectStandard": "Please select standard",
+  "pleaseEnterField": "Please enter {field}",
+  "@pleaseEnterField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationFailed": "Registration could not be submitted. Please try again.",
+  "studentDashboardTitle": "Student dashboard",
+  "welcomeStudent": "Welcome",
+  "myStudentHub": "My student hub",
+  "tileAttendance": "My attendance",
+  "tileAttendanceSub": "History & stats",
+  "tileHomework": "Homework",
+  "tileHomeworkSub": "Pending tasks & files",
+  "tileClasswork": "Classwork",
+  "tileClassworkSub": "Notes & attachments",
+  "tileFees": "My fee status",
+  "tileFeesSub": "Payment records",
+  "tileChat": "Ask a doubt",
+  "tileChatSub": "Chat with your teacher",
+  "tileTimetable": "Timetable",
+  "tileTimetableSub": "Class schedule",
+  "tileAnnouncements": "Announcements",
+  "tileAnnouncementsSub": "Notices & alerts",
+  "navigateTo": "Open {title}",
+  "@navigateTo": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "attendanceTitle": "My attendance",
+  "selectMonth": "Select month",
+  "pickMonth": "Pick month",
+  "attendancePercent": "Attendance",
+  "presentDays": "Present days",
+  "absentDays": "Absent days",
+  "noAttendanceRecords": "No attendance records yet.",
+  "statusPresent": "Present",
+  "statusAbsent": "Absent",
+  "reasonLabel": "Reason: {reason}",
+  "@reasonLabel": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotLoadAttendance": "Could not load attendance.",
+  "feesTitle": "My fee status",
+  "noFeeRecords": "No fee records yet.",
+  "expectedFee": "Fee",
+  "paidAmount": "Paid",
+  "remainingAmount": "Remaining",
+  "feeHistory": "Fee payment history",
+  "feeExpectedPaid": "Fee: ₹{expected} • Paid: ₹{paid}",
+  "@feeExpectedPaid": {
+    "placeholders": {
+      "expected": {
+        "type": "String"
+      },
+      "paid": {
+        "type": "String"
+      }
+    }
+  },
+  "feeRemainingShort": "Remaining\n₹{amount}",
+  "@feeRemainingShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotLoadFees": "Could not load fees.",
+  "feeStatusPaid": "Paid",
+  "feeStatusPartial": "Partly paid",
+  "feeStatusPending": "Pending",
+  "homeworkTitle": "My homework",
+  "noActiveHomework": "No homework for your class right now.",
+  "couldNotLoadHomework": "Could not load homework.",
+  "dueDate": "Due: {date}",
+  "@dueDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "teacherName": "Teacher: {name}",
+  "@teacherName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classworkTitle": "Classwork & study notes",
+  "noClasswork": "No classwork notes yet.",
+  "couldNotLoadClasswork": "Could not load classwork.",
+  "publishedBy": "Published by: {name}",
+  "@publishedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "attachmentsCount": "Attachments ({count})",
+  "@attachmentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "announcementsFeed": "Announcements",
+  "noAnnouncements": "No announcements yet.",
+  "couldNotLoadAnnouncements": "Could not load announcements.",
+  "newAnnouncement": "New announcement",
+  "notificationsTitle": "Notifications",
+  "noNotifications": "No notifications yet.",
+  "couldNotLoadNotifications": "Could not load notifications.",
+  "notificationsUnread": "Notifications ({count} unread)",
+  "@notificationsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "chatTitle": "Doubt-clearing chat",
+  "couldNotLoadChats": "Could not load chats.",
+  "noChatsStudent": "No conversations yet.\nTap \"Ask a doubt\" to chat with your teacher.",
+  "noChatsTeacher": "No doubt requests yet.",
+  "teacherFallback": "Teacher",
+  "studentFallback": "Student",
+  "noMessagesYet": "No messages yet",
+  "askDoubt": "Ask a doubt",
+  "selectTeacherToAsk": "Choose a teacher",
+  "noActiveTeachers": "No teachers available.",
+  "subjectsLabel": "Subjects: {subjects}",
+  "@subjectsLabel": {
+    "placeholders": {
+      "subjects": {
+        "type": "String"
+      }
+    }
+  },
+  "chatRoomTitle": "Chat",
+  "loadingEllipsis": "Loading...",
+  "noMessagesTypeDoubt": "No messages yet. Type your doubt below!",
+  "typeDoubtHint": "Type your doubt here...",
+  "sendMessage": "Send message",
+  "failedToSend": "Message could not be sent. Please try again.",
+  "couldNotLoadMessages": "Could not load messages.",
+  "timetableTitle": "My class timetable",
+  "noClassesToday": "No classes on this day.",
+  "slotDetails": "{start} - {end}\nTeacher: {teacher} • {room}",
+  "@slotDetails": {
+    "placeholders": {
+      "end": {
+        "type": "String"
+      },
+      "room": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "teacher": {
+        "type": "String"
+      }
+    }
+  },
+  "slotDetailsNoRoom": "{start} - {end}\nTeacher: {teacher}",
+  "@slotDetailsNoRoom": {
+    "placeholders": {
+      "end": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "teacher": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotLoadTimetable": "Could not load the timetable.",
+  "tbd": "To be announced",
+  "dayMonday": "Monday",
+  "dayTuesday": "Tuesday",
+  "dayWednesday": "Wednesday",
+  "dayThursday": "Thursday",
+  "dayFriday": "Friday",
+  "daySaturday": "Saturday",
+  "daySunday": "Sunday"
+}

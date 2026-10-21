@@ -120,6 +120,22 @@ You need to do the following manually:
 
 ---
 
+## 1d. New landing page, single login and languages — what to check
+
+The app now opens on a Welcome screen with one **Login** button (no role cards). Everyone — students, parents, teachers, admin — logs in the same way, and the account decides where they land. Hindi and Marathi are available from the language chips on the first screen.
+
+You need to do the following manually:
+
+1. **SMS provider (required now for teachers and admin too).** In Supabase Dashboard -> **Authentication -> Providers -> Phone**, enable phone sign-in and connect an SMS provider (Twilio is listed there; use a provider that sends to Indian numbers and, if asked, register the DLT sender/template). Without it nobody can log in with a mobile number. As a fallback, admin and teachers can use "Log in with email & password" only if they have an email account set up in Supabase Auth (teachers created by the app have phone-only accounts).
+2. **Make sure the admin account has a phone number in Supabase Auth** (Authentication -> Users -> the admin user). The login looks the account up by that number.
+3. **Try each path on a phone** (airplane mode off): (a) new number -> Register -> fill form -> "Registration submitted"; (b) approve that student as admin, then log in as the student; (c) admin: Login -> phone -> OTP -> password + access code -> dashboard; (d) teacher: Login -> phone -> OTP -> access code -> dashboard. Tell me anything that lands on the wrong screen.
+4. **Language review:** ask Mrs. Gharat or a staff member who reads Marathi and Hindi to switch the app to each language and read through the student screens. Send me any wording that sounds unnatural and I will correct it (all text lives in `lib/l10n/app_hi.arb` and `app_mr.arb`).
+5. Parents' phones: the first screen shows the language chips top-right; the choice is remembered. A phone set to Hindi/Marathi but starting in English is normal until a chip is tapped on first launch.
+
+Known limits: the admin/teacher working screens (fees, marking attendance, creating homework, etc.) are still English; the access-code step is a screen-level second factor.
+
+---
+
 ## 2. Verify security against the live database
 
 The RLS audit so far was static (code read-through only). Live per-role testing was never done.

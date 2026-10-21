@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../features/content/screens/attachment_viewer_screen.dart';
 import '../models/content_model.dart';
+import '../../l10n/l10n_context.dart';
 
 IconData attachmentIcon(String fileType) {
   switch (fileType) {
@@ -40,7 +41,7 @@ class AttachmentList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Attachments (${attachments.length})',
+            context.l10n.attachmentsCount(attachments.length.toString()),
             style: Theme.of(context)
                 .textTheme
                 .labelMedium

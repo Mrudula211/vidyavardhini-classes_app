@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/constants/supabase_keys.dart';
+import 'core/providers/locale_provider.dart';
 import 'core/services/cache_service.dart';
 import 'core/services/notification_service.dart';
 import 'firebase_options.dart';
@@ -31,6 +32,7 @@ Future<void> main() async {
   // Hive local cache
   await Hive.initFlutter();
   await CacheService.instance.init();
+  await Hive.openBox<String>(LocaleNotifier.boxName);
 
   // Supabase
   await Supabase.initialize(

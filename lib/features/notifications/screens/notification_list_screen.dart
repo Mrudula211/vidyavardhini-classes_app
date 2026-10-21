@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../providers/notification_providers.dart';
+import '../../../l10n/l10n_context.dart';
 
 class NotificationListScreen extends ConsumerWidget {
   const NotificationListScreen({super.key});
@@ -15,10 +16,10 @@ class NotificationListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(context.l10n.notificationsTitle),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () => ref.invalidate(notificationsProvider),
           ),
@@ -47,14 +48,14 @@ class NotificationListScreen extends ConsumerWidget {
                     size: 40, color: AppColors.maroon,),
                 const SizedBox(height: 12),
                 Text(
-                  'Could not load notifications.\n$err',
+                  context.l10n.couldNotLoadNotifications,
                   textAlign: TextAlign.center,
                   style: AppTypography.poppins(fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => ref.invalidate(notificationsProvider),
-                  child: const Text('Retry'),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ),
@@ -72,7 +73,7 @@ class NotificationListScreen extends ConsumerWidget {
                         size: 48, color: AppColors.lightOutline,),
                     const SizedBox(height: 12),
                     Text(
-                      'No notifications yet.',
+                      context.l10n.noNotifications,
                       style: AppTypography.poppins(
                         fontSize: 14,
                         color: AppColors.lightOutline,
@@ -126,7 +127,10 @@ class NotificationListScreen extends ConsumerWidget {
                         if (createdAt != null) ...[
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('d MMM, h:mm a').format(createdAt),
+                            DateFormat(
+                              'd MMM, h:mm a',
+                              Localizations.localeOf(context).toString(),
+                            ).format(createdAt),
                             style: AppTypography.poppins(
                               fontSize: 11,
                               color: AppColors.lightOutline,

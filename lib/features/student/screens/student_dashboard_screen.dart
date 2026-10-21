@@ -6,6 +6,7 @@ import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../../../shared/widgets/notification_bell_button.dart';
+import '../../../l10n/l10n_context.dart';
 
 class StudentDashboardScreen extends ConsumerWidget {
   const StudentDashboardScreen({super.key});
@@ -14,16 +15,16 @@ class StudentDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Dashboard'),
+        title: Text(context.l10n.studentDashboardTitle),
         actions: [
           const NotificationBellButton(iconColor: AppColors.primary),
           IconButton(
-            tooltip: 'Announcements',
+            tooltip: context.l10n.announcements,
             icon: const Icon(Icons.campaign_outlined, color: AppColors.primary),
             onPressed: () => context.push(Routes.announcementList),
           ),
           IconButton(
-            tooltip: 'Logout',
+            tooltip: context.l10n.logout,
             icon: const Icon(Icons.logout_rounded, color: AppColors.primary),
             onPressed: () async {
               await ref.read(authRepositoryProvider).signOut();
@@ -48,28 +49,28 @@ class StudentDashboardScreen extends ConsumerWidget {
                 ),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.white,
                     child: Icon(Icons.school_outlined,
                         color: AppColors.primary, size: 32,),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Welcome Student',
-                        style: TextStyle(
+                        context.l10n.welcomeStudent,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: 4),
+                      const Text(
                         'Vidyavardhini Classes App',
                         style: TextStyle(color: Colors.white70, fontSize: 13),
                       ),
@@ -80,9 +81,9 @@ class StudentDashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            const Text(
-              'My Student Hub',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              context.l10n.myStudentHub,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
 
@@ -95,56 +96,56 @@ class StudentDashboardScreen extends ConsumerWidget {
               children: [
                 _buildCard(
                   context,
-                  title: 'My Attendance',
-                  subtitle: 'History & stats',
+                  title: context.l10n.tileAttendance,
+                  subtitle: context.l10n.tileAttendanceSub,
                   icon: Icons.event_available,
                   color: Colors.green,
                   onTap: () => context.push(Routes.studentAttendance),
                 ),
                 _buildCard(
                   context,
-                  title: 'Homework',
-                  subtitle: 'Pending tasks & files',
+                  title: context.l10n.tileHomework,
+                  subtitle: context.l10n.tileHomeworkSub,
                   icon: Icons.menu_book,
                   color: Colors.orange,
                   onTap: () => context.push(Routes.studentHomework),
                 ),
                 _buildCard(
                   context,
-                  title: 'Classwork',
-                  subtitle: 'Notes & attachments',
+                  title: context.l10n.tileClasswork,
+                  subtitle: context.l10n.tileClassworkSub,
                   icon: Icons.folder_open,
                   color: Colors.blue,
                   onTap: () => context.push(Routes.studentClasswork),
                 ),
                 _buildCard(
                   context,
-                  title: 'My Fee Status',
-                  subtitle: 'Payment records',
+                  title: context.l10n.tileFees,
+                  subtitle: context.l10n.tileFeesSub,
                   icon: Icons.payment,
                   color: Colors.purple,
                   onTap: () => context.push(Routes.studentFees),
                 ),
                 _buildCard(
                   context,
-                  title: 'Private Chat',
-                  subtitle: 'Doubt clearing',
+                  title: context.l10n.tileChat,
+                  subtitle: context.l10n.tileChatSub,
                   icon: Icons.chat_bubble_outline_rounded,
                   color: Colors.teal,
                   onTap: () => context.push(Routes.chatList),
                 ),
                 _buildCard(
                   context,
-                  title: 'Timetable',
-                  subtitle: 'Class schedule',
+                  title: context.l10n.tileTimetable,
+                  subtitle: context.l10n.tileTimetableSub,
                   icon: Icons.calendar_month,
                   color: Colors.indigo,
                   onTap: () => context.push(Routes.userTimetable),
                 ),
                 _buildCard(
                   context,
-                  title: 'Announcements',
-                  subtitle: 'Notices & alerts',
+                  title: context.l10n.tileAnnouncements,
+                  subtitle: context.l10n.tileAnnouncementsSub,
                   icon: Icons.campaign,
                   color: Colors.deepPurple,
                   onTap: () => context.push(Routes.announcementList),
@@ -168,7 +169,7 @@ class StudentDashboardScreen extends ConsumerWidget {
     return Semantics(
       button: true,
       label: title,
-      hint: 'Navigate to $title',
+      hint: context.l10n.navigateTo(title),
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

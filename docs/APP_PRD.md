@@ -37,7 +37,7 @@ Vidyavardhini Classes is a coaching institute running SSC and CBSE batches for s
 
 The owner of the coaching class. Complete control over the system.
 
-**Login Flow:** Phone → OTP → Admin Access Code → Password → Dashboard
+**Login Flow:** Login → Phone → OTP (or email + password) → Admin Access Code + Password → Dashboard. Same single login as everyone; the account's role decides the destination.
 
 **Capabilities:**
 - Approve / reject / ban students
@@ -56,7 +56,7 @@ The owner of the coaching class. Complete control over the system.
 
 Instructors assigned to specific classes.
 
-**Login Flow:** Phone → OTP → Teacher Access Code → Dashboard
+**Login Flow:** Login → Phone → OTP → Teacher Access Code → Dashboard (same single login screen).
 
 **Capabilities:**
 - Mark student attendance for assigned classes
@@ -77,7 +77,9 @@ Instructors assigned to specific classes.
 Enrolled learners.
 
 **Registration Flow:** Phone → OTP → Registration Form → Pending Approval  
-**Post-Approval Login:** Phone → OTP → Dashboard
+**Post-Approval Login:** Login → Phone → OTP → Dashboard
+
+**Languages:** English, Hindi (हिन्दी) and Marathi (मराठी), switchable on the first screen and remembered. Parent/student-facing screens are fully translated.
 
 **Capabilities:**
 - View homework and classwork for their class

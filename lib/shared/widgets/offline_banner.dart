@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/connectivity_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../l10n/l10n_context.dart';
 
 /// Thin strip shown under the status bar when the device is offline.
 /// Cached read-only data may still be visible; write actions should be blocked.
@@ -31,8 +32,7 @@ class OfflineBanner extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'You are offline. Showing cached data where available. '
-                  'Changes are disabled until you reconnect.',
+                  context.l10n.offlineBanner,
                   style: AppTypography.poppins(
                     fontSize: 12,
                     color: AppColors.parchment,
@@ -52,8 +52,8 @@ bool guardOnline(BuildContext context, WidgetRef ref) {
   if (ref.read(isOnlineProvider)) return true;
 
   ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('You are offline. Reconnect to make changes.'),
+    SnackBar(
+      content: Text(context.l10n.offlineSnack),
       behavior: SnackBarBehavior.floating,
       backgroundColor: AppColors.maroon,
     ),

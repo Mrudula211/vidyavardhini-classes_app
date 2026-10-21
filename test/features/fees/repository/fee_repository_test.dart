@@ -15,29 +15,34 @@ class FakeFilterBuilder
 
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> eq(
-      String column, Object value,) {
+    String column,
+    Object value,
+  ) {
     return this;
   }
 
   @override
   PostgrestTransformBuilder<Map<String, dynamic>?> maybeSingle() {
-    return FakeTransformBuilder<Map<String, dynamic>?>(_returnValue,
-        error: _error,);
+    return FakeTransformBuilder<Map<String, dynamic>?>(
+      _returnValue,
+      error: _error,
+    );
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
-  Future<U> then<U>(FutureOr<U> Function(List<Map<String, dynamic>>) onValue,
-      {Function? onError,}) {
+  Future<U> then<U>(
+    FutureOr<U> Function(List<Map<String, dynamic>>) onValue, {
+    Function? onError,
+  }) {
     if (_error != null) {
       return Future<U>.error(_error).catchError(onError ?? (e) => throw e);
     }
     return Future<List<Map<String, dynamic>>>.value(
-            _returnValue as List<Map<String, dynamic>>,)
-        .then(onValue)
-        .catchError(onError ?? (e) => throw e);
+      _returnValue as List<Map<String, dynamic>>,
+    ).then(onValue).catchError(onError ?? (e) => throw e);
   }
 }
 
@@ -72,15 +77,16 @@ class FakeInsertBuilder
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
-  Future<U> then<U>(FutureOr<U> Function(List<Map<String, dynamic>>) onValue,
-      {Function? onError,}) {
+  Future<U> then<U>(
+    FutureOr<U> Function(List<Map<String, dynamic>>) onValue, {
+    Function? onError,
+  }) {
     if (_error != null) {
       return Future<U>.error(_error).catchError(onError ?? (e) => throw e);
     }
     return Future<List<Map<String, dynamic>>>.value(
-            _returnValue as List<Map<String, dynamic>>,)
-        .then(onValue)
-        .catchError(onError ?? (e) => throw e);
+      _returnValue as List<Map<String, dynamic>>,
+    ).then(onValue).catchError(onError ?? (e) => throw e);
   }
 }
 
@@ -129,9 +135,11 @@ void main() {
     test('returns 0 when no active fee structures are found', () async {
       when(() => mockAcademicYearsQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder({'id': 'year_1'}));
-      when(() => mockFeeStructureQuery.select(
-              'student_id, monthly_fee, student_profiles!inner(status)',),)
-          .thenAnswer((_) => FakeFilterBuilder(<Map<String, dynamic>>[]));
+      when(
+        () => mockFeeStructureQuery.select(
+          'student_id, monthly_fee, student_profiles!inner(status)',
+        ),
+      ).thenAnswer((_) => FakeFilterBuilder(<Map<String, dynamic>>[]));
 
       final result = await repository.generateMonthlyFees(month: 1, year: 2024);
 
@@ -144,12 +152,16 @@ void main() {
         () async {
       when(() => mockAcademicYearsQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder({'id': 'year_1'}));
-      when(() => mockFeeStructureQuery.select(
-              'student_id, monthly_fee, student_profiles!inner(status)',),)
-          .thenAnswer((_) => FakeFilterBuilder(<Map<String, dynamic>>[
-                {'student_id': 'student_1', 'monthly_fee': 1000.0},
-                {'student_id': 'student_2', 'monthly_fee': 1500.0},
-              ]),);
+      when(
+        () => mockFeeStructureQuery.select(
+          'student_id, monthly_fee, student_profiles!inner(status)',
+        ),
+      ).thenAnswer(
+        (_) => FakeFilterBuilder(<Map<String, dynamic>>[
+          {'student_id': 'student_1', 'monthly_fee': 1000.0},
+          {'student_id': 'student_2', 'monthly_fee': 1500.0},
+        ]),
+      );
 
       when(() => mockMonthlyFeesQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder(null));
@@ -166,12 +178,16 @@ void main() {
         () async {
       when(() => mockAcademicYearsQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder({'id': 'year_1'}));
-      when(() => mockFeeStructureQuery.select(
-              'student_id, monthly_fee, student_profiles!inner(status)',),)
-          .thenAnswer((_) => FakeFilterBuilder(<Map<String, dynamic>>[
-                {'student_id': 'student_1', 'monthly_fee': 1000.0},
-                {'student_id': 'student_2', 'monthly_fee': 1500.0},
-              ]),);
+      when(
+        () => mockFeeStructureQuery.select(
+          'student_id, monthly_fee, student_profiles!inner(status)',
+        ),
+      ).thenAnswer(
+        (_) => FakeFilterBuilder(<Map<String, dynamic>>[
+          {'student_id': 'student_1', 'monthly_fee': 1000.0},
+          {'student_id': 'student_2', 'monthly_fee': 1500.0},
+        ]),
+      );
 
       int selectCallCount = 0;
       when(() => mockMonthlyFeesQuery.select('id')).thenAnswer((_) {
@@ -196,12 +212,16 @@ void main() {
         () async {
       when(() => mockAcademicYearsQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder({'id': 'year_1'}));
-      when(() => mockFeeStructureQuery.select(
-              'student_id, monthly_fee, student_profiles!inner(status)',),)
-          .thenAnswer((_) => FakeFilterBuilder(<Map<String, dynamic>>[
-                {'student_id': 'student_1', 'monthly_fee': 0.0},
-                {'student_id': 'student_2'}, // null fee
-              ]),);
+      when(
+        () => mockFeeStructureQuery.select(
+          'student_id, monthly_fee, student_profiles!inner(status)',
+        ),
+      ).thenAnswer(
+        (_) => FakeFilterBuilder(<Map<String, dynamic>>[
+          {'student_id': 'student_1', 'monthly_fee': 0.0},
+          {'student_id': 'student_2'}, // null fee
+        ]),
+      );
 
       when(() => mockMonthlyFeesQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder(null));
@@ -216,17 +236,24 @@ void main() {
           verify(() => mockMonthlyFeesQuery.insert(captureAny())).captured;
       expect(capturedInserts.length, 2);
       expect(
-          (capturedInserts[0] as Map<String, dynamic>)['expected_amount'], 0.0,);
+        (capturedInserts[0] as Map<String, dynamic>)['expected_amount'],
+        0.0,
+      );
       expect(
-          (capturedInserts[1] as Map<String, dynamic>)['expected_amount'], 0.0,);
+        (capturedInserts[1] as Map<String, dynamic>)['expected_amount'],
+        0.0,
+      );
     });
 
     test(
         'Database Exception Handling: propagates database exceptions during queries',
         () async {
-      when(() => mockAcademicYearsQuery.select('id')).thenAnswer((_) =>
-          FakeFilterBuilder(null,
-              error: const PostgrestException(message: 'Database error'),),);
+      when(() => mockAcademicYearsQuery.select('id')).thenAnswer(
+        (_) => FakeFilterBuilder(
+          null,
+          error: const PostgrestException(message: 'Database error'),
+        ),
+      );
 
       expect(
         () => repository.generateMonthlyFees(month: 1, year: 2024),
@@ -239,17 +266,24 @@ void main() {
         () async {
       when(() => mockAcademicYearsQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder({'id': 'year_1'}));
-      when(() => mockFeeStructureQuery.select(
-              'student_id, monthly_fee, student_profiles!inner(status)',),)
-          .thenAnswer((_) => FakeFilterBuilder(<Map<String, dynamic>>[
-                {'student_id': 'student_1', 'monthly_fee': 1000.0},
-              ]),);
+      when(
+        () => mockFeeStructureQuery.select(
+          'student_id, monthly_fee, student_profiles!inner(status)',
+        ),
+      ).thenAnswer(
+        (_) => FakeFilterBuilder(<Map<String, dynamic>>[
+          {'student_id': 'student_1', 'monthly_fee': 1000.0},
+        ]),
+      );
 
       when(() => mockMonthlyFeesQuery.select('id'))
           .thenAnswer((_) => FakeFilterBuilder(null));
-      when(() => mockMonthlyFeesQuery.insert(any())).thenAnswer((_) =>
-          FakeInsertBuilder(null,
-              error: const PostgrestException(message: 'Insert error'),),);
+      when(() => mockMonthlyFeesQuery.insert(any())).thenAnswer(
+        (_) => FakeInsertBuilder(
+          null,
+          error: const PostgrestException(message: 'Insert error'),
+        ),
+      );
 
       expect(
         () => repository.generateMonthlyFees(month: 1, year: 2024),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/timetable_providers.dart';
+import '../../../l10n/l10n_context.dart';
 
 class UserTimetableScreen extends ConsumerWidget {
   const UserTimetableScreen({super.key});
@@ -11,6 +12,26 @@ class UserTimetableScreen extends ConsumerWidget {
   final List<String> _days = const [
     'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
   ];
+
+  String _dayLabel(BuildContext context, String day) {
+    final l10n = context.l10n;
+    switch (day) {
+      case 'Monday':
+        return l10n.dayMonday;
+      case 'Tuesday':
+        return l10n.dayTuesday;
+      case 'Wednesday':
+        return l10n.dayWednesday;
+      case 'Thursday':
+        return l10n.dayThursday;
+      case 'Friday':
+        return l10n.dayFriday;
+      case 'Saturday':
+        return l10n.daySaturday;
+      default:
+        return l10n.daySunday;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,8 +41,8 @@ class UserTimetableScreen extends ConsumerWidget {
 
     if (user == null || role == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('My Class Timetable')),
-        body: const Center(child: Text('User session missing')),
+        appBar: AppBar(title: Text(context.l10n.timetableTitle)),
+        body: Center(child: Text(context.l10n.userSessionMissing)),
       );
     }
 
@@ -31,10 +52,10 @@ class UserTimetableScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Class Timetable'),
+        title: Text(context.l10n.timetableTitle),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () {
               if (role == 'teacher') {
@@ -59,7 +80,7 @@ class UserTimetableScreen extends ConsumerWidget {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ChoiceChip(
-                    label: Text(day),
+                    label: Text(_dayLabel(context, day)),
                     selected: isSelected,
                     selectedColor: AppColors.primary,
                     labelStyle: TextStyle(
@@ -83,10 +104,10 @@ class UserTimetableScreen extends ConsumerWidget {
             child: timetableAsync.when(
               data: (slots) {
                 if (slots.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
-                      'No classes scheduled for this day.',
-                      style: TextStyle(color: Colors.grey),
+                      context.l10n.noClassesToday,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   );
                 }
@@ -110,7 +131,18 @@ class UserTimetableScreen extends ConsumerWidget {
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         subtitle: Text(
-                          '${slot.startTime} - ${slot.endTime}\nTeacher: ${slot.teacherName ?? "TBD"} • ${slot.roomNumber ?? "Room 101"}',
+                          (slot.roomNumber == null || slot.roomNumber!.isEmpty)
+                            ? context.l10n.slotDetailsNoRoom(
+                                slot.startTime,
+                                slot.endTime,
+                                slot.teacherName ?? context.l10n.tbd,
+                              )
+                            : context.l10n.slotDetails(
+                                slot.startTime,
+                                slot.endTime,
+                                slot.teacherName ?? context.l10n.tbd,
+                                slot.roomNumber!,
+                              ),
                           style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
                         ),
                         trailing: Container(
@@ -134,7 +166,8 @@ class UserTimetableScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error loading timetable: $err')),
+              error: (err, stack) =>
+                  Center(child: Text(context.l10n.couldNotLoadTimetable)),
             ),
           ),
         ],

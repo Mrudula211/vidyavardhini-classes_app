@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../l10n/l10n_context.dart';
 
 /// Shown once to an approved student who has not yet set a password,
 /// so they can also log in later via the Email & Password option.
@@ -67,7 +68,7 @@ class _StudentPasswordScreenState
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not set password: $e'),
+          content: Text(context.l10n.couldNotSetPassword),
           backgroundColor: AppColors.maroon,
           behavior: SnackBarBehavior.floating,
         ),
@@ -92,7 +93,7 @@ class _StudentPasswordScreenState
                 const AppLogoHeader(),
                 const SizedBox(height: 32),
                 Text(
-                  'Set Your Password',
+                  context.l10n.setPasswordTitle,
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -101,8 +102,7 @@ class _StudentPasswordScreenState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Your registration is approved. Create a password so you '
-                  'can also log in with Email & Password next time.',
+                  context.l10n.setPasswordBody,
                   style: AppTypography.poppins(
                     fontSize: 14,
                     color: AppColors.brown,
@@ -114,11 +114,12 @@ class _StudentPasswordScreenState
                   controller: _passwordController,
                   obscureText: !_passwordVisible,
                   decoration: InputDecoration(
-                    labelText: 'New Password',
+                    labelText: context.l10n.newPassword,
                     prefixIcon: const Icon(Icons.lock_outline_rounded),
                     suffixIcon: IconButton(
-                      tooltip:
-                          _passwordVisible ? 'Hide password' : 'Show password',
+                      tooltip: _passwordVisible
+                          ? context.l10n.hidePassword
+                          : context.l10n.showPassword,
                       icon: Icon(
                         _passwordVisible
                             ? Icons.visibility_off_rounded
@@ -130,10 +131,10 @@ class _StudentPasswordScreenState
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter a password';
+                      return context.l10n.enterPassword;
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return context.l10n.passwordTooShort;
                     }
                     return null;
                   },
@@ -142,20 +143,20 @@ class _StudentPasswordScreenState
                 TextFormField(
                   controller: _confirmController,
                   obscureText: !_passwordVisible,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
-                    prefixIcon: Icon(Icons.lock_outline_rounded),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.confirmPassword,
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
                   ),
                   validator: (value) {
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return context.l10n.passwordsDontMatch;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 PrimaryButton(
-                  label: 'Set Password & Continue',
+                  label: context.l10n.setPasswordContinue,
                   isLoading: _isLoading,
                   onPressed: _submit,
                 ),

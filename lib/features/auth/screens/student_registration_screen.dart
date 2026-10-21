@@ -9,7 +9,10 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../shared/widgets/language_switcher.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../providers/auth_providers.dart';
+import '../../../l10n/l10n_context.dart';
 
 class StudentRegistrationScreen extends ConsumerStatefulWidget {
   const StudentRegistrationScreen({super.key});
@@ -79,19 +82,19 @@ class _StudentRegistrationScreenState
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedGender == null) {
-      _showError('Please select gender');
+      _showError(context.l10n.pleaseSelectGender);
       return;
     }
     if (_selectedDob == null) {
-      _showError('Please select date of birth');
+      _showError(context.l10n.pleaseSelectDob);
       return;
     }
     if (_selectedBoard == null) {
-      _showError('Please select board');
+      _showError(context.l10n.pleaseSelectBoard);
       return;
     }
     if (_selectedStandard == null) {
-      _showError('Please select standard');
+      _showError(context.l10n.pleaseSelectStandard);
       return;
     }
 
@@ -124,11 +127,15 @@ class _StudentRegistrationScreenState
         'created_at': DateTime.now().toIso8601String(),
       });
 
+      // The router caches the student's status; refresh it so it sees the
+      // new pending profile.
+      ref.invalidate(currentStudentStatusProvider);
+
       if (!mounted) return;
       context.go(Routes.pendingApproval);
     } catch (e) {
       if (!mounted) return;
-      _showError(e.toString());
+      _showError(context.l10n.registrationFailed);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -153,7 +160,15 @@ class _StudentRegistrationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Student Registration')),
+      appBar: AppBar(
+        title: Text(context.l10n.studentRegistration),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcher(),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -165,8 +180,8 @@ class _StudentRegistrationScreenState
               Center(
                 child: Semantics(
                   button: true,
-                  label: 'Add Profile Photo',
-                  hint: 'Tap to select a photo from your gallery',
+                  label: context.l10n.addPhotoOptional,
+                  hint: context.l10n.addPhotoHint,
                   child: GestureDetector(
                     onTap: _pickPhoto,
                     child: CircleAvatar(
@@ -190,7 +205,7 @@ class _StudentRegistrationScreenState
                 child: TextButton(
                   onPressed: _pickPhoto,
                   child: Text(
-                    'Add Photo (Optional)',
+                    context.l10n.addPhotoOptional,
                     style: AppTypography.poppins(
                       fontSize: 13,
                       color: AppColors.maroon,
@@ -200,12 +215,12 @@ class _StudentRegistrationScreenState
               ),
               const SizedBox(height: 24),
 
-              const _SectionLabel('Personal Information'),
+              _SectionLabel(context.l10n.sectionPersonal),
               const SizedBox(height: 12),
 
               _buildTextField(
                 _nameController,
-                'Full Name',
+                context.l10n.fullName,
                 Icons.person_rounded,
               ),
               const SizedBox(height: 16),
@@ -213,14 +228,23 @@ class _StudentRegistrationScreenState
               // Gender
               DropdownButtonFormField<String>(
                 initialValue: _selectedGender,
-                decoration: const InputDecoration(
-                  labelText: 'Gender',
-                  prefixIcon: Icon(Icons.wc_rounded),
+                decoration: InputDecoration(
+                  labelText: context.l10n.gender,
+                  prefixIcon: const Icon(Icons.wc_rounded),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'male', child: Text('Male')),
-                  DropdownMenuItem(value: 'female', child: Text('Female')),
-                  DropdownMenuItem(value: 'other', child: Text('Other')),
+                items: [
+                  DropdownMenuItem(
+                    value: 'male',
+                    child: Text(context.l10n.male),
+                  ),
+                  DropdownMenuItem(
+                    value: 'female',
+                    child: Text(context.l10n.female),
+                  ),
+                  DropdownMenuItem(
+                    value: 'other',
+                    child: Text(context.l10n.other),
+                  ),
                 ],
                 onChanged: (val) => setState(() => _selectedGender = val),
               ),
@@ -229,17 +253,17 @@ class _StudentRegistrationScreenState
               // DOB
               Semantics(
                 button: true,
-                label: 'Date of Birth Picker',
-                hint: 'Double tap to open the date picker',
+                label: context.l10n.dateOfBirth,
+                hint: context.l10n.selectDate,
                 child: GestureDetector(
                   onTap: _pickDob,
                   child: AbsorbPointer(
                     child: TextFormField(
                       decoration: InputDecoration(
-                        labelText: 'Date of Birth',
+                        labelText: context.l10n.dateOfBirth,
                         prefixIcon: const Icon(Icons.cake_rounded),
                         hintText: _selectedDob == null
-                            ? 'Select date'
+                            ? context.l10n.selectDate
                             : '${_selectedDob!.day}/${_selectedDob!.month}/${_selectedDob!.year}',
                       ),
                       controller: TextEditingController(
@@ -253,18 +277,18 @@ class _StudentRegistrationScreenState
               ),
               const SizedBox(height: 24),
 
-              const _SectionLabel('Parent / Guardian'),
+              _SectionLabel(context.l10n.sectionParent),
               const SizedBox(height: 12),
 
               _buildTextField(
                 _parentNameController,
-                'Parent Name',
+                context.l10n.parentName,
                 Icons.family_restroom_rounded,
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 _parentPhoneController,
-                'Parent Mobile',
+                context.l10n.parentMobile,
                 Icons.phone_rounded,
                 keyboardType: TextInputType.phone,
                 maxLength: 10,
@@ -272,19 +296,19 @@ class _StudentRegistrationScreenState
               const SizedBox(height: 16),
               _buildTextField(
                 _whatsappController,
-                'WhatsApp Number',
+                context.l10n.whatsappNumber,
                 Icons.message_rounded,
                 keyboardType: TextInputType.phone,
                 maxLength: 10,
               ),
               const SizedBox(height: 24),
 
-              const _SectionLabel('Contact & School'),
+              _SectionLabel(context.l10n.sectionContact),
               const SizedBox(height: 12),
 
               _buildTextField(
                 _emailController,
-                'Email Address',
+                context.l10n.emailAddress,
                 Icons.email_rounded,
                 keyboardType: TextInputType.emailAddress,
                 required: false,
@@ -292,7 +316,7 @@ class _StudentRegistrationScreenState
               const SizedBox(height: 16),
               _buildTextField(
                 _schoolController,
-                'School Name',
+                context.l10n.schoolName,
                 Icons.school_rounded,
               ),
               const SizedBox(height: 16),
@@ -300,9 +324,9 @@ class _StudentRegistrationScreenState
               // Board
               DropdownButtonFormField<String>(
                 initialValue: _selectedBoard,
-                decoration: const InputDecoration(
-                  labelText: 'Board',
-                  prefixIcon: Icon(Icons.menu_book_rounded),
+                decoration: InputDecoration(
+                  labelText: context.l10n.board,
+                  prefixIcon: const Icon(Icons.menu_book_rounded),
                 ),
                 items: AppConstants.boards
                     .map((b) => DropdownMenuItem(value: b, child: Text(b)))
@@ -314,9 +338,9 @@ class _StudentRegistrationScreenState
               // Standard
               DropdownButtonFormField<String>(
                 initialValue: _selectedStandard,
-                decoration: const InputDecoration(
-                  labelText: 'Standard / Class',
-                  prefixIcon: Icon(Icons.class_rounded),
+                decoration: InputDecoration(
+                  labelText: context.l10n.standardClass,
+                  prefixIcon: const Icon(Icons.class_rounded),
                 ),
                 items: AppConstants.standards
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
@@ -326,14 +350,14 @@ class _StudentRegistrationScreenState
               const SizedBox(height: 40),
 
               PrimaryButton(
-                label: 'Submit Registration',
+                label: context.l10n.submitRegistration,
                 isLoading: _isLoading,
                 onPressed: _submit,
               ),
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  'Your registration will be reviewed by the admin.',
+                  context.l10n.registrationReviewNote,
                   style: AppTypography.poppins(
                     fontSize: 12,
                     color: AppColors.lightOutline,
@@ -369,7 +393,7 @@ class _StudentRegistrationScreenState
       validator: required
           ? (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter $label';
+                return context.l10n.pleaseEnterField(label);
               }
               return null;
             }

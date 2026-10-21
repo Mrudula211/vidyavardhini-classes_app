@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../l10n/l10n_context.dart';
 
 class TeacherLoginScreen extends ConsumerStatefulWidget {
   const TeacherLoginScreen({super.key});
@@ -55,13 +56,13 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
       context.go(Routes.teacherDashboard);
     } catch (e) {
       if (!mounted) return;
-      final text = e.toString().replaceAll('Exception: ', '');
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            text.startsWith('Too many')
-                ? text
-                : 'Invalid access code. Please check with admin.',
+            e.toString().contains('Too many')
+                ? l10n.tooManyAttempts
+                : l10n.invalidAccessCode,
           ),
         ),
       );
@@ -85,7 +86,7 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
                 const AppLogoHeader(),
                 const SizedBox(height: 40),
                 Text(
-                  'Teacher Login',
+                  context.l10n.teacherLoginTitle,
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -94,7 +95,7 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter the access code provided by admin',
+                  context.l10n.teacherLoginSubtitle,
                   style: AppTypography.poppins(
                     fontSize: 14,
                     color: AppColors.brown,
@@ -105,24 +106,34 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
                   controller: _accessCodeController,
                   keyboardType: TextInputType.number,
                   maxLength: 6,
-                  decoration: const InputDecoration(
-                    labelText: 'Teacher Access Code',
-                    hintText: '6-digit code',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.accessCode,
+                    hintText: context.l10n.accessCodeHint,
                     counterText: '',
-                    prefixIcon: Icon(Icons.lock_outline_rounded),
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().length != 6) {
-                      return 'Enter the 6-digit access code';
+                      return context.l10n.enterAccessCode;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 PrimaryButton(
-                  label: 'Login',
+                  label: context.l10n.loginButton,
                   isLoading: _isLoading,
                   onPressed: _login,
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton(
+                    onPressed: () async {
+                      await ref.read(authRepositoryProvider).signOut();
+                      if (context.mounted) context.go(Routes.roleSelect);
+                    },
+                    child: Text(context.l10n.useDifferentAccount),
+                  ),
                 ),
               ],
             ),

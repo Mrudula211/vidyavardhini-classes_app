@@ -46,7 +46,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 #### Shared Auth
 - [x] `SplashScreen` — check session, redirect by role or to role-select
-- [x] `RoleSelectionScreen` — 3 role cards (Admin / Teacher / Student)
+- [x] `WelcomeScreen` — single "Login" door + language switcher (replaced the original 3 role cards; see "Landing page, unified login & languages")
 - [x] `PhoneEntryScreen` — phone number input with country code
 - [x] `OTPVerificationScreen` — 6-digit OTP input, resend timer
 - [x] Supabase OTP integration (`signInWithOtp`, `verifyOtp`)
@@ -389,6 +389,20 @@ A static audit of every button, route and dashboard found the following. Fixed i
 - [x] Teachers could insert their own attendance (bypassing the geofence RPC) and `create_teacher_profile` was callable by anyone with a default `123456` code; both fixed (admin-only, explicit 6-digit code). `audit_logs` client inserts removed (triggers only).
 - [x] Phone numbers normalised (Auth: digits only; app/`public.users`: `+<digits>`) so OTP sign-in finds seeded teacher/admin accounts; NULL token columns on SQL-seeded `auth.users` rows repaired. Seed `004` no longer contains credentials.
 - [ ] Access code remains a UI-level second factor: an admin/teacher with a valid session can reach their routes without it; data safety rests on RLS + session. Server-enforced second factor is a possible future change.
+
+---
+
+## Landing page, unified login & languages (2026-10-22)
+
+- [x] Researched how multi-role school apps handle sign-in: one login, backend role lookup, route by role; role pickers shown to anonymous users are a weak pattern. Fits our Supabase setup (role already in `users.role`).
+- [x] `WelcomeScreen` replaces the role-card screen (logo badge, name, Sanskrit + localized tagline, language chips, Login / New student buttons).
+- [x] `PhoneEntryScreen` is the single login (mobile OTP default, email + password alternative); `OtpScreen` looks up the role and routes; the Resend button now really resends.
+- [x] Router second-factor gate for admin/teacher; session required for everything past the auth screens; auth providers made reactive (stale-role bug fixed); registration/pending flow fixed (new students no longer bounced to "pending"; pending students can re-check status and log out).
+- [x] Hindi + Marathi (+ English) via gen-l10n, 188 keys; translated: welcome, login, OTP, registration, pending, set-password, student dashboard/attendance/fees/homework/classwork, announcements, notifications, chat, timetable, offline banner. Language persisted (Hive).
+- [x] Link audit: every navigation target is a registered route; no orphan screens; dead `announcements` route alias removed; fake "Room 101" default removed from the timetable.
+- [ ] Hindi/Marathi wording needs review by a native speaker (Mrs. Gharat / staff) before release.
+- [ ] Admin and teacher working screens (fees, attendance marking, homework creation, etc.) are still English only.
+- [ ] Admin/teacher access-code step is a client-enforced second factor (a determined user with a valid OTP session could call data APIs without it; RLS still limits them to their role).
 
 ---
 

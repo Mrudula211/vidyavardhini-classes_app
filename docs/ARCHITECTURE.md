@@ -107,7 +107,7 @@ features/admin/students/
 
 ```
 /                           → SplashScreen
-/role-select                → RoleSelectionScreen
+/role-select                → WelcomeScreen (landing; replaced the role-card screen)
 /auth/phone                 → PhoneEntryScreen
 /auth/otp                   → OTPScreen
 /auth/admin-code            → AdminCodeScreen
@@ -150,6 +150,16 @@ Shell widgets wrap feature screens with role-appropriate navigation bars.
 ```
 
 Role is stored in the `users` table and embedded in JWT via a Supabase Auth hook (PostgreSQL function).
+
+### 3.1 Unified login (as built)
+
+There is no role picker. `WelcomeScreen` -> `PhoneEntryScreen` (mobile OTP, or email + password) -> `OtpScreen`; after sign-in the app reads `users.role` (`fetchUserRole`) and `roleDestination()` decides the next step. Unknown phone numbers become `student` users (the only role self-registration can create — enforced by RLS) and continue to registration. Admin/teacher accounts are created by the admin, so they simply exist and are recognised.
+
+`appRouterProvider.redirect` is the single gate: no session -> auth screens only; session without a known role -> auth screens; student status gates (pending / rejected / banned / set-password); **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked. `currentUserIdProvider` makes the user/role/status providers react to login and logout (previously they were evaluated once and went stale).
+
+### 3.2 Localization
+
+Flutter `gen-l10n`: `lib/l10n/app_{en,hi,mr}.arb` -> generated `AppLocalizations`; use `context.l10n.<key>` (`lib/l10n/l10n_context.dart`). The chosen language is stored in Hive box `settings` (`localeProvider`); `LanguageSwitcher` is on the welcome, login and registration screens. Parent/student-facing screens are translated; admin and teacher working screens remain English (staff sign-in verification screens are translated). Dates and month names use the active locale. Add a string by adding it to the ARB files (`test/l10n/arb_completeness_test.dart` fails if hi/mr drift from en).
 
 `NotificationService` registers FCM, saves `users.fcm_token` (including on auth state change), and exposes foreground/background handlers. Dashboards use `NotificationBellButton` with an unread badge backed by `unreadNotificationCountProvider`.
 
