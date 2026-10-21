@@ -23,6 +23,26 @@ Known limitation: access-code-only login is verified on the server but creates n
 
 ---
 
+## 0b. URGENT — table without Row-Level Security (Supabase advisory, 17 Oct 2026)
+
+Supabase emailed a critical `rls_disabled_in_public` warning for project `rcocjtblpbbslrivqpmm`: at least one table in `public` can be read, edited and deleted by anyone who has the project URL and anon key (the anon key ships inside the app). The repository is not the cause — all 28 tables created by migrations 001-007 enable RLS — so the table was probably created by hand in the dashboard, or a migration was only partly applied.
+
+You need to do the following manually:
+
+1. Open Supabase Dashboard -> **SQL Editor** and run this to list the exposed tables:
+   ```sql
+   select schemaname, tablename
+   from pg_tables
+   where schemaname = 'public' and not rowsecurity;
+   ```
+2. If a table is one of ours (for example `audit_logs`, `fee_payments`, `student_profiles`), re-run the matching part of `supabase/migrations/001_initial_schema.sql` so its RLS policies exist, then run: `alter table public.<name> enable row level security;`
+3. If a table is not in the migrations (something you created manually), tell me its name and columns and I will write correct policies. Until then, lock it down with `alter table public.<name> enable row level security;` — with RLS on and no policy, only the service role can access it.
+4. Re-run the query from step 1; it must return zero rows.
+5. Dashboard -> **Advisors** (sidebar) -> run the Security advisor and clear every remaining warning, or tell me what is left.
+6. If any exposed table held real student, fee or phone data, treat it as possibly read by others: check **Logs -> API** for unexpected access, and let affected families know if needed.
+
+---
+
 ## 1. Turn on automation (push, monthly fees, reminders, backups)
 
 Code is ready: `supabase/migrations/008_automation.sql` and `supabase/functions/`.
