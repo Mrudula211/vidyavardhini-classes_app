@@ -84,6 +84,9 @@ CREATE TABLE IF NOT EXISTS private.access_attempts (
   failures     INTEGER NOT NULL DEFAULT 0,
   locked_until TIMESTAMPTZ
 );
+-- No policies on purpose: only the SECURITY DEFINER functions below (which run
+-- as the table owner) touch it; API roles get nothing.
+ALTER TABLE private.access_attempts ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION private.check_attempts(p_uid UUID) RETURNS VOID AS $$
 DECLARE
