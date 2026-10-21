@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../fees/providers/fee_providers.dart';
+import '../../../../l10n/l10n_context.dart';
 
 class StudentFeesScreen extends ConsumerWidget {
   const StudentFeesScreen({super.key});
 
-  final List<String> _months = const [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
+  String _monthName(BuildContext context, int month) {
+    return DateFormat.MMMM(Localizations.localeOf(context).toString())
+        .format(DateTime(2000, month));
+  }
+
+  String _statusLabel(BuildContext context, String status) {
+    switch (status) {
+      case 'paid':
+        return context.l10n.feeStatusPaid;
+      case 'partially_paid':
+        return context.l10n.feeStatusPartial;
+      default:
+        return context.l10n.feeStatusPending;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,8 +33,8 @@ class StudentFeesScreen extends ConsumerWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('My Fee Status')),
-        body: const Center(child: Text('User session not found')),
+        appBar: AppBar(title: Text(context.l10n.feesTitle)),
+        body: Center(child: Text(context.l10n.userSessionMissing)),
       );
     }
 
@@ -29,10 +42,10 @@ class StudentFeesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Fee Status'),
+        title: Text(context.l10n.feesTitle),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(studentFeeHistoryProvider(user.id)),
           ),
@@ -50,7 +63,7 @@ class StudentFeesScreen extends ConsumerWidget {
                     const Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.lightOutline),
                     const SizedBox(height: 12),
                     Text(
-                      'No fee records found.',
+                      context.l10n.noFeeRecords,
                       textAlign: TextAlign.center,
                       style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
                     ),
@@ -90,7 +103,7 @@ class StudentFeesScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${_months[currentMonthRecord.month - 1]} ${currentMonthRecord.year}',
+                              '${_monthName(context, currentMonthRecord.month)} ${currentMonthRecord.year}',
                               style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             Container(
@@ -100,7 +113,7 @@ class StudentFeesScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                currentMonthRecord.status.replaceAll('_', ' ').toUpperCase(),
+                                _statusLabel(context, currentMonthRecord.status),
                                 style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -113,21 +126,21 @@ class StudentFeesScreen extends ConsumerWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Expected Fee', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                                Text(context.l10n.expectedFee, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                                 Text('₹${currentMonthRecord.expectedAmount.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                               ],
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Paid Amount', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                                Text(context.l10n.paidAmount, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                                 Text('₹${currentMonthRecord.paidAmount.toStringAsFixed(0)}', style: const TextStyle(color: Colors.greenAccent, fontSize: 20, fontWeight: FontWeight.bold)),
                               ],
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Remaining', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                                Text(context.l10n.remainingAmount, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                                 Text('₹${currentMonthRecord.remainingAmount.toStringAsFixed(0)}', style: const TextStyle(color: Colors.orangeAccent, fontSize: 20, fontWeight: FontWeight.bold)),
                               ],
                             ),
@@ -139,9 +152,9 @@ class StudentFeesScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
 
-                const Text(
-                  'Fee Payment History',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  context.l10n.feeHistory,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
 
@@ -162,15 +175,18 @@ class StudentFeesScreen extends ConsumerWidget {
                           ),
                         ),
                         title: Text(
-                          '${_months[item.month - 1]} ${item.year}',
+                          '${_monthName(context, item.month)} ${item.year}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          'Expected: ₹${item.expectedAmount.toStringAsFixed(0)} • Paid: ₹${item.paidAmount.toStringAsFixed(0)}',
+                          context.l10n.feeExpectedPaid(
+                            item.expectedAmount.toStringAsFixed(0),
+                            item.paidAmount.toStringAsFixed(0),
+                          ),
                           style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                         ),
                         trailing: Text(
-                          'Remaining\n₹${item.remainingAmount.toStringAsFixed(0)}',
+                          context.l10n.feeRemainingShort(item.remainingAmount.toStringAsFixed(0)),
                           textAlign: TextAlign.right,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -196,14 +212,14 @@ class StudentFeesScreen extends ConsumerWidget {
                 const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
                 const SizedBox(height: 12),
                 Text(
-                  'Could not load fees.\n$err',
+                  context.l10n.couldNotLoadFees,
                   textAlign: TextAlign.center,
                   style: AppTypography.poppins(fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => ref.invalidate(studentFeeHistoryProvider(user.id)),
-                  child: const Text('Retry'),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ),

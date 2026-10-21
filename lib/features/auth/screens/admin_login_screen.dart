@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../l10n/l10n_context.dart';
 
 class AdminLoginScreen extends ConsumerStatefulWidget {
   const AdminLoginScreen({super.key});
@@ -19,6 +20,7 @@ class AdminLoginScreen extends ConsumerStatefulWidget {
 class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _accessCodeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _passwordVisible = false;
@@ -27,6 +29,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
   void dispose() {
     _identifierController.dispose();
     _passwordController.dispose();
+    _accessCodeController.dispose();
     super.dispose();
   }
 
@@ -34,48 +37,25 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
+    var signedInHere = false;
     try {
-      final input = _identifierController.text.trim();
-      final password = _passwordController.text.trim();
+      final repo = ref.read(authRepositoryProvider);
+      final email = _identifierController.text.trim();
+      final password = _passwordController.text;
+      final code = _accessCodeController.text.trim();
 
-      bool success = false;
-
-      // 1. Try verifyAdminCredentials via database RPC
-      try {
-        success = await ref
-            .read(authRepositoryProvider)
-            .verifyAdminCredentials(input, password);
-      } catch (_) {
-        success = false;
+      // 1. A real Supabase session is required: every admin query is checked
+      //    by row-level security against it. (An OTP session from the phone
+      //    screen is also accepted.)
+      if (ref.read(currentUserProvider) == null) {
+        final session = await repo.signInWithEmailAndPassword(email, password);
+        if (session == null) throw Exception('Invalid admin credentials.');
+        signedInHere = true;
       }
 
-      // 2. If RPC fails or returns false, try Supabase Email Auth
-      if (!success && input.contains('@')) {
-        try {
-          final session = await ref
-              .read(authRepositoryProvider)
-              .signInWithEmailAndPassword(input, password);
-          success = session != null;
-        } catch (_) {
-          // Check standard admin email / code
-          final lowerInput = input.toLowerCase();
-          if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
-              password == 'Vidyavardhini-classes81') {
-            success = true;
-          }
-        }
-      }
-
-      // 3. Fallback check for exact registered Admin credentials
-      if (!success) {
-        final lowerInput = input.toLowerCase();
-        if ((lowerInput == 'siddhigharat81@gmail.com' || input == '123456' || input == '8888602496') &&
-            password == 'Vidyavardhini-classes81') {
-          success = true;
-        } else {
-          throw Exception('Invalid admin credentials. Please enter siddhigharat81@gmail.com or 123456.');
-        }
-      }
+      // 2. Access code + password, verified server-side for this account.
+      final ok = await repo.verifyAdminCredentials(code, password);
+      if (!ok) throw Exception('Invalid admin credentials.');
 
       // Grant Admin session flag so router allows navigation to /admin
       ref.read(adminAuthenticatedProvider.notifier).state = true;
@@ -83,10 +63,17 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
       if (!mounted) return;
       context.go(Routes.adminDashboard);
     } catch (e) {
+      if (signedInHere) {
+        await ref.read(authRepositoryProvider).signOut();
+      }
       if (!mounted) return;
+      final l10n = context.l10n;
+      final message = e.toString().contains('Too many')
+          ? l10n.tooManyAttempts
+          : l10n.invalidAdminCredentials;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: Text(message),
           backgroundColor: AppColors.maroon,
           behavior: SnackBarBehavior.floating,
         ),
@@ -101,7 +88,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Go back',
+          tooltip: context.l10n.goBack,
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Routes.roleSelect),
         ),
@@ -120,7 +107,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                 const AppLogoHeader(),
                 const SizedBox(height: 32),
                 Text(
-                  'Admin Login',
+                  context.l10n.adminLoginTitle,
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -129,37 +116,42 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in with Email or 6-Digit Access Code',
+                  ref.watch(currentUserProvider) == null
+                      ? context.l10n.adminLoginSubtitleFull
+                      : context.l10n.adminLoginSubtitle,
                   style: AppTypography.poppins(
                     fontSize: 14,
                     color: AppColors.brown,
                   ),
                 ),
                 const SizedBox(height: 32),
-                TextFormField(
-                  controller: _identifierController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email or Admin Access Code',
-                    hintText: 'siddhigharat81@gmail.com or 123456',
-                    prefixIcon: Icon(Icons.person_outline_rounded),
+                if (ref.watch(currentUserProvider) == null) ...[
+                  TextFormField(
+                    controller: _identifierController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.adminEmail,
+                      prefixIcon: const Icon(Icons.person_outline_rounded),
+                    ),
+                    validator: (value) {
+                      if (value == null || !value.contains('@')) {
+                        return context.l10n.enterAdminEmail;
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Enter your email or access code';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                ],
                 TextFormField(
                   controller: _passwordController,
                   obscureText: !_passwordVisible,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: context.l10n.password,
                     prefixIcon: const Icon(Icons.key_rounded),
                     suffixIcon: IconButton(
-                      tooltip: _passwordVisible ? 'Hide password' : 'Show password',
+                      tooltip: _passwordVisible
+                          ? context.l10n.hidePassword
+                          : context.l10n.showPassword,
                       icon: Icon(
                         _passwordVisible
                             ? Icons.visibility_off_rounded
@@ -171,23 +163,44 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your password';
+                      return context.l10n.enterPassword;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _accessCodeController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.accessCode,
+                    hintText: context.l10n.accessCodeHint,
+                    counterText: '',
+                    prefixIcon: const Icon(Icons.pin_outlined),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().length != 6) {
+                      return context.l10n.enterAccessCode;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 PrimaryButton(
-                  label: 'Login',
+                  label: context.l10n.loginButton,
                   isLoading: _isLoading,
                   onPressed: _login,
                 ),
                 const SizedBox(height: 16),
                 Center(
                   child: TextButton(
-                    onPressed: () => context.go(Routes.roleSelect),
+                    onPressed: () async {
+                      await ref.read(authRepositoryProvider).signOut();
+                      if (context.mounted) context.go(Routes.roleSelect);
+                    },
                     child: Text(
-                      'Change Role',
+                      context.l10n.useDifferentAccount,
                       style: AppTypography.poppins(
                         fontSize: 14,
                         color: AppColors.maroon,

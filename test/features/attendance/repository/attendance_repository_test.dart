@@ -14,7 +14,9 @@ class FakeSupabaseQueryBuilder extends Fake implements SupabaseQueryBuilder {
   FakeSupabaseQueryBuilder([this._returnValue, this._error]);
 
   @override
-  PostgrestFilterBuilder<List<Map<String, dynamic>>> select([String columns = '*']) {
+  PostgrestFilterBuilder<List<Map<String, dynamic>>> select([
+    String columns = '*',
+  ]) {
     return FakePostgrestFilterBuilder(_returnValue, _error);
   }
 
@@ -50,13 +52,18 @@ class FakePostgrestFilterBuilder extends Fake
   FakePostgrestFilterBuilder(this._returnValue, this._error);
 
   @override
-  PostgrestFilterBuilder<List<Map<String, dynamic>>> limit(int count,
-      {String? referencedTable,}) {
+  PostgrestFilterBuilder<List<Map<String, dynamic>>> limit(
+    int count, {
+    String? referencedTable,
+  }) {
     return this;
   }
 
   @override
-  PostgrestFilterBuilder<List<Map<String, dynamic>>> eq(String column, Object value) {
+  PostgrestFilterBuilder<List<Map<String, dynamic>>> eq(
+    String column,
+    Object value,
+  ) {
     return this;
   }
 
@@ -67,28 +74,37 @@ class FakePostgrestFilterBuilder extends Fake
 
   @override
   PostgrestTransformBuilder<Map<String, dynamic>> single() {
-    return FakePostgrestSingleTransformBuilder(_returnValue ?? {'id': 'att_123'}, _error);
+    return FakePostgrestSingleTransformBuilder(
+      _returnValue ?? {'id': 'att_123'},
+      _error,
+    );
   }
 
   @override
-  PostgrestTransformBuilder<List<Map<String, dynamic>>> select([String columns = '*']) {
-    return FakePostgrestListTransformBuilder(_returnValue ?? {'id': 'att_123'}, _error);
+  PostgrestTransformBuilder<List<Map<String, dynamic>>> select([
+    String columns = '*',
+  ]) {
+    return FakePostgrestListTransformBuilder(
+      _returnValue ?? {'id': 'att_123'},
+      _error,
+    );
   }
 
   @override
   Future<R> then<R>(
-      FutureOr<R> Function(List<Map<String, dynamic>> value) onValue,
-      {Function? onError,}) {
+    FutureOr<R> Function(List<Map<String, dynamic>> value) onValue, {
+    Function? onError,
+  }) {
     if (_error != null) {
       final fut = Future<List<Map<String, dynamic>>>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
     }
     final list = (_returnValue is List)
         ? List<Map<String, dynamic>>.from(
-            (_returnValue).map((x) => Map<String, dynamic>.from(x as Map)),)
+            (_returnValue).map((x) => Map<String, dynamic>.from(x as Map)),
+          )
         : <Map<String, dynamic>>[];
-    return Future.value(list)
-        .then((val) => onValue(val), onError: onError);
+    return Future.value(list).then((val) => onValue(val), onError: onError);
   }
 }
 
@@ -114,8 +130,9 @@ class FakePostgrestSingleTransformBuilder extends Fake
 
   @override
   Future<R> then<R>(
-      FutureOr<R> Function(Map<String, dynamic> value) onValue,
-      {Function? onError,}) {
+    FutureOr<R> Function(Map<String, dynamic> value) onValue, {
+    Function? onError,
+  }) {
     if (_error != null) {
       final fut = Future<Map<String, dynamic>>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
@@ -136,8 +153,9 @@ class FakePostgrestTransformBuilder extends Fake
 
   @override
   Future<R> then<R>(
-      FutureOr<R> Function(Map<String, dynamic>? value) onValue,
-      {Function? onError,}) {
+    FutureOr<R> Function(Map<String, dynamic>? value) onValue, {
+    Function? onError,
+  }) {
     if (_error != null) {
       final fut = Future<Map<String, dynamic>?>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
@@ -200,7 +218,8 @@ void main() {
       expect(result, isFalse);
     });
 
-    test('returns false when distance is strictly greater than radius', () async {
+    test('returns false when distance is strictly greater than radius',
+        () async {
       when(() => mockClient.from('geofence_settings')).thenAnswer(
         (_) => FakeSupabaseQueryBuilder({
           'id': '1',
@@ -220,7 +239,8 @@ void main() {
       expect(result, isFalse);
     });
 
-    test('returns true and calls upsert when distance is less than or equal to radius',
+    test(
+        'returns true and calls upsert when distance is less than or equal to radius',
         () async {
       when(() => mockClient.from('geofence_settings')).thenAnswer(
         (_) => FakeSupabaseQueryBuilder({
@@ -256,7 +276,9 @@ void main() {
 
       when(() => mockClient.from('teacher_attendance')).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(
-            null, const PostgrestException(message: 'Database error'),),
+          null,
+          const PostgrestException(message: 'Database error'),
+        ),
       );
 
       try {
@@ -327,7 +349,8 @@ void main() {
       );
 
       verify(() => mockClient.from('student_attendance')).called(1);
-      verify(() => mockClient.from('absence_reasons')).called(2); // delete & insert
+      verify(() => mockClient.from('absence_reasons'))
+          .called(2); // delete & insert
     });
 
     test('Empty Records List resolves without querying attendance', () async {
@@ -376,7 +399,9 @@ void main() {
       );
       when(() => mockClient.from('student_attendance')).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(
-            null, const PostgrestException(message: 'Database error'),),
+          null,
+          const PostgrestException(message: 'Database error'),
+        ),
       );
 
       await expectLater(

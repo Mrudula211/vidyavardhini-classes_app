@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../features/notifications/providers/notification_providers.dart';
+import '../../l10n/l10n_context.dart';
 
 /// App-bar action that opens the in-app notification list and shows an
 /// unread count badge when the signed-in user has unread rows.
@@ -27,8 +28,8 @@ class NotificationBellButton extends ConsumerWidget {
 
     return IconButton(
       tooltip: unread > 0
-          ? 'Notifications ($unread unread)'
-          : 'Notifications',
+          ? context.l10n.notificationsUnread(unread.toString())
+          : context.l10n.notificationsTitle,
       onPressed: () => context.push(Routes.notifications),
       icon: Badge(
         isLabelVisible: unread > 0,

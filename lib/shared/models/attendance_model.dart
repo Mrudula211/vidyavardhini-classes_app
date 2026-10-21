@@ -151,3 +151,26 @@ class GeofenceSettingsModel {
     );
   }
 }
+
+class TeacherCheckInResult {
+  final bool inRange;
+  final double distanceMeters;
+  final int radiusMeters;
+  final String? status;
+
+  const TeacherCheckInResult({
+    required this.inRange,
+    required this.distanceMeters,
+    required this.radiusMeters,
+    this.status,
+  });
+
+  factory TeacherCheckInResult.fromJson(Map<String, dynamic> json) {
+    return TeacherCheckInResult(
+      inRange: json['in_range'] as bool? ?? false,
+      distanceMeters: (json['distance_m'] as num?)?.toDouble() ?? 0,
+      radiusMeters: (json['radius_m'] as num?)?.toInt() ?? 0,
+      status: json['status'] as String?,
+    );
+  }
+}

@@ -9,6 +9,8 @@ import '../providers/auth_providers.dart';
 import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../l10n/l10n_context.dart';
+import 'phone_entry_screen.dart' show roleDestination;
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
 
@@ -28,14 +30,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   int _resendSeconds = AppConstants.otpResendSeconds;
   Timer? _resendTimer;
   late String _phone;
-  late String _role;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
     _phone = extra?['phone'] as String? ?? '';
-    _role = extra?['role'] as String? ?? 'student';
     _startResendTimer();
   }
 
@@ -83,13 +83,18 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     if (_otp.length != 6) return;
     setState(() => _isLoading = true);
     try {
-      await ref.read(authRepositoryProvider).verifyOtp(_phone, _otp, _role);
+      final repo = ref.read(authRepositoryProvider);
+      // Unknown numbers become pending students; admin and teacher accounts
+      // already exist (created by the admin) and keep their own role.
+      final session = await repo.verifyOtp(_phone, _otp, 'student');
+      final role =
+          session == null ? null : await repo.fetchUserRole(session.user.id);
       if (!mounted) return;
-      _navigateAfterOtp();
+      _navigateAfterOtp(role);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid OTP. Please try again.')),
+        SnackBar(content: Text(context.l10n.otpInvalid)),
       );
       for (final c in _controllers) {
         c.clear();
@@ -100,22 +105,34 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     }
   }
 
-  void _navigateAfterOtp() {
-    switch (_role) {
-      case 'admin':
-        context.go(Routes.adminLogin, extra: {'phone': _phone});
-        break;
-      case 'teacher':
-        context.go(Routes.teacherLogin, extra: {'phone': _phone});
-        break;
-      default:
-        context.go(Routes.studentRegister, extra: {'phone': _phone});
-        break;
+  /// The account's own role decides the next step. Admin and teacher go on
+  /// to their access-code check; everyone else continues as a student (the
+  /// router sends new students to registration, pending ones to the waiting
+  /// screen and approved ones to their dashboard).
+  void _navigateAfterOtp(String? role) {
+    if (role == 'admin' || role == 'teacher') {
+      context.go(roleDestination(role), extra: {'phone': _phone});
+    } else {
+      context.go(Routes.studentRegister, extra: {'phone': _phone});
+    }
+  }
+
+  Future<void> _resendOtp() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(authRepositoryProvider).sendOtp(_phone);
+      if (!mounted) return;
+      _startResendTimer();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.otpResent)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.sendCodeFailed)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final maskedPhone = _phone.length > 4
         ? '${_phone.substring(0, _phone.length - 4)}XXXX'
         : _phone;
@@ -132,7 +149,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               const SizedBox(height: 40),
 
               Text(
-                'Verify OTP',
+                l10n.otpTitle,
                 style: AppTypography.cinzel(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -141,7 +158,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Enter the 6-digit code sent to $maskedPhone',
+                l10n.otpSubtitle(maskedPhone),
                 style:
                     AppTypography.poppins(fontSize: 14, color: AppColors.brown),
               ),
@@ -163,7 +180,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               const SizedBox(height: 40),
 
               PrimaryButton(
-                label: 'Verify OTP',
+                label: l10n.otpVerify,
                 isLoading: _isLoading,
                 onPressed: _otp.length == 6 ? _verifyOtp : null,
               ),
@@ -172,16 +189,16 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               Center(
                 child: _resendSeconds > 0
                     ? Text(
-                        'Resend OTP in $_resendSeconds seconds',
+                        l10n.otpResendIn(_resendSeconds.toString()),
                         style: AppTypography.poppins(
                           fontSize: 13,
                           color: AppColors.lightOutline,
                         ),
                       )
                     : TextButton(
-                        onPressed: _startResendTimer,
+                        onPressed: _resendOtp,
                         child: Text(
-                          'Resend OTP',
+                          l10n.otpResend,
                           style: AppTypography.poppins(
                             fontSize: 14,
                             color: AppColors.maroon,

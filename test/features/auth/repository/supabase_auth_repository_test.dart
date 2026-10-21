@@ -92,8 +92,9 @@ class FakeSupabaseQueryBuilder extends Fake implements SupabaseQueryBuilder {
   ]);
 
   @override
-  PostgrestFilterBuilder<List<Map<String, dynamic>>> select(
-      [String columns = '*',]) {
+  PostgrestFilterBuilder<List<Map<String, dynamic>>> select([
+    String columns = '*',
+  ]) {
     return FakePostgrestFilterBuilder(_returnValue, _error);
   }
 
@@ -118,7 +119,9 @@ class FakePostgrestFilterBuilder extends Fake
 
   @override
   PostgrestFilterBuilder<List<Map<String, dynamic>>> eq(
-          String column, Object value,) =>
+    String column,
+    Object value,
+  ) =>
       this;
 
   @override
@@ -128,16 +131,16 @@ class FakePostgrestFilterBuilder extends Fake
 
   @override
   Future<R> then<R>(
-      FutureOr<R> Function(List<Map<String, dynamic>> value) onValue,
-      {Function? onError,}) {
+    FutureOr<R> Function(List<Map<String, dynamic>> value) onValue, {
+    Function? onError,
+  }) {
     if (_error != null) {
       final fut = Future<List<Map<String, dynamic>>>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
     }
     final list = (_returnValue is List)
         ? List<Map<String, dynamic>>.from(
-            (_returnValue)
-                .map((x) => Map<String, dynamic>.from(x as Map)),
+            (_returnValue).map((x) => Map<String, dynamic>.from(x as Map)),
           )
         : <Map<String, dynamic>>[];
     return Future.value(list).then((val) => onValue(val), onError: onError);
@@ -155,8 +158,10 @@ class FakePostgrestTransformBuilder extends Fake
   );
 
   @override
-  Future<R> then<R>(FutureOr<R> Function(Map<String, dynamic>? value) onValue,
-      {Function? onError,}) {
+  Future<R> then<R>(
+    FutureOr<R> Function(Map<String, dynamic>? value) onValue, {
+    Function? onError,
+  }) {
     if (_error != null) {
       final fut = Future<Map<String, dynamic>?>.error(_error);
       return fut.then((val) => onValue(val), onError: onError);
@@ -207,9 +212,11 @@ void main() {
       fakeAuth.verifyOtpCallback =
           () => FakeAuthResponse(session: fakeSession, user: fakeUser);
 
-      when(() => mockClient.from(
-            'users',
-          ),).thenAnswer(
+      when(
+        () => mockClient.from(
+          'users',
+        ),
+      ).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(
           {
             'id': fakeUser.id,
@@ -224,9 +231,11 @@ void main() {
       expect(session?.user.id, 'user-123');
 
       expect(fakeAuth.verifyOtpCallCount, 1);
-      verify(() => mockClient.from(
-            'users',
-          ),).called(1);
+      verify(
+        () => mockClient.from(
+          'users',
+        ),
+      ).called(1);
     });
 
     test('Happy Path (New User): returns session after inserting', () async {
@@ -235,9 +244,11 @@ void main() {
           () => FakeAuthResponse(session: fakeSession, user: fakeUser);
 
       var calls = 0;
-      when(() => mockClient.from(
-            'users',
-          ),).thenAnswer((_) {
+      when(
+        () => mockClient.from(
+          'users',
+        ),
+      ).thenAnswer((_) {
         calls++;
         if (calls == 1) {
           return FakeSupabaseQueryBuilder(null, null);
@@ -252,9 +263,11 @@ void main() {
       expect(session?.user.id, 'user-123');
 
       expect(fakeAuth.verifyOtpCallCount, 1);
-      verify(() => mockClient.from(
-            'users',
-          ),).called(2);
+      verify(
+        () => mockClient.from(
+          'users',
+        ),
+      ).called(2);
     });
 
     test('Error Path: Null Session/User Error throws Exception', () async {
@@ -299,9 +312,11 @@ void main() {
           () => FakeAuthResponse(session: fakeSession, user: fakeUser);
 
       var calls = 0;
-      when(() => mockClient.from(
-            'users',
-          ),).thenAnswer((_) {
+      when(
+        () => mockClient.from(
+          'users',
+        ),
+      ).thenAnswer((_) {
         calls++;
         if (calls == 1) {
           return FakeSupabaseQueryBuilder(null, null);
@@ -321,9 +336,11 @@ void main() {
       );
 
       expect(fakeAuth.verifyOtpCallCount, 1);
-      verify(() => mockClient.from(
-            'users',
-          ),).called(2);
+      verify(
+        () => mockClient.from(
+          'users',
+        ),
+      ).called(2);
     });
   });
 
@@ -334,9 +351,11 @@ void main() {
     });
 
     test('fetchUserRole returns role on success', () async {
-      when(() => mockClient.from(
-            'users',
-          ),).thenAnswer(
+      when(
+        () => mockClient.from(
+          'users',
+        ),
+      ).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(
           {
             'role': 'teacher',
@@ -348,15 +367,19 @@ void main() {
       final role = await repository.fetchUserRole('user-123');
 
       expect(role, 'teacher');
-      verify(() => mockClient.from(
-            'users',
-          ),).called(1);
+      verify(
+        () => mockClient.from(
+          'users',
+        ),
+      ).called(1);
     });
 
     test('isStudentPhoneRegistered returns true if user exists', () async {
-      when(() => mockClient.from(
-            'users',
-          ),).thenAnswer(
+      when(
+        () => mockClient.from(
+          'users',
+        ),
+      ).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(
           {
             'id': 'user-123',
@@ -369,16 +392,20 @@ void main() {
           await repository.isStudentPhoneRegistered('+1234567890');
 
       expect(isRegistered, true);
-      verify(() => mockClient.from(
-            'users',
-          ),).called(1);
+      verify(
+        () => mockClient.from(
+          'users',
+        ),
+      ).called(1);
     });
 
     test('isStudentPhoneRegistered returns false if user does not exist',
         () async {
-      when(() => mockClient.from(
-            'users',
-          ),).thenAnswer(
+      when(
+        () => mockClient.from(
+          'users',
+        ),
+      ).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(null, null),
       );
 
@@ -386,9 +413,11 @@ void main() {
           await repository.isStudentPhoneRegistered('+1234567890');
 
       expect(isRegistered, false);
-      verify(() => mockClient.from(
-            'users',
-          ),).called(1);
+      verify(
+        () => mockClient.from(
+          'users',
+        ),
+      ).called(1);
     });
   });
 }

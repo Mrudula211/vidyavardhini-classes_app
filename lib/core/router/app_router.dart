@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../constants/routes.dart';
 import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/screens/splash_screen.dart';
-import '../../features/auth/screens/role_selection_screen.dart';
+import '../../features/auth/screens/welcome_screen.dart';
 import '../../features/auth/screens/phone_entry_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/auth/screens/admin_login_screen.dart';
@@ -27,6 +27,8 @@ import '../../features/admin/revenue/screens/revenue_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/admin/audit_logs/screens/audit_logs_screen.dart';
 import '../../features/admin/backup/screens/backup_screen.dart';
+import '../../features/admin/promotion/screens/promotion_screen.dart';
+import '../../features/teacher/attendance/screens/teacher_checkin_screen.dart';
 import '../../features/admin/announcements/screens/announcement_create_screen.dart';
 import '../../features/admin/timetable/screens/admin_timetable_screen.dart';
 import '../../features/announcements/screens/announcement_list_screen.dart';
@@ -54,6 +56,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final isTeacherLoggedIn = ref.watch(teacherAuthenticatedProvider);
   final studentStatus = ref.watch(currentStudentStatusProvider);
 
+  // The access-code step is only valid for the session it was passed in.
+  // Clear it on logout or when a different account signs in.
+  ref.listen<String?>(currentUserIdProvider, (previous, next) {
+    if (next == null || (previous != null && previous != next)) {
+      ref.read(adminAuthenticatedProvider.notifier).state = false;
+      ref.read(teacherAuthenticatedProvider.notifier).state = false;
+    }
+  });
+
   return GoRouter(
     initialLocation: Routes.splash,
     debugLogDiagnostics: true,
@@ -63,46 +74,31 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           uri == Routes.roleSelect ||
           uri == Routes.splash;
 
-      if (isAdminLoggedIn && uri.startsWith('/admin')) {
-        return null;
-      }
-      if (isTeacherLoggedIn && uri.startsWith('/teacher')) {
-        return null;
-      }
-
       if (authState.isLoading) {
         return Routes.splash;
       }
 
+      // Everything beyond the auth screens needs a real Supabase session:
+      // all data access is enforced against it by row-level security.
       final session = authState.value;
-
-      if (session == null && !isAdminLoggedIn && !isTeacherLoggedIn) {
-        if (!isAuthRoute) {
-          return Routes.roleSelect;
-        }
-        return null;
+      if (session == null) {
+        return isAuthRoute ? null : Routes.roleSelect;
       }
 
-      if (userRole.isLoading && !isAdminLoggedIn && !isTeacherLoggedIn) {
+      if (userRole.isLoading) {
         return Routes.splash; // Wait for role
       }
 
-      final role = isAdminLoggedIn
-          ? 'admin'
-          : (isTeacherLoggedIn ? 'teacher' : userRole.value);
-
+      final role = userRole.value;
       if (role == null) {
-        if (!isAuthRoute) {
-          return Routes.roleSelect;
-        }
-        return null;
+        return isAuthRoute ? null : Routes.roleSelect;
       }
 
       // A student's account must be 'active' to use the app. Pending
       // students are parked on the pending-approval screen; rejected/banned
       // students are signed out immediately, even if they still hold a
       // valid Supabase session token.
-      if (role == 'student' && !isAdminLoggedIn && !isTeacherLoggedIn) {
+      if (role == 'student') {
         if (studentStatus.isLoading) {
           return Routes.splash;
         }
@@ -112,8 +108,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return Routes.roleSelect;
         }
         if (status == null || status == 'pending') {
+          // New students finish registration; submitted ones wait.
+          if (uri == Routes.studentRegister) return null;
           if (uri != Routes.pendingApproval) {
-            return Routes.pendingApproval;
+            return status == null
+                ? Routes.studentRegister
+                : Routes.pendingApproval;
           }
           return null;
         }
@@ -121,16 +121,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         // Active students without an email/password must set one before
         // reaching student routes (splash already does this once; enforce
         // here too so deep links cannot skip the step).
-        if (status == 'active') {
-          final email = session?.user.email;
-          final needsPassword = email == null || email.trim().isEmpty;
-          if (needsPassword && uri != Routes.studentSetPassword) {
-            return Routes.studentSetPassword;
-          }
-          if (!needsPassword && uri == Routes.studentSetPassword) {
-            return Routes.studentDashboard;
-          }
+        final email = session.user.email;
+        final needsPassword = email == null || email.trim().isEmpty;
+        if (needsPassword && uri != Routes.studentSetPassword) {
+          return Routes.studentSetPassword;
         }
+        if (!needsPassword && uri == Routes.studentSetPassword) {
+          return Routes.studentDashboard;
+        }
+      }
+
+      // Admin and teacher sign in once more with their access code. Until
+      // that is done, the only place they may be is that step.
+      if (role == 'admin' && !isAdminLoggedIn) {
+        return uri == Routes.adminLogin ? null : Routes.adminLogin;
+      }
+      if (role == 'teacher' && !isTeacherLoggedIn) {
+        return uri == Routes.teacherLogin ? null : Routes.teacherLogin;
       }
 
       // Check route against roles
@@ -144,7 +151,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return _getDashboardRoute(role);
       }
 
-      // If user goes to auth routes while logged in, redirect to dashboard
+      // Signed-in people never need the login screens again.
       if (isAuthRoute &&
           uri != Routes.splash &&
           uri != Routes.pendingApproval &&
@@ -162,7 +169,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.roleSelect,
-        builder: (context, state) => const RoleSelectionScreen(),
+        builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
         path: Routes.phone,
@@ -252,6 +259,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AuditLogsScreen(),
       ),
       GoRoute(
+        path: Routes.adminAcademicYear,
+        builder: (context, state) => const PromotionScreen(),
+      ),
+      GoRoute(
         path: Routes.adminBackup,
         builder: (context, state) => const BackupScreen(),
       ),
@@ -289,6 +300,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.teacherDashboard,
         builder: (context, state) => const TeacherDashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherCheckIn,
+        builder: (context, state) => const TeacherCheckInScreen(),
       ),
       GoRoute(
         path: Routes.teacherAttendance,

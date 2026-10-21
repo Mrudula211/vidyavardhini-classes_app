@@ -47,7 +47,9 @@ class HomeworkModel {
       createdAt: json['created_at'] as String? ?? '',
       teacherName: tProfile != null ? tProfile['full_name'] as String? : null,
       attachments: attsList != null
-          ? attsList.map((a) => AttachmentModel.fromJson(a)).toList()
+          ? attsList
+              .map((a) => AttachmentModel.fromJson(a, bucket: AttachmentModel.homeworkBucket))
+              .toList()
           : const [],
     );
   }
@@ -99,14 +101,20 @@ class ClassworkModel {
       createdAt: json['created_at'] as String? ?? '',
       teacherName: tProfile != null ? tProfile['full_name'] as String? : null,
       attachments: attsList != null
-          ? attsList.map((a) => AttachmentModel.fromJson(a)).toList()
+          ? attsList
+              .map((a) => AttachmentModel.fromJson(a, bucket: AttachmentModel.classworkBucket))
+              .toList()
           : const [],
     );
   }
 }
 
 class AttachmentModel {
+  static const homeworkBucket = 'homework-attachments';
+  static const classworkBucket = 'classwork-attachments';
+
   final String id;
+  final String bucket;
   final String fileUrl;
   final String fileType;
   final String fileName;
@@ -114,15 +122,19 @@ class AttachmentModel {
 
   const AttachmentModel({
     required this.id,
+    required this.bucket,
     required this.fileUrl,
     required this.fileType,
     required this.fileName,
     this.fileSize,
   });
 
-  factory AttachmentModel.fromJson(Map<String, dynamic> json) {
+  /// [fileUrl] is the object path inside [bucket] (private bucket; view via a
+  /// signed URL).
+  factory AttachmentModel.fromJson(Map<String, dynamic> json, {required String bucket}) {
     return AttachmentModel(
       id: json['id'] as String,
+      bucket: bucket,
       fileUrl: json['file_url'] as String? ?? '',
       fileType: json['file_type'] as String? ?? 'text',
       fileName: json['file_name'] as String? ?? '',

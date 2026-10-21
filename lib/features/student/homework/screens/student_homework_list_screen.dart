@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/attachment_list.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../content/providers/content_providers.dart';
+import '../../../../l10n/l10n_context.dart';
 
 class StudentHomeworkListScreen extends ConsumerWidget {
   const StudentHomeworkListScreen({super.key});
@@ -15,8 +17,8 @@ class StudentHomeworkListScreen extends ConsumerWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('My Homework')),
-        body: const Center(child: Text('User session missing')),
+        appBar: AppBar(title: Text(context.l10n.homeworkTitle)),
+        body: Center(child: Text(context.l10n.userSessionMissing)),
       );
     }
 
@@ -24,10 +26,10 @@ class StudentHomeworkListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Homework Assignments'),
+        title: Text(context.l10n.homeworkTitle),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(studentHomeworkListProvider(user.id)),
           ),
@@ -55,14 +57,14 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                 const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
                 const SizedBox(height: 12),
                 Text(
-                  'Could not load homework.\n$err',
+                  context.l10n.couldNotLoadHomework,
                   textAlign: TextAlign.center,
                   style: AppTypography.poppins(fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => ref.invalidate(studentHomeworkListProvider(user.id)),
-                  child: const Text('Retry'),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ),
@@ -79,7 +81,7 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                     const Icon(Icons.assignment_outlined, size: 48, color: AppColors.lightOutline),
                     const SizedBox(height: 12),
                     Text(
-                      'No active homework assigned for your class!',
+                      context.l10n.noActiveHomework,
                       textAlign: TextAlign.center,
                       style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
                     ),
@@ -130,7 +132,7 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'Due: ${hw.dueDate}',
+                              context.l10n.dueDate(hw.dueDate),
                               style: const TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.bold,
@@ -148,7 +150,7 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                       if (hw.teacherName != null) ...[
                         const SizedBox(height: 2),
                         Text(
-                          'Teacher: ${hw.teacherName}',
+                          context.l10n.teacherName(hw.teacherName!),
                           style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                         ),
                       ],
@@ -166,6 +168,7 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                           ),
                         ),
                       ],
+                      AttachmentList(attachments: hw.attachments),
                     ],
                   ),
                 ),

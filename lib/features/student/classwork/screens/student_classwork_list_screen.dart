@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/attachment_list.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../content/providers/content_providers.dart';
+import '../../../../l10n/l10n_context.dart';
 
 class StudentClassworkListScreen extends ConsumerWidget {
   const StudentClassworkListScreen({super.key});
@@ -15,8 +17,8 @@ class StudentClassworkListScreen extends ConsumerWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Classwork Notes')),
-        body: const Center(child: Text('User session missing')),
+        appBar: AppBar(title: Text(context.l10n.classworkTitle)),
+        body: Center(child: Text(context.l10n.userSessionMissing)),
       );
     }
 
@@ -24,10 +26,10 @@ class StudentClassworkListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Classwork & Study Notes'),
+        title: Text(context.l10n.classworkTitle),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(studentClassworkListProvider(user.id)),
           ),
@@ -55,14 +57,14 @@ class StudentClassworkListScreen extends ConsumerWidget {
                 const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
                 const SizedBox(height: 12),
                 Text(
-                  'Could not load classwork.\n$err',
+                  context.l10n.couldNotLoadClasswork,
                   textAlign: TextAlign.center,
                   style: AppTypography.poppins(fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => ref.invalidate(studentClassworkListProvider(user.id)),
-                  child: const Text('Retry'),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ),
@@ -79,7 +81,7 @@ class StudentClassworkListScreen extends ConsumerWidget {
                     const Icon(Icons.menu_book_outlined, size: 48, color: AppColors.lightOutline),
                     const SizedBox(height: 12),
                     Text(
-                      'No classwork notes published for your class yet.',
+                      context.l10n.noClasswork,
                       textAlign: TextAlign.center,
                       style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
                     ),
@@ -128,7 +130,7 @@ class StudentClassworkListScreen extends ConsumerWidget {
                       if (cw.teacherName != null) ...[
                         const SizedBox(height: 2),
                         Text(
-                          'Published by: ${cw.teacherName}',
+                          context.l10n.publishedBy(cw.teacherName!),
                           style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                         ),
                       ],
@@ -146,6 +148,7 @@ class StudentClassworkListScreen extends ConsumerWidget {
                           ),
                         ),
                       ],
+                      AttachmentList(attachments: cw.attachments),
                     ],
                   ),
                 ),

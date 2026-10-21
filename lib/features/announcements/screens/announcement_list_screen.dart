@@ -6,6 +6,7 @@ import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/announcement_providers.dart';
+import '../../../l10n/l10n_context.dart';
 
 class AnnouncementListScreen extends ConsumerWidget {
   const AnnouncementListScreen({super.key});
@@ -17,10 +18,10 @@ class AnnouncementListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Announcements Feed'),
+        title: Text(context.l10n.announcementsFeed),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(userAnnouncementsProvider),
           ),
@@ -29,10 +30,10 @@ class AnnouncementListScreen extends ConsumerWidget {
       body: announcementsAsync.when(
         data: (announcements) {
           if (announcements.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'No announcements to display.',
-                style: TextStyle(color: Colors.grey),
+                context.l10n.noAnnouncements,
+                style: const TextStyle(color: Colors.grey),
               ),
             );
           }
@@ -139,15 +140,16 @@ class AnnouncementListScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error loading announcements: $err')),
+        error: (err, stack) =>
+            Center(child: Text(context.l10n.couldNotLoadAnnouncements)),
       ),
       floatingActionButton: role == 'admin'
           ? FloatingActionButton.extended(
-              tooltip: 'New Announcement',
+              tooltip: context.l10n.newAnnouncement,
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add_comment),
-              label: const Text('New Announcement'),
+              label: Text(context.l10n.newAnnouncement),
               onPressed: () => context.push(Routes.adminAnnouncementCreate),
             )
           : null,

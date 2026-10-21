@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/offline_banner.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/chat_providers.dart';
+import '../../../l10n/l10n_context.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -52,7 +53,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send message: $e')),
+          SnackBar(content: Text(context.l10n.failedToSend)),
         );
       }
     } finally {
@@ -80,14 +81,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       appBar: AppBar(
         title: roomAsync.when(
           data: (room) {
-            if (room == null) return const Text('Chat Room');
+            if (room == null) return Text(context.l10n.chatRoomTitle);
             final role = ref.watch(currentUserRoleProvider).value;
             final name =
                 role == 'student' ? room.teacherName : room.studentName;
-            return Text(name ?? 'Doubt Clearing');
+            return Text(name ?? context.l10n.chatTitle);
           },
-          loading: () => const Text('Loading...'),
-          error: (_, __) => const Text('Chat'),
+          loading: () => Text(context.l10n.loadingEllipsis),
+          error: (_, __) => Text(context.l10n.chatRoomTitle),
         ),
       ),
       body: Column(
@@ -97,10 +98,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             child: messagesStream.when(
               data: (messages) {
                 if (messages.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
-                      'No messages yet. Type your doubt below!',
-                      style: TextStyle(color: Colors.grey),
+                      context.l10n.noMessagesTypeDoubt,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   );
                 }
@@ -158,7 +159,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) =>
-                  Center(child: Text('Error loading messages: $err')),
+                  Center(child: Text(context.l10n.couldNotLoadMessages)),
             ),
           ),
 
@@ -173,7 +174,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     controller: _messageController,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      hintText: 'Type your doubt here...',
+                      hintText: context.l10n.typeDoubtHint,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -185,7 +186,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton.filled(
-                  tooltip: 'Send message',
+                  tooltip: context.l10n.sendMessage,
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,

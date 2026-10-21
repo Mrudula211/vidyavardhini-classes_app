@@ -46,7 +46,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 #### Shared Auth
 - [x] `SplashScreen` — check session, redirect by role or to role-select
-- [x] `RoleSelectionScreen` — 3 role cards (Admin / Teacher / Student)
+- [x] `WelcomeScreen` — single "Login" door + language switcher (replaced the original 3 role cards; see "Landing page, unified login & languages")
 - [x] `PhoneEntryScreen` — phone number input with country code
 - [x] `OTPVerificationScreen` — 6-digit OTP input, resend timer
 - [x] Supabase OTP integration (`signInWithOtp`, `verifyOtp`)
@@ -305,8 +305,8 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Detail view with JSON diff display
 
 #### Backup
-- [ ] Edge Function: `backup-trigger` (daily cron)
-- [x] `BackupScreen` — list + manual trigger + restore (placeholder for v1). Manual trigger inserts a `pending` `backup_logs` row (honest UI copy: no automated backup job exists yet). Restore action is visibly disabled with a tooltip.
+- [x] Edge Function: `backup-trigger` — JSON dump of all tables to private `backups` bucket, 30-day retention; fired by `backup_logs` INSERT trigger (daily cron `daily-backup` 02:00 IST + manual button). Needs deployment — see `docs/OWNER_TODO.md`.
+- [x] `BackupScreen` — list + manual trigger. Manual trigger inserts a `pending` `backup_logs` row, which the DB trigger hands to `backup-trigger`. Restore is out of scope for v1.
 
 **Deliverable:** Full admin control centre operational.
 
@@ -340,29 +340,69 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 #### Security QA
 - [x] RLS policy audit — static cross-check of `audit_logs`, `student_profiles`, `monthly_fees`/`fee_payments`, `teacher_salary` RLS vs. repository code; no violations found (audit_logs immutability confirmed enforced at the DB level — no UPDATE/DELETE policy exists for any role). Live per-role testing against real Supabase still pending (DB was unreachable during this pass).
 - [x] Route guard audit — found and fixed a real gap: the GoRouter `redirect` only checked role, not student `status`, so a pending/rejected/banned student with a still-valid session could reach `/student/*` routes directly (e.g. via deep link), bypassing the one-time splash-screen check. Now watches `currentStudentStatusProvider` and gates on status too (signs out rejected/banned students, routes pending ones to the pending-approval screen).
+- [x] **Correction (later pass):** the claim below was wrong. Admin credentials were hardcoded in `admin_login_screen.dart` and seeded in `004_seed_admin.sql`. The login-screen fallbacks are removed; the credentials in `004` and git history must be rotated (see `docs/OWNER_TODO.md` section 0).
 - [x] No secrets in source code — grepped for `service_role`, JWT-shaped literals, and hardcoded credentials; only the safe-by-design anon/publishable key was found. Fixed a related hygiene issue: `lib/core/constants/supabase_keys.dart` was tracked in git despite CLAUDE.md saying it should be gitignored — now untracked, gitignored, and replaced with a `supabase_keys.example.dart` template.
 - [x] No PII in logs — all `debugPrint`/`print` call sites checked; none log phone numbers, emails, passwords, or OTPs.
 - [x] Student "set password on first login" is now router-enforced (active student with empty email is redirected to `StudentPasswordScreen`; that route is excluded from the logged-in auth-route bounce).
 
 #### Testing
-- [ ] Unit tests for: formatters, validators, fee calculation logic
-- [ ] Widget tests for: login form, attendance list
+- [x] Unit tests for: `formatBytes`, fee/attendance model parsing (`test/shared/models_test.dart`); fee generation covered in `fee_repository_test.dart`. (Validators are inline in screens — no shared validators file exists.)
+- [x] Widget tests for: `StudentAttendanceCard` (`test/features/teacher/student_attendance_card_test.dart`)
+- [x] Widget test for admin login form (`test/features/auth/screens/admin_login_screen_test.dart`)
 - [ ] Integration tests: auth flow, fee payment flow
 - [ ] Manual QA checklist on real Android device
 
 #### Deployment
-- [ ] Configure Android signing
+- [x] Configure Android signing — `build.gradle.kts` reads `android/key.properties` (template: `key.properties.example`); owner must generate the keystore
 - [x] Update `AndroidManifest.xml` permissions (location and notifications); photo and document selection use Android system pickers, so broad storage permission is not required.
-- [ ] Add `google-services.json`
+- [x] Add `google-services.json` (present locally in `android/app/`, gitignored)
 - [x] Set `minSdkVersion` to 21
-- [ ] Configure ProGuard / R8 rules
+- [x] Configure ProGuard / R8 rules — minify + shrink enabled, `android/app/proguard-rules.pro`
 - [ ] Build release APK + AAB
 - [ ] Test on 3+ Android devices (different screen sizes)
 - [ ] Upload to Play Store (internal testing track)
-- [ ] App icon + splash screen (branded)
+- [x] App icon + splash screen (branded) — `flutter_launcher_icons` / `flutter_native_splash` configured in `pubspec.yaml`, Android assets generated from `images/logo-icon.png` (parchment light / dark-brown dark splash). Owner may supply a higher-resolution source (current is ~580px).
 - [ ] Play Store listing (screenshots, description)
 
 **Deliverable:** App live on Play Store.
+
+---
+
+## Audit findings — features marked done but not actually present (2026-10-22)
+
+A static audit of every button, route and dashboard found the following. Fixed items are ticked; open items are real gaps, not polish.
+
+- [x] Teacher and student dashboards had no way to reach Chat, Timetable or Announcements — tiles added.
+- [x] Teacher and student had no Logout button — added (signs out of Supabase). Admin logout previously cleared only a local flag and left the Supabase session alive — fixed.
+- [x] Backup screen was unreachable (no dashboard tile) — added to admin dashboard.
+- [x] Schema drift: app used `chat_messages`, `timetable_slots`, `chat_rooms.last_message(_at)`, none in migrations 001-008; `chat_rooms` had no UPDATE policy so "last message" never saved — fixed by `009_chat_timetable_rls_hardening.sql` (also enables RLS on any public table lacking it).
+- [x] **Homework / classwork attachments:** `StorageService` (pick, upload to private buckets with 20 MB cap, signed URLs), `AttachmentPickerField` on both create screens, `AttachmentList` on all four list screens, in-app `AttachmentViewerScreen` (images, PDF via Syncfusion); video/text open externally. Needs migration 010 + live test.
+- [x] **Teacher self-attendance by GPS geofence (business rule 7):** `GeofenceService` + `TeacherCheckInScreen` (`/teacher/check-in`) call the server-side `mark_teacher_present` RPC (distance decided in the DB); a silent once-per-session auto check-in runs when the teacher dashboard opens. Limitation: marking happens when the app is opened, not from the background (no background location service).
+- [x] **Academic-year promotion (business rule 10):** `PromotionScreen` (`/admin/settings/academic-year`) -> `promote_students` RPC. The DB enforces admin role, exact `CONFIRM`, password check, and an OTP login in the last 10 minutes (JWT `amr`); it fails closed. Needs live verification (SMS provider + `amr` claim).
+- [x] **Manual fee reminder:** "Send reminder" button on each unpaid fee card in Fee Overview -> `send_fee_reminder` RPC -> notification + push.
+- [x] Dead route constants removed from `routes.dart` (profile, detail, pdf/image viewer, etc. had no screens; viewer is now `AttachmentViewerScreen`). Profile screens remain out of scope for v1.
+- [x] RLS bug: homework/classwork student-read policies compared the enrollment row to itself (any student could read every class) — fixed in 010.
+- [x] Audit logging: nothing wrote to `audit_logs`; 010 adds DB triggers for fee payments/structure/status, salary, student status, attendance corrections, homework/classwork, geofence, teachers, promotion.
+- [x] **Auth sessions (critical, fixed in code + migration 011):** the teacher card skipped phone OTP and the admin access-code path never created a Supabase session, so RLS-protected data was unreachable for them. Teacher now: phone -> OTP -> access code (verified against the caller's own record via `verify_my_teacher_access_code`). Admin now: email + password (real session) + access code via `verify_my_admin_credentials`. Both RPCs are caller-bound and rate-limited (5 failures -> 15 min lock); the old anonymous RPCs are revoked.
+- [x] **Privilege escalation (critical, fixed in 011):** `users` insert/update policies let any OTP user set `role = 'admin'`; a trigger now blocks role changes, inserts are limited to `student`, and a unique index enforces a single admin.
+- [x] **Approval bypass (fixed in 011):** `student_profiles` self-insert must be `pending` with no student ID / approver.
+- [x] Teachers could insert their own attendance (bypassing the geofence RPC) and `create_teacher_profile` was callable by anyone with a default `123456` code; both fixed (admin-only, explicit 6-digit code). `audit_logs` client inserts removed (triggers only).
+- [x] Phone numbers normalised (Auth: digits only; app/`public.users`: `+<digits>`) so OTP sign-in finds seeded teacher/admin accounts; NULL token columns on SQL-seeded `auth.users` rows repaired. Seed `004` no longer contains credentials.
+- [ ] Access code remains a UI-level second factor: an admin/teacher with a valid session can reach their routes without it; data safety rests on RLS + session. Server-enforced second factor is a possible future change.
+
+---
+
+## Landing page, unified login & languages (2026-10-22)
+
+- [x] Researched how multi-role school apps handle sign-in: one login, backend role lookup, route by role; role pickers shown to anonymous users are a weak pattern. Fits our Supabase setup (role already in `users.role`).
+- [x] `WelcomeScreen` replaces the role-card screen (logo badge, name, Sanskrit + localized tagline, language chips, Login / New student buttons).
+- [x] `PhoneEntryScreen` is the single login (mobile OTP default, email + password alternative); `OtpScreen` looks up the role and routes; the Resend button now really resends.
+- [x] Router second-factor gate for admin/teacher; session required for everything past the auth screens; auth providers made reactive (stale-role bug fixed); registration/pending flow fixed (new students no longer bounced to "pending"; pending students can re-check status and log out).
+- [x] Hindi + Marathi (+ English) via gen-l10n, 188 keys; translated: welcome, login, OTP, registration, pending, set-password, student dashboard/attendance/fees/homework/classwork, announcements, notifications, chat, timetable, offline banner. Language persisted (Hive).
+- [x] Link audit: every navigation target is a registered route; no orphan screens; dead `announcements` route alias removed; fake "Room 101" default removed from the timetable.
+- [ ] Hindi/Marathi wording needs review by a native speaker (Mrs. Gharat / staff) before release.
+- [ ] Admin and teacher working screens (fees, attendance marking, homework creation, etc.) are still English only.
+- [ ] Admin/teacher access-code step is a client-enforced second factor (a determined user with a valid OTP session could call data APIs without it; RLS still limits them to their role).
 
 ---
 

@@ -440,9 +440,32 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                   ),
               ],
             ),
+            if (item.status != 'paid')
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () => _sendReminder(item),
+                  icon: const Icon(Icons.notifications_active_outlined, size: 18),
+                  label: const Text('Send reminder'),
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _sendReminder(MonthlyFeeModel item) async {
+    if (!guardOnline(context, ref)) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final message =
+          await ref.read(feeRepositoryProvider).sendFeeReminder(item.studentId);
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Could not send reminder: $e')),
+      );
+    }
   }
 }

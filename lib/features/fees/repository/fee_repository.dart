@@ -10,6 +10,21 @@ class FeeRepository {
   FeeRepository({SupabaseClient? client})
       : _client = client ?? Supabase.instance.client;
 
+  /// Admin-triggered reminder (`send_fee_reminder` RPC): notifies one student
+  /// about their pending months. Returns the human-readable outcome.
+  Future<String> sendFeeReminder(String studentId) async {
+    final res = await _client.rpc(
+      'send_fee_reminder',
+      params: {'p_student_id': studentId},
+    );
+    final map = Map<String, dynamic>.from(res as Map);
+    if (map['sent'] == true) {
+      final amount = (map['pending_amount'] as num).toStringAsFixed(0);
+      return 'Reminder sent (₹$amount pending)';
+    }
+    return map['reason'] as String? ?? 'No reminder sent';
+  }
+
   Future<List<MonthlyFeeModel>> fetchAdminFeeOverview({
     int? month,
     int? year,

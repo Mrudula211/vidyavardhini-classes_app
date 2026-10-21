@@ -4,12 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/routes.dart';
-import '../providers/auth_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../l10n/l10n_context.dart';
 import '../../../shared/widgets/app_logo_header.dart';
+import '../../../shared/widgets/language_switcher.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../providers/auth_providers.dart';
 
+/// The single login screen for every role. Mobile number + OTP by default,
+/// email + password as an alternative. The account's role (stored in
+/// `users.role`) decides where the person lands — nobody picks a role.
 class PhoneEntryScreen extends ConsumerStatefulWidget {
   const PhoneEntryScreen({super.key});
 
@@ -24,15 +29,15 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
-  bool _useEmailLogin = true;
+  bool _useEmailLogin = false;
   bool _passwordVisible = false;
-  String _role = 'student';
+  bool _isRegister = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-    _role = extra?['role'] as String? ?? 'student';
+    _isRegister = extra?['register'] as bool? ?? false;
   }
 
   @override
@@ -43,87 +48,81 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
     super.dispose();
   }
 
-  String get _roleLabel {
-    switch (_role) {
-      case 'admin':
-        return 'Admin';
-      case 'teacher':
-        return 'Teacher';
-      default:
-        return 'Student';
-    }
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.maroon,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _handleAuth() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = context.l10n;
     setState(() => _isLoading = true);
 
     try {
       if (_useEmailLogin) {
-        final email = _emailController.text.trim();
-        final password = _passwordController.text.trim();
-
-        final session = await ref
-            .read(authRepositoryProvider)
-            .signInWithEmailAndPassword(email, password);
-
-        if (session == null) {
-          throw Exception('Check email & password.');
-        }
-
-        if (!mounted) return;
-
-        // Fetch user's role from DB
-        final userRole = await ref
-            .read(authRepositoryProvider)
-            .fetchUserRole(session.user.id);
-
-        if (!mounted) return;
-
-        if (userRole == 'admin') {
-          context.go(Routes.adminDashboard);
-        } else if (userRole == 'teacher') {
-          context.go(Routes.teacherDashboard);
-        } else {
-          context.go(Routes.studentDashboard);
-        }
+        await _loginWithEmail();
       } else {
         final phone = '+91${_phoneController.text.trim()}';
-        await ref.read(authRepositoryProvider).sendOtp(phone);
+        try {
+          await ref.read(authRepositoryProvider).sendOtp(phone);
+        } catch (_) {
+          if (mounted) _showError(l10n.sendCodeFailed);
+          return;
+        }
         if (!mounted) return;
-        context.go(Routes.otp, extra: {'phone': phone, 'role': _role});
+        context.go(Routes.otp, extra: {'phone': phone});
       }
-    } catch (e) {
-      if (!mounted) return;
-      String errorMsg = 'Invalid email or password.';
-      final rawStr = e.toString();
-      if (rawStr.contains('Database error querying schema') || rawStr.contains('500')) {
-        errorMsg = 'Account not registered for Student login. If you are Admin, please use Admin Login.';
-      } else if (rawStr.contains('Invalid login credentials')) {
-        errorMsg = 'Incorrect email or password. Please try again.';
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMsg),
-          backgroundColor: AppColors.maroon,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  Future<void> _loginWithEmail() async {
+    final l10n = context.l10n;
+    final repo = ref.read(authRepositoryProvider);
+    try {
+      final session = await repo.signInWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (session == null) throw Exception('no session');
+      final role = await repo.fetchUserRole(session.user.id);
+      if (!mounted) return;
+      context.go(roleDestination(role));
+    } catch (e) {
+      if (!mounted) return;
+      final raw = e.toString();
+      _showError(
+        raw.contains('Invalid login credentials')
+            ? l10n.loginFailedCredentials
+            : l10n.loginFailedGeneric,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final showEmailToggle = !_isRegister;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Go back',
+          tooltip: l10n.goBack,
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(Routes.roleSelect),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: LanguageSwitcher(),
+          ),
+        ],
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -135,12 +134,11 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 const AppLogoHeader(),
                 const SizedBox(height: 32),
-
                 Text(
-                  '$_roleLabel Login',
+                  _isRegister ? l10n.registerTitle : l10n.loginTitle,
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -150,142 +148,37 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                 const SizedBox(height: 8),
                 Text(
                   _useEmailLogin
-                      ? 'Sign in with registered Email & Password'
-                      : 'Enter your registered mobile number for OTP',
+                      ? l10n.emailLoginSubtitle
+                      : (_isRegister
+                          ? l10n.registerSubtitle
+                          : l10n.loginSubtitle),
                   style: AppTypography.poppins(
                     fontSize: 14,
                     color: AppColors.brown,
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Method Selector Toggle (Email / Mobile)
-                Row(
-                  children: [
-                    Expanded(
-                      child: ChoiceChip(
-                        label: const Center(child: Text('Email & Password')),
-                        selected: _useEmailLogin,
-                        onSelected: (val) {
-                          if (val) setState(() => _useEmailLogin = true);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ChoiceChip(
-                        label: const Center(child: Text('Mobile OTP')),
-                        selected: !_useEmailLogin,
-                        onSelected: (val) {
-                          if (val) setState(() => _useEmailLogin = false);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                if (_useEmailLogin) ...[
-                  // Email Field
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email Address',
-                      hintText: 'student@gmail.com',
-                      prefixIcon: Icon(Icons.email_outlined),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Enter your email address';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Password Field
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: !_passwordVisible,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline_rounded),
-                      suffixIcon: IconButton(
-                        tooltip: _passwordVisible ? 'Hide password' : 'Show password',
-                        icon: Icon(
-                          _passwordVisible
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                        ),
-                        onPressed: () =>
-                            setState(() => _passwordVisible = !_passwordVisible),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Enter your password';
-                      }
-                      return null;
-                    },
-                  ),
-                ] else ...[
-                  // Phone Field
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Mobile Number',
-                      hintText: '9876543210',
-                      prefixIcon: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 14,
-                        ),
-                        child: Text(
-                          '+91',
-                          style: AppTypography.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.brown,
-                          ),
-                        ),
-                      ),
-                      prefixIconConstraints:
-                          const BoxConstraints(minWidth: 0, minHeight: 0),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your mobile number';
-                      }
-                      if (value.trim().length != 10) {
-                        return 'Enter a valid 10-digit mobile number';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-
-                const SizedBox(height: 32),
-
+                const SizedBox(height: 28),
+                if (_useEmailLogin) ..._emailFields(l10n) else _phoneField(l10n),
+                const SizedBox(height: 28),
                 PrimaryButton(
-                  label: _useEmailLogin ? 'Login' : 'Send OTP',
+                  label: _useEmailLogin ? l10n.loginButton : l10n.sendCode,
                   isLoading: _isLoading,
                   onPressed: _handleAuth,
                 ),
-                const SizedBox(height: 16),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () => context.go(Routes.adminLogin),
+                if (showEmailToggle) ...[
+                  const SizedBox(height: 12),
+                  Center(
+                    child: TextButton(
+                      onPressed: _isLoading
+                          ? null
+                          : () => setState(
+                                () => _useEmailLogin = !_useEmailLogin,
+                              ),
                       child: Text(
-                        'Admin Login',
+                        _useEmailLogin
+                            ? l10n.usePhoneInstead
+                            : l10n.useEmailInstead,
+                        textAlign: TextAlign.center,
                         style: AppTypography.poppins(
                           fontSize: 13,
                           color: AppColors.maroon,
@@ -293,24 +186,102 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                         ),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () => context.go(Routes.roleSelect),
-                      child: Text(
-                        'Change Role',
-                        style: AppTypography.poppins(
-                          fontSize: 13,
-                          color: AppColors.brown,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+                const SizedBox(height: 16),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _phoneField(AppLocalizations l10n) {
+    return TextFormField(
+      controller: _phoneController,
+      keyboardType: TextInputType.phone,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(10),
+      ],
+      decoration: InputDecoration(
+        labelText: l10n.mobileNumber,
+        hintText: '9876543210',
+        prefixIcon: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          child: Text(
+            '+91',
+            style: AppTypography.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.brown,
+            ),
+          ),
+        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+      ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return l10n.enterMobile;
+        }
+        if (value.trim().length != 10) return l10n.invalidMobile;
+        return null;
+      },
+    );
+  }
+
+  List<Widget> _emailFields(AppLocalizations l10n) {
+    return [
+      TextFormField(
+        controller: _emailController,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+          labelText: l10n.emailAddress,
+          prefixIcon: const Icon(Icons.email_outlined),
+        ),
+        validator: (value) => (value == null || value.trim().isEmpty)
+            ? l10n.enterEmail
+            : null,
+      ),
+      const SizedBox(height: 16),
+      TextFormField(
+        controller: _passwordController,
+        obscureText: !_passwordVisible,
+        decoration: InputDecoration(
+          labelText: l10n.password,
+          prefixIcon: const Icon(Icons.lock_outline_rounded),
+          suffixIcon: IconButton(
+            tooltip:
+                _passwordVisible ? l10n.hidePassword : l10n.showPassword,
+            icon: Icon(
+              _passwordVisible
+                  ? Icons.visibility_off_rounded
+                  : Icons.visibility_rounded,
+            ),
+            onPressed: () =>
+                setState(() => _passwordVisible = !_passwordVisible),
+          ),
+        ),
+        validator: (value) => (value == null || value.isEmpty)
+            ? l10n.enterPassword
+            : null,
+      ),
+    ];
+  }
+}
+
+/// Where a signed-in person goes next, decided by their account's role.
+/// Admin and teacher continue to their access-code step; students go straight
+/// to their dashboard (the router sends pending/new students to the right
+/// registration or approval screen).
+String roleDestination(String? role) {
+  switch (role) {
+    case 'admin':
+      return Routes.adminLogin;
+    case 'teacher':
+      return Routes.teacherLogin;
+    default:
+      return Routes.studentDashboard;
   }
 }

@@ -107,7 +107,7 @@ features/admin/students/
 
 ```
 /                           → SplashScreen
-/role-select                → RoleSelectionScreen
+/role-select                → WelcomeScreen (landing; replaced the role-card screen)
 /auth/phone                 → PhoneEntryScreen
 /auth/otp                   → OTPScreen
 /auth/admin-code            → AdminCodeScreen
@@ -150,6 +150,16 @@ Shell widgets wrap feature screens with role-appropriate navigation bars.
 ```
 
 Role is stored in the `users` table and embedded in JWT via a Supabase Auth hook (PostgreSQL function).
+
+### 3.1 Unified login (as built)
+
+There is no role picker. `WelcomeScreen` -> `PhoneEntryScreen` (mobile OTP, or email + password) -> `OtpScreen`; after sign-in the app reads `users.role` (`fetchUserRole`) and `roleDestination()` decides the next step. Unknown phone numbers become `student` users (the only role self-registration can create — enforced by RLS) and continue to registration. Admin/teacher accounts are created by the admin, so they simply exist and are recognised.
+
+`appRouterProvider.redirect` is the single gate: no session -> auth screens only; session without a known role -> auth screens; student status gates (pending / rejected / banned / set-password); **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked. `currentUserIdProvider` makes the user/role/status providers react to login and logout (previously they were evaluated once and went stale).
+
+### 3.2 Localization
+
+Flutter `gen-l10n`: `lib/l10n/app_{en,hi,mr}.arb` -> generated `AppLocalizations`; use `context.l10n.<key>` (`lib/l10n/l10n_context.dart`). The chosen language is stored in Hive box `settings` (`localeProvider`); `LanguageSwitcher` is on the welcome, login and registration screens. Parent/student-facing screens are translated; admin and teacher working screens remain English (staff sign-in verification screens are translated). Dates and month names use the active locale. Add a string by adding it to the ARB files (`test/l10n/arb_completeness_test.dart` fails if hi/mr drift from en).
 
 `NotificationService` registers FCM, saves `users.fcm_token` (including on auth state change), and exposes foreground/background handlers. Dashboards use `NotificationBellButton` with an unread badge backed by `unreadNotificationCountProvider`.
 
@@ -301,6 +311,10 @@ chat-files/              (private — accessible to room members only)
   {room_id}/{message_id}/{filename}
 ```
 
+### 6.1b Attachment storage (implemented)
+
+Private buckets `homework-attachments` and `classwork-attachments` (20 MB limit). Object path `<teacher_uid>/<timestamp>_<filename>`; `*_attachments.file_url` stores that path (not a URL). Teachers may upload only into their own folder; reads are allowed when the caller can read the matching attachment row (teacher owner, admin, students of the class). The app views files through 1-hour signed URLs (`StorageService.signedUrl`).
+
 ### 6.2 Upload Flow
 
 ```
@@ -343,6 +357,9 @@ SELECT cron.schedule(
 ---
 
 ## 8. Geofencing Architecture
+
+**As built:** the phone only supplies a GPS position. `mark_teacher_present(lat, lng)` (SECURITY DEFINER) computes the haversine distance to `geofence_settings` and records `teacher_attendance` itself, never overwriting leave/holiday/manual corrections. Triggers: the check-in screen (button + auto on open) and a silent once-per-session attempt when the teacher dashboard opens. Background (app closed) auto-marking is not implemented. The original sketch follows.
+
 
 ```
 Teacher opens app or app is in background
@@ -421,10 +438,20 @@ Historical data queries (admin only) accept an `academicYearId` parameter. Stude
 
 | Function | Trigger | Purpose |
 |---|---|---|
-| `monthly-fee-generate` | pg_cron: 1st of month, 00:01 | Create monthly_fees records for all active students |
-| `fee-reminder-push` | pg_cron: 10th of month, 09:00 | Push notification to pending/partial fee students |
-| `send-push` | DB webhook on notifications insert | Send FCM push via Firebase Admin SDK |
-| `backup-trigger` | pg_cron: daily 02:00 | Dump and store backup to Storage |
+| `send-push` | `notifications` INSERT trigger → pg_net | Send FCM (HTTP v1) push; stamps `sent_at`; clears dead `fcm_token`s |
+| `backup-trigger` | `backup_logs` INSERT (pending) trigger → pg_net | Dump all tables to JSON in private `backups` bucket; 30-day retention |
+
+Implemented in `supabase/functions/` and wired by `supabase/migrations/008_automation.sql`.
+Edge Functions are deployed with `--no-verify-jwt` and authenticate callers with the
+`x-automation-secret` header (Vault secret `automation_secret` ↔ function secret `AUTOMATION_SECRET`).
+
+Pure-SQL pg_cron jobs (UTC; IST = UTC+5:30):
+
+| Job | Schedule | Action |
+|---|---|---|
+| `monthly-fee-generate` | `1 0 1 * *` | `generate_monthly_fees_for_month(month, year)` |
+| `monthly-fee-reminder` | `30 3 10 * *` (09:00 IST) | `queue_fee_reminders()` inserts notifications → push trigger |
+| `daily-backup` | `30 20 * * *` (02:00 IST) | inserts pending `backup_logs` row → backup trigger |
 
 ---
 

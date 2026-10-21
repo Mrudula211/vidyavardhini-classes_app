@@ -1041,6 +1041,48 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.5 Automation (migration 008)
+
+- Extensions: `pg_cron`, `pg_net`. Schema `private` (no API access) holds `call_edge_function`, `dispatch_notification_push`, `dispatch_backup`, `queue_scheduled_backup`.
+- Trigger `notifications_push_dispatch` (AFTER INSERT, statement-level) → `send-push`.
+- Trigger `backup_logs_dispatch` (AFTER INSERT, row-level) → `backup-trigger` when `status = 'pending'`.
+- `queue_fee_reminders()` — one `fee_reminder` notification per active student with pending/partial months in the current year. Execute revoked from API roles.
+- `generate_monthly_fees_for_month` — execute revoked from API roles (cron only).
+- Storage bucket `backups` (private); admin-only SELECT policy on `storage.objects`.
+- Cron jobs: `monthly-fee-generate`, `monthly-fee-reminder`, `daily-backup`.
+- Requires Vault secrets `project_url` and `automation_secret`; without them HTTP calls are skipped.
+
+---
+
+### 9.6 Chat/timetable alignment & RLS hardening (migration 009)
+
+- Adds `chat_messages` (app's message table; `message_type` text), `timetable_slots` (class-wide weekly slots, text weekdays, optional teacher, `room_number`), and `chat_rooms.last_message` / `last_message_at`. Legacy `messages` / `teacher_timetable` from 001 are no longer used by the app.
+- Policies: members read/send/mark-read `chat_messages`; members update `chat_rooms`; admin all on `timetable_slots`, teachers read all, students read their own board+standard.
+- `chat_messages` added to the `supabase_realtime` publication.
+- Safety net: enables RLS on every `public` table that has it off (no policy = service role only).
+
+---
+
+### 9.7 Attachments, geofence, promotion, audit (migration 010)
+
+- Fixes `homework: student read` / `classwork: student read` (qualified columns; active students only).
+- Buckets `homework-attachments`, `classwork-attachments` (private, 20 MB) + `storage.objects` policies (teacher upload/delete in own folder; read via attachment-row RLS).
+- `mark_teacher_present(lat, lng)` - teacher geofence check-in. `promote_students(confirm, password, year_label, start, end)` - admin only; requires `CONFIRM`, password, and OTP in JWT `amr` within 10 min; promotes 1st-9th, archives 10th/inactive, copies fee structure + teacher assignments, writes `promotion_history` + audit. `send_fee_reminder(student_id)` - admin only.
+- `private.audit_row()` + triggers writing `audit_logs` (performed_by = caller; skipped for cron).
+
+---
+
+### 9.8 Security hardening & auth fixes (migration 011)
+
+- `users`: insert limited to `role = 'student'`; unique index `users_single_admin`; trigger `users_guard_update` blocks role changes and non-admin phone/is_active changes.
+- `student_profiles` insert must be `pending` with null `student_id`/`approved_*`.
+- Dropped policies: `teacher_attendance: self insert` (use `mark_teacher_present`), `audit_logs: insert only` (triggers write audit rows).
+- `verify_my_teacher_access_code(code)` / `verify_my_admin_credentials(code, password)` — caller-bound (`auth.uid()`), rate-limited via `private.access_attempts`; admin password checked against `auth.users.encrypted_password`. Legacy `verify_admin_credentials` / `verify_teacher_access_code` are revoked from API roles.
+- `create_teacher_profile` — admin-only, requires 6-digit code, normalises phone via `private.normalize_phone`.
+- Data repair: phone formats normalised; NULL auth token columns set to `''`.
+
+---
+
 ## 10. Indexes Summary
 
 ```sql

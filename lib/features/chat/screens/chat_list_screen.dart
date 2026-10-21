@@ -7,6 +7,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../admin/teachers/providers/teacher_providers.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/chat_providers.dart';
+import '../../../l10n/l10n_context.dart';
 
 class ChatListScreen extends ConsumerWidget {
   const ChatListScreen({super.key});
@@ -19,17 +20,17 @@ class ChatListScreen extends ConsumerWidget {
 
     if (user == null || role == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Doubt Clearing Chat')),
-        body: const Center(child: Text('User session missing')),
+        appBar: AppBar(title: Text(context.l10n.chatTitle)),
+        body: Center(child: Text(context.l10n.userSessionMissing)),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Doubt Clearing Chat'),
+        title: Text(context.l10n.chatTitle),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: context.l10n.refresh,
             icon: const Icon(Icons.refresh),
             onPressed: () => ref.invalidate(userChatRoomsProvider),
           ),
@@ -57,14 +58,14 @@ class ChatListScreen extends ConsumerWidget {
                 const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
                 const SizedBox(height: 12),
                 Text(
-                  'Could not load chats.\n$err',
+                  context.l10n.couldNotLoadChats,
                   textAlign: TextAlign.center,
                   style: AppTypography.poppins(fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => ref.invalidate(userChatRoomsProvider),
-                  child: const Text('Retry'),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ),
@@ -82,8 +83,8 @@ class ChatListScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Text(
                       role == 'student'
-                          ? 'No active doubt conversations.\nTap "+ Ask Doubt" to start chatting with your teacher.'
-                          : 'No doubt chat requests yet.',
+                          ? context.l10n.noChatsStudent
+                          : context.l10n.noChatsTeacher,
                       textAlign: TextAlign.center,
                       style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
                     ),
@@ -101,8 +102,8 @@ class ChatListScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final room = rooms[index];
               final recipientName = role == 'student'
-                  ? (room.teacherName ?? 'Teacher')
-                  : (room.studentName ?? 'Student');
+                  ? (room.teacherName ?? context.l10n.teacherFallback)
+                  : (room.studentName ?? context.l10n.studentFallback);
 
               final dateStr = room.lastMessageAt != null && room.lastMessageAt!.contains('T')
                   ? room.lastMessageAt!.split('T').first
@@ -125,7 +126,7 @@ class ChatListScreen extends ConsumerWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    room.lastMessage ?? 'No messages yet',
+                    room.lastMessage ?? context.l10n.noMessagesYet,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.grey.shade600),
@@ -144,11 +145,11 @@ class ChatListScreen extends ConsumerWidget {
       ),
       floatingActionButton: role == 'student'
           ? FloatingActionButton.extended(
-              tooltip: 'Ask Doubt',
+              tooltip: context.l10n.askDoubt,
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.question_answer),
-              label: const Text('Ask Doubt'),
+              label: Text(context.l10n.askDoubt),
               onPressed: () => _showStartChatDialog(context, ref, user.id),
             )
           : null,
@@ -172,15 +173,15 @@ class ChatListScreen extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Select Teacher to Ask Doubt',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  Text(
+                    context.l10n.selectTeacherToAsk,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   teachersAsync.when(
                     data: (teachers) {
                       if (teachers.isEmpty) {
-                        return const Text('No active teachers found.');
+                        return Text(context.l10n.noActiveTeachers);
                       }
 
                       return ListView.builder(
@@ -194,7 +195,7 @@ class ChatListScreen extends ConsumerWidget {
                               child: Text(teacher.fullName[0].toUpperCase()),
                             ),
                             title: Text(teacher.fullName),
-                            subtitle: Text('Subjects: ${teacher.subjects.join(", ")}'),
+                            subtitle: Text(context.l10n.subjectsLabel(teacher.subjects.join(', '))),
                             onTap: () async {
                               Navigator.pop(ctx);
                               final roomId = await ref.read(chatRepositoryProvider).getOrCreateChatRoom(
@@ -211,7 +212,7 @@ class ChatListScreen extends ConsumerWidget {
                       );
                     },
                     loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (err, stack) => Text('Error: $err'),
+                    error: (err, stack) => Text(context.l10n.couldNotLoadChats),
                   ),
                 ],
               ),

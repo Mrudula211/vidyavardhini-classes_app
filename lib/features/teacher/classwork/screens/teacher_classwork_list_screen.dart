@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/routes.dart';
+import '../../../../shared/widgets/attachment_list.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../auth/providers/auth_providers.dart';
@@ -136,6 +137,7 @@ class TeacherClassworkListScreen extends ConsumerWidget {
                           style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
                         ),
                       ],
+                      AttachmentList(attachments: cw.attachments),
                     ],
                   ),
                 ),

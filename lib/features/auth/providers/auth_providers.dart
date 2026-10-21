@@ -12,7 +12,16 @@ final authStateProvider = StreamProvider<Session?>((ref) {
   return ref.watch(authRepositoryProvider).authStateChanges();
 });
 
+/// The signed-in user's id. Re-evaluated on every auth event, but dependents
+/// are only notified when the id itself changes (login, logout, switch) — not
+/// on the hourly token refresh.
+final currentUserIdProvider = Provider<String?>((ref) {
+  ref.watch(authStateProvider);
+  return ref.watch(authRepositoryProvider).currentUser?.id;
+});
+
 final currentUserProvider = Provider<User?>((ref) {
+  ref.watch(currentUserIdProvider);
   return ref.watch(authRepositoryProvider).currentUser;
 });
 

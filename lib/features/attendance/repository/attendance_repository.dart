@@ -239,6 +239,35 @@ class AttendanceRepository {
     }
   }
 
+  /// Server-side geofence check-in (`mark_teacher_present` RPC): the database
+  /// compares the position with `geofence_settings` and records attendance.
+  /// Prefer this over [checkAndMarkTeacherGeofence], which trusts the client.
+  Future<TeacherCheckInResult> teacherCheckIn({
+    required double lat,
+    required double lng,
+  }) async {
+    final res = await _client.rpc(
+      'mark_teacher_present',
+      params: {'p_lat': lat, 'p_lng': lng},
+    );
+    return TeacherCheckInResult.fromJson(Map<String, dynamic>.from(res as Map));
+  }
+
+  /// Today's own attendance row (IST date), or null if none yet.
+  Future<TeacherAttendanceModel?> fetchTodayTeacherAttendance(
+    String teacherId,
+  ) async {
+    final istNow = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+    final today = istNow.toIso8601String().split('T').first;
+    final data = await _client
+        .from('teacher_attendance')
+        .select()
+        .eq('teacher_id', teacherId)
+        .eq('date', today)
+        .maybeSingle();
+    return data == null ? null : TeacherAttendanceModel.fromJson(data);
+  }
+
   Future<bool> checkAndMarkTeacherGeofence({
     required String teacherId,
     required double userLat,

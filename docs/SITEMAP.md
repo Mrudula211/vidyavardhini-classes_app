@@ -5,18 +5,26 @@
 ```
 App Launch
   └── SplashScreen
-        └── Role Selection
-              ├── ADMIN ──────────────────────────────────────────────┐
-              ├── TEACHER ─────────────────────────────────────────┐  │
-              └── STUDENT ──────────────────────────────────────┐  │  │
-                                                                │  │  │
-Auth Flow (shared OTP step, then diverges)                      │  │  │
-  Phone Entry → OTP Verify                                      │  │  │
-                  ├── Admin: Access Code → Password ────────────┼──┼──┘
-                  ├── Teacher: Access Code ─────────────────────┼──┘
-                  └── Student: Registration Form ──────────────┘
-                               or Password Login (returning)
+        └── WelcomeScreen  (one door for everyone; EN / हिन्दी / मराठी switcher)
+              ├── "Login"                 ─┐
+              └── "New student? Register" ─┤
+                                           ▼
+                    PhoneEntryScreen  (mobile number → OTP;
+                                       or email + password)
+                                           ▼
+                    OtpScreen → verify → look up users.role
+                       │
+                       ├── role = admin   → AdminLoginScreen   (password + access code) → Admin dashboard
+                       ├── role = teacher → TeacherLoginScreen (access code)             → Teacher dashboard
+                       └── role = student → new number  → StudentRegistrationScreen → PendingApprovalScreen
+                                            pending     → PendingApprovalScreen (Check status / Logout)
+                                            active      → Student dashboard
+                                            rejected / banned → signed out
 ```
+
+Nobody chooses a role: the account decides. The router enforces the second step —
+an admin or teacher with a session but without the access-code check is held on
+their verification screen.
 
 ---
 
@@ -25,8 +33,8 @@ Auth Flow (shared OTP step, then diverges)                      │  │  │
 | Route | Screen | Notes |
 |---|---|---|
 | `/` | SplashScreen | Checks session, redirects |
-| `/role-select` | RoleSelectionScreen | 3 role cards |
-| `/auth/phone` | PhoneEntryScreen | Shared for all roles |
+| `/role-select` | WelcomeScreen | Landing page: Login / New student, language switcher (route name kept for compatibility) |
+| `/auth/phone` | PhoneEntryScreen | Single login for all roles (`extra: {register: true}` for new students) |
 | `/auth/otp` | OTPVerificationScreen | Shared for all roles |
 | `/auth/admin-login` | AdminLoginScreen | Access code + password |
 | `/auth/teacher-login` | TeacherLoginScreen | Access code only |
@@ -214,6 +222,7 @@ Auth Flow (shared OTP step, then diverges)                      │  │  │
   │     Today's Timetable widget
   │     Announcements feed (general + staff)
   │
+  ├── /teacher/check-in          (own GPS attendance; auto-check on dashboard open)
   ├── /teacher/attendance
   │     Class selector (dropdown: Board + Standard)
   │     Date picker (default: today)
@@ -376,7 +385,7 @@ Auth Flow (shared OTP step, then diverges)                      │  │  │
 ```
 Download App
   → SplashScreen
-  → RoleSelectionScreen (Student)
+  → WelcomeScreen → Login / New student
   → PhoneEntryScreen
   → OTPScreen
   → StudentRegistrationScreen (form fill)
@@ -422,3 +431,13 @@ AdminDashboard
   → Background job runs promotion
   → Success screen with stats: X students promoted
 ```
+
+
+## Added screens (2026-10-22)
+
+| Route | Screen | Notes |
+|---|---|---|
+| `/teacher/check-in` | TeacherCheckInScreen | GPS check-in via `mark_teacher_present` |
+| `/admin/settings/academic-year` | PromotionScreen | CONFIRM -> password -> SMS OTP -> `promote_students` |
+| (pushed, not routed) | AttachmentViewerScreen | image/PDF viewer for homework & classwork attachments |
+| (dashboards) | Chat / Timetable / Announcements tiles, Logout | teacher + student; Backups + Academic Year tiles for admin |
