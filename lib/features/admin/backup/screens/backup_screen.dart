@@ -43,9 +43,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Backup request logged. Automated backup execution is not '
-              'yet wired up for this version; this entry is a manual '
-              'record of the request.',
+              'Backup started. Refresh in a minute to see whether it '
+              'succeeded.',
             ),
             duration: Duration(seconds: 5),
           ),
@@ -107,10 +106,11 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Automated backups are not yet scheduled for this '
-                      'app. Triggering a manual backup records a pending '
-                      'request in the log below; it does not yet run an '
-                      'actual backup job.',
+                      'A full backup runs automatically every night at '
+                      '2:00 AM and is kept for 30 days. Trigger one now '
+                      'before risky changes such as promotion; it moves '
+                      'from pending to success within a minute. Pull to '
+                      'refresh to see the result.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.lightOutline,
                           ),

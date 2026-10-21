@@ -305,8 +305,8 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Detail view with JSON diff display
 
 #### Backup
-- [ ] Edge Function: `backup-trigger` (daily cron)
-- [x] `BackupScreen` — list + manual trigger + restore (placeholder for v1). Manual trigger inserts a `pending` `backup_logs` row (honest UI copy: no automated backup job exists yet). Restore action is visibly disabled with a tooltip.
+- [x] Edge Function: `backup-trigger` — JSON dump of all tables to private `backups` bucket, 30-day retention; fired by `backup_logs` INSERT trigger (daily cron `daily-backup` 02:00 IST + manual button). Needs deployment — see `docs/OWNER_TODO.md`.
+- [x] `BackupScreen` — list + manual trigger. Manual trigger inserts a `pending` `backup_logs` row, which the DB trigger hands to `backup-trigger`. Restore is out of scope for v1.
 
 **Deliverable:** Full admin control centre operational.
 
@@ -345,17 +345,18 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Student "set password on first login" is now router-enforced (active student with empty email is redirected to `StudentPasswordScreen`; that route is excluded from the logged-in auth-route bounce).
 
 #### Testing
-- [ ] Unit tests for: formatters, validators, fee calculation logic
-- [ ] Widget tests for: login form, attendance list
+- [x] Unit tests for: `formatBytes`, fee/attendance model parsing (`test/shared/models_test.dart`); fee generation covered in `fee_repository_test.dart`. (Validators are inline in screens — no shared validators file exists.)
+- [x] Widget tests for: `StudentAttendanceCard` (`test/features/teacher/student_attendance_card_test.dart`)
+- [ ] Widget test for login form
 - [ ] Integration tests: auth flow, fee payment flow
 - [ ] Manual QA checklist on real Android device
 
 #### Deployment
-- [ ] Configure Android signing
+- [x] Configure Android signing — `build.gradle.kts` reads `android/key.properties` (template: `key.properties.example`); owner must generate the keystore
 - [x] Update `AndroidManifest.xml` permissions (location and notifications); photo and document selection use Android system pickers, so broad storage permission is not required.
-- [ ] Add `google-services.json`
+- [x] Add `google-services.json` (present locally in `android/app/`, gitignored)
 - [x] Set `minSdkVersion` to 21
-- [ ] Configure ProGuard / R8 rules
+- [x] Configure ProGuard / R8 rules — minify + shrink enabled, `android/app/proguard-rules.pro`
 - [ ] Build release APK + AAB
 - [ ] Test on 3+ Android devices (different screen sizes)
 - [ ] Upload to Play Store (internal testing track)

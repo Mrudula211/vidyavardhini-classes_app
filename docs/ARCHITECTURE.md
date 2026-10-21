@@ -421,10 +421,20 @@ Historical data queries (admin only) accept an `academicYearId` parameter. Stude
 
 | Function | Trigger | Purpose |
 |---|---|---|
-| `monthly-fee-generate` | pg_cron: 1st of month, 00:01 | Create monthly_fees records for all active students |
-| `fee-reminder-push` | pg_cron: 10th of month, 09:00 | Push notification to pending/partial fee students |
-| `send-push` | DB webhook on notifications insert | Send FCM push via Firebase Admin SDK |
-| `backup-trigger` | pg_cron: daily 02:00 | Dump and store backup to Storage |
+| `send-push` | `notifications` INSERT trigger → pg_net | Send FCM (HTTP v1) push; stamps `sent_at`; clears dead `fcm_token`s |
+| `backup-trigger` | `backup_logs` INSERT (pending) trigger → pg_net | Dump all tables to JSON in private `backups` bucket; 30-day retention |
+
+Implemented in `supabase/functions/` and wired by `supabase/migrations/008_automation.sql`.
+Edge Functions are deployed with `--no-verify-jwt` and authenticate callers with the
+`x-automation-secret` header (Vault secret `automation_secret` ↔ function secret `AUTOMATION_SECRET`).
+
+Pure-SQL pg_cron jobs (UTC; IST = UTC+5:30):
+
+| Job | Schedule | Action |
+|---|---|---|
+| `monthly-fee-generate` | `1 0 1 * *` | `generate_monthly_fees_for_month(month, year)` |
+| `monthly-fee-reminder` | `30 3 10 * *` (09:00 IST) | `queue_fee_reminders()` inserts notifications → push trigger |
+| `daily-backup` | `30 20 * * *` (02:00 IST) | inserts pending `backup_logs` row → backup trigger |
 
 ---
 

@@ -2,9 +2,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Repository for the `backup_logs` table.
 ///
-/// Note: There is currently no backend job (e.g. an Edge Function on a
-/// cron) that actually performs database backups. [triggerManualBackup]
-/// only records a `pending` request row for audit/visibility purposes.
+/// Inserting a `pending` row fires the `backup_logs_dispatch` trigger, which
+/// calls the `backup-trigger` Edge Function; that function writes the dump
+/// to the private `backups` bucket and flips the row to success/failed.
 /// Restore functionality is intentionally out of scope for v1.
 class BackupRepository {
   BackupRepository({SupabaseClient? client})
@@ -22,7 +22,7 @@ class BackupRepository {
   }
 
   /// Inserts a new `pending` backup_logs row initiated by the given admin
-  /// user id. This does not trigger any actual backup process yet.
+  /// user id, which starts a backup server-side.
   Future<void> triggerManualBackup(String initiatedBy) async {
     await _client.from('backup_logs').insert({
       'initiated_by': initiatedBy,

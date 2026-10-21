@@ -1,0 +1,99 @@
+# OWNER_TODO.md — Steps only you can do
+
+Everything in the repo that can be built without your accounts, devices or secrets is done.
+What remains needs your Supabase / Firebase / Google Play access or a physical phone.
+Do the sections in order; each is independent of the ones after it.
+
+---
+
+## 1. Turn on automation (push, monthly fees, reminders, backups)
+
+Code is ready: `supabase/migrations/008_automation.sql` and `supabase/functions/`.
+Until you do this, **push notifications are never delivered, monthly fees are not auto-generated, fee reminders are not sent, and the Backup button does nothing**.
+
+You need to do the following manually:
+
+1. Install the Supabase CLI: `npm install -g supabase` (or `scoop install supabase`), then run `supabase login`.
+2. In the project folder run: `supabase link --project-ref rcocjtblpbbslrivqpmm`
+3. Check migration 006/007 are already applied in your project (SQL Editor → run `select * from supabase_migrations.schema_migrations;` if you use the CLI, otherwise confirm 001–007 were pasted earlier).
+4. Open Supabase Dashboard → **Database → Extensions** and enable **pg_cron** and **pg_net** (008 also tries to enable them).
+5. Generate a random secret (any 32+ character string), e.g. run `openssl rand -hex 32`. Keep it; you use it twice below.
+6. Open Dashboard → **SQL Editor** and run (replace the secret):
+   ```sql
+   select vault.create_secret('https://rcocjtblpbbslrivqpmm.supabase.co', 'project_url');
+   select vault.create_secret('PASTE_YOUR_SECRET', 'automation_secret');
+   ```
+7. Run the migration: `supabase db push` (or paste `supabase/migrations/008_automation.sql` into the SQL Editor and run it).
+8. Get the Firebase service account: Firebase Console → **Project settings → Service accounts → Generate new private key**. A `.json` file downloads. **Never commit it.**
+9. Set the Edge Function secrets:
+   ```
+   supabase secrets set AUTOMATION_SECRET=PASTE_YOUR_SECRET
+   supabase secrets set FIREBASE_SERVICE_ACCOUNT="$(cat path/to/service-account.json)"
+   ```
+   (`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided to functions automatically.)
+10. Deploy both functions (they authenticate via the shared secret, so JWT verification is off):
+    ```
+    supabase functions deploy send-push --no-verify-jwt
+    supabase functions deploy backup-trigger --no-verify-jwt
+    ```
+11. Verify:
+    - Log in as admin → **Backups → Trigger Manual Backup**, wait ~1 minute, refresh: status should be `success`. If `failed`, the `error_msg` column in `backup_logs` says why.
+    - Post an announcement and confirm a phone with the app installed receives a push.
+    - Dashboard → **Database → Cron Jobs**: three jobs should be listed (`monthly-fee-generate`, `monthly-fee-reminder`, `daily-backup`).
+
+> Note: the fee generation job only creates rows for students who have a `fee_structure` entry for the current academic year.
+
+---
+
+## 2. Verify security against the live database
+
+The RLS audit so far was static (code read-through only). Live per-role testing was never done.
+
+1. Create or use one account for each role: admin, an active teacher, an active student.
+2. For each, sign in on a phone and try: a student opening another student's fees, a teacher opening Fees/Revenue, a teacher editing a fee payment.
+3. Everything outside the role's own data must be refused or hidden. Write down anything that is not and send it to me.
+4. Confirm students can still read their own notifications and fees after migration 008.
+
+---
+
+## 3. Manual QA on a real Android phone
+
+1. Install a debug build: `flutter run --dart-define-from-file=.env` (or your usual command).
+2. Walk through each role end to end: student registration → admin approval → student first-login password → attendance → homework → fees → chat → announcements.
+3. Switch the phone to **dark mode** and open every screen (the "Dark mode QA pass" item is still open). Note any unreadable text or white-on-white areas.
+4. Turn on airplane mode: the offline banner should appear, cached lists should still load, and writes should be blocked with a message.
+5. Test on at least three screen sizes (small phone, large phone, tablet or emulator).
+6. Send me the list of problems and I will fix them.
+
+---
+
+## 4. Release build and Play Store
+
+1. Create the signing key (once, keep it safe — **losing it means you cannot update the app**):
+   ```
+   keytool -genkey -v -keystore C:\Users\asusm\keys\vidyavardhini-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+   ```
+2. Copy `android/key.properties.example` to `android/key.properties` and fill in the real path and passwords. (Gitignored.)
+3. Build: `flutter build appbundle --release` → output at `build/app/outputs/bundle/release/app-release.aab`.
+4. Create a Google Play Developer account (one-time US$25 fee) at https://play.google.com/console.
+5. Create the app, then upload the `.aab` to **Testing → Internal testing**, add tester emails, and install via the opt-in link.
+6. Add your upload key's SHA-1 to Firebase (Project settings → Your apps → Add fingerprint). Get it with: `keytool -list -v -keystore C:\Users\asusm\keys\vidyavardhini-upload.jks -alias upload`. Replace `google-services.json` with the re-downloaded copy if Firebase gives you a new one.
+7. If you use Google Maps in release, add the same SHA-1 to your Maps API key restrictions.
+
+---
+
+## 5. Store assets (need your design decisions)
+
+1. **App icon**: provide a 1024×1024 PNG of the logo (`images/logo.png` exists; tell me if you want it used as-is) — I can then wire up `flutter_launcher_icons` and a native splash.
+2. **Play Store listing**: app name, short description (80 chars), full description, 2–8 phone screenshots, a 512×512 icon and a 1024×500 feature graphic.
+3. **Privacy policy URL** — required by Play because the app collects phone numbers, location and photos. Host a page and paste the URL into the Play Console.
+4. Fill the Play Console **Data safety** form (phone, location, photos, files, FCM token).
+
+---
+
+## 6. Optional / later
+
+- **Build flavors (dev/prod)** — still open in Phase 0; only worth doing if you want a separate Supabase project for testing.
+- **Backup restore** — v1 only creates backups (JSON in the private `backups` bucket; download from Dashboard → Storage). Restoring is a manual database operation for now.
+- **Login form widget test** and **integration tests** (auth flow, fee payment) — need a test Supabase project and credentials.
+- **Multi-device release testing** — step 3 above.

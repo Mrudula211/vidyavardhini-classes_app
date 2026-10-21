@@ -1041,6 +1041,19 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.5 Automation (migration 008)
+
+- Extensions: `pg_cron`, `pg_net`. Schema `private` (no API access) holds `call_edge_function`, `dispatch_notification_push`, `dispatch_backup`, `queue_scheduled_backup`.
+- Trigger `notifications_push_dispatch` (AFTER INSERT, statement-level) → `send-push`.
+- Trigger `backup_logs_dispatch` (AFTER INSERT, row-level) → `backup-trigger` when `status = 'pending'`.
+- `queue_fee_reminders()` — one `fee_reminder` notification per active student with pending/partial months in the current year. Execute revoked from API roles.
+- `generate_monthly_fees_for_month` — execute revoked from API roles (cron only).
+- Storage bucket `backups` (private); admin-only SELECT policy on `storage.objects`.
+- Cron jobs: `monthly-fee-generate`, `monthly-fee-reminder`, `daily-backup`.
+- Requires Vault secrets `project_url` and `automation_secret`; without them HTTP calls are skipped.
+
+---
+
 ## 10. Indexes Summary
 
 ```sql
