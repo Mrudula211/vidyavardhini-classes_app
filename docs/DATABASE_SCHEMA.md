@@ -1054,6 +1054,15 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.6 Chat/timetable alignment & RLS hardening (migration 009)
+
+- Adds `chat_messages` (app's message table; `message_type` text), `timetable_slots` (class-wide weekly slots, text weekdays, optional teacher, `room_number`), and `chat_rooms.last_message` / `last_message_at`. Legacy `messages` / `teacher_timetable` from 001 are no longer used by the app.
+- Policies: members read/send/mark-read `chat_messages`; members update `chat_rooms`; admin all on `timetable_slots`, teachers read all, students read their own board+standard.
+- `chat_messages` added to the `supabase_realtime` publication.
+- Safety net: enables RLS on every `public` table that has it off (no policy = service role only).
+
+---
+
 ## 10. Indexes Summary
 
 ```sql

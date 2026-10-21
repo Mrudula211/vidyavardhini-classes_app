@@ -368,6 +368,23 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 
 ---
 
+## Audit findings — features marked done but not actually present (2026-10-22)
+
+A static audit of every button, route and dashboard found the following. Fixed items are ticked; open items are real gaps, not polish.
+
+- [x] Teacher and student dashboards had no way to reach Chat, Timetable or Announcements — tiles added.
+- [x] Teacher and student had no Logout button — added (signs out of Supabase). Admin logout previously cleared only a local flag and left the Supabase session alive — fixed.
+- [x] Backup screen was unreachable (no dashboard tile) — added to admin dashboard.
+- [x] Schema drift: app used `chat_messages`, `timetable_slots`, `chat_rooms.last_message(_at)`, none in migrations 001-008; `chat_rooms` had no UPDATE policy so "last message" never saved — fixed by `009_chat_timetable_rls_hardening.sql` (also enables RLS on any public table lacking it).
+- [ ] **Homework / classwork attachments:** repositories fetch `*_attachments`, but there is no file picker, upload or viewer anywhere in the UI (`file_picker`, `syncfusion_flutter_pdfviewer`, `url_launcher` are installed but unused). Phase 6 "attachments" items were checked in error.
+- [ ] **Teacher self-attendance by GPS geofence (business rule 7):** only the admin geofence settings screen exists; no teacher-side location check, no `GeofenceService`. `/teacher/attendance` marks *student* attendance only.
+- [ ] **Academic-year promotion (business rule 10: OTP + CONFIRM + admin password):** no screen or logic exists; `Routes.adminAcademicYear` is unused.
+- [ ] **Manual fee reminder** from the PRD (admin triggers a reminder for any student) is not implemented; only the automatic 10th-of-month job exists.
+- [ ] Unused/declared screens: profile, announcement detail, homework/classwork detail, PDF/image viewer routes are declared in `routes.dart` but have no screens.
+- [ ] Admin login via access code only creates no Supabase session (see OWNER_TODO section 0).
+
+---
+
 ## Milestones
 
 | Milestone | Phases | Target |

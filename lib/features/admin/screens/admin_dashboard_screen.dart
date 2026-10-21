@@ -44,9 +44,10 @@ class AdminDashboardScreen extends ConsumerWidget {
           IconButton(
             tooltip: 'Logout',
             icon: const Icon(Icons.logout_rounded, color: AppColors.gold),
-            onPressed: () {
+            onPressed: () async {
+              await ref.read(authRepositoryProvider).signOut();
               ref.read(adminAuthenticatedProvider.notifier).state = false;
-              context.go(Routes.roleSelect);
+              if (context.mounted) context.go(Routes.roleSelect);
             },
           ),
         ],
@@ -225,6 +226,14 @@ class AdminDashboardScreen extends ConsumerWidget {
                         icon: Icons.chat_bubble_outline_rounded,
                         color: const Color(0xFF00897B),
                         onTap: () => context.push(Routes.chatList),
+                      ),
+                      _buildDashboardCard(
+                        context,
+                        title: 'Backups',
+                        subtitle: 'Data Safety',
+                        icon: Icons.backup_rounded,
+                        color: const Color(0xFF455A64),
+                        onTap: () => context.push(Routes.adminBackup),
                       ),
                     ],
                   ),

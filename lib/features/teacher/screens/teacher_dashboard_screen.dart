@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/providers/auth_providers.dart';
 import '../../../shared/widgets/notification_bell_button.dart';
 
 class TeacherDashboardScreen extends ConsumerWidget {
@@ -14,8 +15,22 @@ class TeacherDashboardScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Teacher Dashboard'),
-        actions: const [
-          NotificationBellButton(iconColor: AppColors.primary),
+        actions: [
+          const NotificationBellButton(iconColor: AppColors.primary),
+          IconButton(
+            tooltip: 'Announcements',
+            icon: const Icon(Icons.campaign_outlined, color: AppColors.primary),
+            onPressed: () => context.push(Routes.announcementList),
+          ),
+          IconButton(
+            tooltip: 'Logout',
+            icon: const Icon(Icons.logout_rounded, color: AppColors.primary),
+            onPressed: () async {
+              await ref.read(authRepositoryProvider).signOut();
+              ref.read(teacherAuthenticatedProvider.notifier).state = false;
+              if (context.mounted) context.go(Routes.roleSelect);
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -110,6 +125,30 @@ class TeacherDashboardScreen extends ConsumerWidget {
                   icon: Icons.account_balance_wallet,
                   color: Colors.purple,
                   onTap: () => context.push(Routes.teacherSalary),
+                ),
+                _buildCard(
+                  context,
+                  title: 'Private Chat',
+                  subtitle: 'Doubt clearing',
+                  icon: Icons.chat_bubble_outline_rounded,
+                  color: Colors.teal,
+                  onTap: () => context.push(Routes.chatList),
+                ),
+                _buildCard(
+                  context,
+                  title: 'Timetable',
+                  subtitle: 'Class schedule',
+                  icon: Icons.calendar_month,
+                  color: Colors.indigo,
+                  onTap: () => context.push(Routes.userTimetable),
+                ),
+                _buildCard(
+                  context,
+                  title: 'Announcements',
+                  subtitle: 'Notices & alerts',
+                  icon: Icons.campaign,
+                  color: Colors.deepPurple,
+                  onTap: () => context.push(Routes.announcementList),
                 ),
               ],
             ),
