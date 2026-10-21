@@ -19,6 +19,7 @@ class AppConstants {
 
   // Pagination
   static const int pageSize = 25;
+  static const int maxUploadMb = 20;
 
   // Cache durations (minutes)
   static const int announcementCacheMins = 60;

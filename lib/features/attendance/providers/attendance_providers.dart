@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/geofence_service.dart';
 import '../../../shared/models/attendance_model.dart';
 import '../repository/attendance_repository.dart';
 
@@ -59,4 +60,30 @@ final adminAttendanceOverviewProvider = FutureProvider<List<StudentAttendanceMod
 final geofenceSettingsProvider = FutureProvider<GeofenceSettingsModel?>((ref) async {
   final repo = ref.watch(attendanceRepositoryProvider);
   return repo.fetchGeofenceSettings();
+});
+
+final geofenceServiceProvider = Provider<GeofenceService>((ref) {
+  return GeofenceService();
+});
+
+final todayTeacherAttendanceProvider =
+    FutureProvider.autoDispose.family<TeacherAttendanceModel?, String>((ref, teacherId) {
+  return ref.watch(attendanceRepositoryProvider).fetchTodayTeacherAttendance(teacherId);
+});
+
+/// Silent once-per-session check-in attempt when a teacher opens the app.
+/// Never prompts for permission and never throws; the dedicated check-in
+/// screen handles prompts and errors.
+final teacherAutoCheckInProvider = FutureProvider<TeacherCheckInResult?>((ref) async {
+  try {
+    final pos = await ref
+        .read(geofenceServiceProvider)
+        .currentPosition(promptForPermission: false);
+    if (pos == null) return null;
+    return await ref
+        .read(attendanceRepositoryProvider)
+        .teacherCheckIn(lat: pos.latitude, lng: pos.longitude);
+  } catch (_) {
+    return null;
+  }
 });

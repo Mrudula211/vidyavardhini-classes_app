@@ -301,6 +301,10 @@ chat-files/              (private — accessible to room members only)
   {room_id}/{message_id}/{filename}
 ```
 
+### 6.1b Attachment storage (implemented)
+
+Private buckets `homework-attachments` and `classwork-attachments` (20 MB limit). Object path `<teacher_uid>/<timestamp>_<filename>`; `*_attachments.file_url` stores that path (not a URL). Teachers may upload only into their own folder; reads are allowed when the caller can read the matching attachment row (teacher owner, admin, students of the class). The app views files through 1-hour signed URLs (`StorageService.signedUrl`).
+
 ### 6.2 Upload Flow
 
 ```
@@ -343,6 +347,9 @@ SELECT cron.schedule(
 ---
 
 ## 8. Geofencing Architecture
+
+**As built:** the phone only supplies a GPS position. `mark_teacher_present(lat, lng)` (SECURITY DEFINER) computes the haversine distance to `geofence_settings` and records `teacher_attendance` itself, never overwriting leave/holiday/manual corrections. Triggers: the check-in screen (button + auto on open) and a silent once-per-session attempt when the teacher dashboard opens. Background (app closed) auto-marking is not implemented. The original sketch follows.
+
 
 ```
 Teacher opens app or app is in background

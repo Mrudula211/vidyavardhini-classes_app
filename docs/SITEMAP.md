@@ -214,6 +214,7 @@ Auth Flow (shared OTP step, then diverges)                      │  │  │
   │     Today's Timetable widget
   │     Announcements feed (general + staff)
   │
+  ├── /teacher/check-in          (own GPS attendance; auto-check on dashboard open)
   ├── /teacher/attendance
   │     Class selector (dropdown: Board + Standard)
   │     Date picker (default: today)
@@ -422,3 +423,13 @@ AdminDashboard
   → Background job runs promotion
   → Success screen with stats: X students promoted
 ```
+
+
+## Added screens (2026-10-22)
+
+| Route | Screen | Notes |
+|---|---|---|
+| `/teacher/check-in` | TeacherCheckInScreen | GPS check-in via `mark_teacher_present` |
+| `/admin/settings/academic-year` | PromotionScreen | CONFIRM -> password -> SMS OTP -> `promote_students` |
+| (pushed, not routed) | AttachmentViewerScreen | image/PDF viewer for homework & classwork attachments |
+| (dashboards) | Chat / Timetable / Announcements tiles, Logout | teacher + student; Backups + Academic Year tiles for admin |

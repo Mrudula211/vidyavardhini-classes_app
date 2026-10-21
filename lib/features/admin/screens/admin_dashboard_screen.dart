@@ -229,6 +229,14 @@ class AdminDashboardScreen extends ConsumerWidget {
                       ),
                       _buildDashboardCard(
                         context,
+                        title: 'Academic Year',
+                        subtitle: 'Promote Students',
+                        icon: Icons.upgrade_rounded,
+                        color: const Color(0xFF8D6E63),
+                        onTap: () => context.push(Routes.adminAcademicYear),
+                      ),
+                      _buildDashboardCard(
+                        context,
                         title: 'Backups',
                         subtitle: 'Data Safety',
                         icon: Icons.backup_rounded,

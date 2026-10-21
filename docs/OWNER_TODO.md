@@ -83,6 +83,23 @@ You need to do the following manually:
 
 ---
 
+## 1b. Apply migration 010 and verify the new features
+
+Migration `010_attachments_geofence_promotion_audit.sql` adds the server side of: homework/classwork attachments, teacher GPS attendance, student promotion, manual fee reminders and audit logging. It also fixes an access bug where any student could read every class's homework. **The app screens for these features will error until it is applied.** It needs migration 008 applied first (it uses the `private` schema).
+
+You need to do the following manually:
+
+1. In the Supabase SQL Editor, run `supabase/migrations/008_automation.sql` (if not done), then `009_...`, then `010_attachments_geofence_promotion_audit.sql` in that order. Each is safe to re-run.
+2. **Attachments:** log in as a teacher, create homework with a PDF and a photo; log in as a student of that class and open both. Log in as a student of a *different* class and confirm they do not see it.
+3. **Teacher GPS attendance (admin first):** as admin open Geofence Settings, tap "use current location", set a radius (e.g. 100 m), save. As a teacher open My Attendance while standing inside the radius: status becomes "Marked present". Then test from outside the radius: it must show the distance and not mark present.
+4. **Promotion (do this on a copy first, never test on real data):** it needs a real SMS provider. In Supabase Dashboard -> **Authentication -> Providers -> Phone**, enable it and connect Twilio (or another listed provider). The admin user must have a phone number on its Auth record. Take a backup first (Backups -> Trigger Manual Backup). Then Admin -> Academic Year: type CONFIRM, enter the password, request the OTP, enter it. If you get "OTP verification required", the JWT did not carry the OTP proof; tell me the exact message and I will adjust it. It fails closed, so nothing is changed in that case.
+5. **Audit logs:** record a fee payment, approve a student, then open Admin -> Audit Logs. Entries should appear. If the list is empty, tell me.
+6. **Fee reminder:** Fee Overview -> "Send reminder" on an unpaid card. The student should get an in-app notification (and a push once section 1 is deployed).
+
+Known limits: teacher GPS attendance is recorded when the teacher opens the app (no background tracking); attachments are limited to jpg/png/webp/pdf/txt/mp4, 20 MB each.
+
+---
+
 ## 2. Verify security against the live database
 
 The RLS audit so far was static (code read-through only). Live per-role testing was never done.

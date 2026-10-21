@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/attachment_picker_field.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/offline_banner.dart';
 import '../../../auth/providers/auth_providers.dart';
@@ -25,6 +27,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
   String _selectedBoard = 'SSC';
   String _selectedStandard = '10th';
   bool _isSubmitting = false;
+  List<PickedAttachment> _attachments = [];
 
   @override
   void initState() {
@@ -59,6 +62,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
             title: _titleController.text.trim(),
             description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : null,
             dueDate: _dueDateController.text.trim(),
+            attachments: _attachments,
           );
 
       ref.invalidate(teacherHomeworkListProvider(currentUser.id));
@@ -197,6 +201,12 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(),
                 ),
+              ),
+              const SizedBox(height: 16),
+              AttachmentPickerField(
+                files: _attachments,
+                enabled: !_isSubmitting,
+                onChanged: (v) => setState(() => _attachments = v),
               ),
               const SizedBox(height: 32),
 

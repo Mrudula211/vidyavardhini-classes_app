@@ -1063,6 +1063,15 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.7 Attachments, geofence, promotion, audit (migration 010)
+
+- Fixes `homework: student read` / `classwork: student read` (qualified columns; active students only).
+- Buckets `homework-attachments`, `classwork-attachments` (private, 20 MB) + `storage.objects` policies (teacher upload/delete in own folder; read via attachment-row RLS).
+- `mark_teacher_present(lat, lng)` - teacher geofence check-in. `promote_students(confirm, password, year_label, start, end)` - admin only; requires `CONFIRM`, password, and OTP in JWT `amr` within 10 min; promotes 1st-9th, archives 10th/inactive, copies fee structure + teacher assignments, writes `promotion_history` + audit. `send_fee_reminder(student_id)` - admin only.
+- `private.audit_row()` + triggers writing `audit_logs` (performed_by = caller; skipped for cron).
+
+---
+
 ## 10. Indexes Summary
 
 ```sql

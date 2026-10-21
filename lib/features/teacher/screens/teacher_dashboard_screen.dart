@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../attendance/providers/attendance_providers.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../../../shared/widgets/notification_bell_button.dart';
 
@@ -12,6 +13,8 @@ class TeacherDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Silent once-per-session GPS check-in when the teacher opens the app.
+    ref.watch(teacherAutoCheckInProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Teacher Dashboard'),
@@ -101,6 +104,14 @@ class TeacherDashboardScreen extends ConsumerWidget {
                   icon: Icons.how_to_reg,
                   color: Colors.green,
                   onTap: () => context.push(Routes.teacherAttendance),
+                ),
+                _buildCard(
+                  context,
+                  title: 'My Attendance',
+                  subtitle: 'GPS check-in',
+                  icon: Icons.location_on,
+                  color: Colors.redAccent,
+                  onTap: () => context.push(Routes.teacherCheckIn),
                 ),
                 _buildCard(
                   context,

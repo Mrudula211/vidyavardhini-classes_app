@@ -376,11 +376,13 @@ A static audit of every button, route and dashboard found the following. Fixed i
 - [x] Teacher and student had no Logout button — added (signs out of Supabase). Admin logout previously cleared only a local flag and left the Supabase session alive — fixed.
 - [x] Backup screen was unreachable (no dashboard tile) — added to admin dashboard.
 - [x] Schema drift: app used `chat_messages`, `timetable_slots`, `chat_rooms.last_message(_at)`, none in migrations 001-008; `chat_rooms` had no UPDATE policy so "last message" never saved — fixed by `009_chat_timetable_rls_hardening.sql` (also enables RLS on any public table lacking it).
-- [ ] **Homework / classwork attachments:** repositories fetch `*_attachments`, but there is no file picker, upload or viewer anywhere in the UI (`file_picker`, `syncfusion_flutter_pdfviewer`, `url_launcher` are installed but unused). Phase 6 "attachments" items were checked in error.
-- [ ] **Teacher self-attendance by GPS geofence (business rule 7):** only the admin geofence settings screen exists; no teacher-side location check, no `GeofenceService`. `/teacher/attendance` marks *student* attendance only.
-- [ ] **Academic-year promotion (business rule 10: OTP + CONFIRM + admin password):** no screen or logic exists; `Routes.adminAcademicYear` is unused.
-- [ ] **Manual fee reminder** from the PRD (admin triggers a reminder for any student) is not implemented; only the automatic 10th-of-month job exists.
-- [ ] Unused/declared screens: profile, announcement detail, homework/classwork detail, PDF/image viewer routes are declared in `routes.dart` but have no screens.
+- [x] **Homework / classwork attachments:** `StorageService` (pick, upload to private buckets with 20 MB cap, signed URLs), `AttachmentPickerField` on both create screens, `AttachmentList` on all four list screens, in-app `AttachmentViewerScreen` (images, PDF via Syncfusion); video/text open externally. Needs migration 010 + live test.
+- [x] **Teacher self-attendance by GPS geofence (business rule 7):** `GeofenceService` + `TeacherCheckInScreen` (`/teacher/check-in`) call the server-side `mark_teacher_present` RPC (distance decided in the DB); a silent once-per-session auto check-in runs when the teacher dashboard opens. Limitation: marking happens when the app is opened, not from the background (no background location service).
+- [x] **Academic-year promotion (business rule 10):** `PromotionScreen` (`/admin/settings/academic-year`) -> `promote_students` RPC. The DB enforces admin role, exact `CONFIRM`, password check, and an OTP login in the last 10 minutes (JWT `amr`); it fails closed. Needs live verification (SMS provider + `amr` claim).
+- [x] **Manual fee reminder:** "Send reminder" button on each unpaid fee card in Fee Overview -> `send_fee_reminder` RPC -> notification + push.
+- [x] Dead route constants removed from `routes.dart` (profile, detail, pdf/image viewer, etc. had no screens; viewer is now `AttachmentViewerScreen`). Profile screens remain out of scope for v1.
+- [x] RLS bug: homework/classwork student-read policies compared the enrollment row to itself (any student could read every class) — fixed in 010.
+- [x] Audit logging: nothing wrote to `audit_logs`; 010 adds DB triggers for fee payments/structure/status, salary, student status, attendance corrections, homework/classwork, geofence, teachers, promotion.
 - [ ] Admin login via access code only creates no Supabase session (see OWNER_TODO section 0).
 
 ---

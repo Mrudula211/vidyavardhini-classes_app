@@ -27,6 +27,8 @@ import '../../features/admin/revenue/screens/revenue_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/admin/audit_logs/screens/audit_logs_screen.dart';
 import '../../features/admin/backup/screens/backup_screen.dart';
+import '../../features/admin/promotion/screens/promotion_screen.dart';
+import '../../features/teacher/attendance/screens/teacher_checkin_screen.dart';
 import '../../features/admin/announcements/screens/announcement_create_screen.dart';
 import '../../features/admin/timetable/screens/admin_timetable_screen.dart';
 import '../../features/announcements/screens/announcement_list_screen.dart';
@@ -252,6 +254,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AuditLogsScreen(),
       ),
       GoRoute(
+        path: Routes.adminAcademicYear,
+        builder: (context, state) => const PromotionScreen(),
+      ),
+      GoRoute(
         path: Routes.adminBackup,
         builder: (context, state) => const BackupScreen(),
       ),
@@ -289,6 +295,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.teacherDashboard,
         builder: (context, state) => const TeacherDashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.teacherCheckIn,
+        builder: (context, state) => const TeacherCheckInScreen(),
       ),
       GoRoute(
         path: Routes.teacherAttendance,
