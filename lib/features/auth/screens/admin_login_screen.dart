@@ -19,6 +19,7 @@ class AdminLoginScreen extends ConsumerStatefulWidget {
 class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _accessCodeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _passwordVisible = false;
@@ -27,6 +28,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
   void dispose() {
     _identifierController.dispose();
     _passwordController.dispose();
+    _accessCodeController.dispose();
     super.dispose();
   }
 
@@ -34,36 +36,25 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
+    var signedInHere = false;
     try {
-      final input = _identifierController.text.trim();
-      final password = _passwordController.text.trim();
+      final repo = ref.read(authRepositoryProvider);
+      final email = _identifierController.text.trim();
+      final password = _passwordController.text;
+      final code = _accessCodeController.text.trim();
 
-      bool success = false;
-
-      // 1. Access code + password, verified server-side via database RPC.
-      try {
-        success = await ref
-            .read(authRepositoryProvider)
-            .verifyAdminCredentials(input, password);
-      } catch (_) {
-        success = false;
+      // 1. A real Supabase session is required: every admin query is checked
+      //    by row-level security against it. (An OTP session from the phone
+      //    screen is also accepted.)
+      if (ref.read(currentUserProvider) == null) {
+        final session = await repo.signInWithEmailAndPassword(email, password);
+        if (session == null) throw Exception('Invalid admin credentials.');
+        signedInHere = true;
       }
 
-      // 2. Email + password through Supabase Auth.
-      if (!success && input.contains('@')) {
-        try {
-          final session = await ref
-              .read(authRepositoryProvider)
-              .signInWithEmailAndPassword(input, password);
-          success = session != null;
-        } catch (_) {
-          success = false;
-        }
-      }
-
-      if (!success) {
-        throw Exception('Invalid admin credentials.');
-      }
+      // 2. Access code + password, verified server-side for this account.
+      final ok = await repo.verifyAdminCredentials(code, password);
+      if (!ok) throw Exception('Invalid admin credentials.');
 
       // Grant Admin session flag so router allows navigation to /admin
       ref.read(adminAuthenticatedProvider.notifier).state = true;
@@ -71,10 +62,17 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
       if (!mounted) return;
       context.go(Routes.adminDashboard);
     } catch (e) {
+      if (signedInHere) {
+        await ref.read(authRepositoryProvider).signOut();
+      }
       if (!mounted) return;
+      var message = e.toString().replaceAll('Exception: ', '');
+      if (!message.startsWith('Too many') && !message.startsWith('Invalid')) {
+        message = 'Invalid admin credentials.';
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: Text(message),
           backgroundColor: AppColors.maroon,
           behavior: SnackBarBehavior.floating,
         ),
@@ -117,29 +115,30 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in with Email or 6-Digit Access Code',
+                  'Sign in with your email, password and 6-digit access code',
                   style: AppTypography.poppins(
                     fontSize: 14,
                     color: AppColors.brown,
                   ),
                 ),
                 const SizedBox(height: 32),
-                TextFormField(
-                  controller: _identifierController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email or Admin Access Code',
-                    hintText: 'Email or 6-digit access code',
-                    prefixIcon: Icon(Icons.person_outline_rounded),
+                if (ref.watch(currentUserProvider) == null) ...[
+                  TextFormField(
+                    controller: _identifierController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Admin Email',
+                      prefixIcon: Icon(Icons.person_outline_rounded),
+                    ),
+                    validator: (value) {
+                      if (value == null || !value.contains('@')) {
+                        return 'Enter your admin email';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Enter your email or access code';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                ],
                 TextFormField(
                   controller: _passwordController,
                   obscureText: !_passwordVisible,
@@ -160,6 +159,24 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Enter your password';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _accessCodeController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  decoration: const InputDecoration(
+                    labelText: 'Admin Access Code',
+                    hintText: '6-digit code',
+                    counterText: '',
+                    prefixIcon: Icon(Icons.pin_outlined),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().length != 6) {
+                      return 'Enter the 6-digit access code';
                     }
                     return null;
                   },

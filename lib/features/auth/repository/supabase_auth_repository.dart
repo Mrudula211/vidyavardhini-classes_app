@@ -99,36 +99,39 @@ class SupabaseAuthRepository implements AuthRepository {
     return response.session;
   }
 
+  /// Verified server-side against the signed-in admin's own record
+  /// (`verify_my_admin_credentials`); requires a real Supabase session.
   @override
   Future<bool> verifyAdminCredentials(
     String accessCode,
     String password,
   ) async {
-    try {
-      final response = await _client.rpc(
-        'verify_admin_credentials',
-        params: {
-          'p_access_code': accessCode,
-          'p_password': password,
-        },
-      );
-      return response == true;
-    } catch (e) {
-      return false;
-    }
+    return _verify('verify_my_admin_credentials', {
+      'p_access_code': accessCode,
+      'p_password': password,
+    });
   }
 
+  /// Verified against the signed-in teacher's own code
+  /// (`verify_my_teacher_access_code`); requires a real Supabase session.
   @override
   Future<bool> verifyTeacherAccessCode(String accessCode) async {
+    return _verify('verify_my_teacher_access_code', {
+      'p_access_code': accessCode,
+    });
+  }
+
+  Future<bool> _verify(String function, Map<String, dynamic> params) async {
     try {
-      final response = await _client.rpc(
-        'verify_teacher_access_code',
-        params: {
-          'p_access_code': accessCode,
-        },
-      );
+      final response = await _client.rpc(function, params: params);
       return response == true;
-    } catch (e) {
+    } on PostgrestException catch (e) {
+      // Surface the lockout message instead of a generic "invalid code".
+      if (e.message.contains('Too many failed attempts')) {
+        throw Exception(e.message);
+      }
+      return false;
+    } catch (_) {
       return false;
     }
   }
@@ -147,6 +150,14 @@ class SupabaseAuthRepository implements AuthRepository {
 
     if (existing is Map<String, dynamic>) {
       return true;
+    }
+
+    // Only students may self-register. Teacher and admin accounts are created
+    // by the admin (create_teacher_profile / seed), so an unknown phone here
+    // is not an account and must not become one.
+    if (role != 'student') {
+      await _client.auth.signOut();
+      throw Exception('This phone number is not registered as a $role.');
     }
 
     await _client.from('users').insert({

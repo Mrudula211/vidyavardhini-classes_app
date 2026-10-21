@@ -383,7 +383,12 @@ A static audit of every button, route and dashboard found the following. Fixed i
 - [x] Dead route constants removed from `routes.dart` (profile, detail, pdf/image viewer, etc. had no screens; viewer is now `AttachmentViewerScreen`). Profile screens remain out of scope for v1.
 - [x] RLS bug: homework/classwork student-read policies compared the enrollment row to itself (any student could read every class) — fixed in 010.
 - [x] Audit logging: nothing wrote to `audit_logs`; 010 adds DB triggers for fee payments/structure/status, salary, student status, attendance corrections, homework/classwork, geofence, teachers, promotion.
-- [ ] Admin login via access code only creates no Supabase session (see OWNER_TODO section 0).
+- [x] **Auth sessions (critical, fixed in code + migration 011):** the teacher card skipped phone OTP and the admin access-code path never created a Supabase session, so RLS-protected data was unreachable for them. Teacher now: phone -> OTP -> access code (verified against the caller's own record via `verify_my_teacher_access_code`). Admin now: email + password (real session) + access code via `verify_my_admin_credentials`. Both RPCs are caller-bound and rate-limited (5 failures -> 15 min lock); the old anonymous RPCs are revoked.
+- [x] **Privilege escalation (critical, fixed in 011):** `users` insert/update policies let any OTP user set `role = 'admin'`; a trigger now blocks role changes, inserts are limited to `student`, and a unique index enforces a single admin.
+- [x] **Approval bypass (fixed in 011):** `student_profiles` self-insert must be `pending` with no student ID / approver.
+- [x] Teachers could insert their own attendance (bypassing the geofence RPC) and `create_teacher_profile` was callable by anyone with a default `123456` code; both fixed (admin-only, explicit 6-digit code). `audit_logs` client inserts removed (triggers only).
+- [x] Phone numbers normalised (Auth: digits only; app/`public.users`: `+<digits>`) so OTP sign-in finds seeded teacher/admin accounts; NULL token columns on SQL-seeded `auth.users` rows repaired. Seed `004` no longer contains credentials.
+- [ ] Access code remains a UI-level second factor: an admin/teacher with a valid session can reach their routes without it; data safety rests on RLS + session. Server-enforced second factor is a possible future change.
 
 ---
 

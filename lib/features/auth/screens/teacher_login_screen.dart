@@ -22,6 +22,18 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    // The access code is a second step after phone OTP; without a real
+    // session no data can be read (row-level security), so start over.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && ref.read(currentUserProvider) == null) {
+        context.go(Routes.phone, extra: {'role': 'teacher'});
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _accessCodeController.dispose();
     super.dispose();
@@ -43,9 +55,14 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
       context.go(Routes.teacherDashboard);
     } catch (e) {
       if (!mounted) return;
+      final text = e.toString().replaceAll('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid access code. Please check with admin.'),
+        SnackBar(
+          content: Text(
+            text.startsWith('Too many')
+                ? text
+                : 'Invalid access code. Please check with admin.',
+          ),
         ),
       );
     } finally {

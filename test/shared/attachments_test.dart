@@ -67,7 +67,7 @@ void main() {
   testWidgets('AttachmentList renders names and is empty-safe', (t) async {
     await t.pumpWidget(const MaterialApp(
       home: Scaffold(body: AttachmentList(attachments: [])),
-    ));
+    ),);
     expect(find.textContaining('Attachments'), findsNothing);
 
     await t.pumpWidget(const MaterialApp(
@@ -81,9 +81,9 @@ void main() {
             fileName: 'chapter4.pdf',
             fileSize: 2048,
           ),
-        ]),
+        ],),
       ),
-    ));
+    ),);
     expect(find.text('Attachments (1)'), findsOneWidget);
     expect(find.text('chapter4.pdf'), findsOneWidget);
     expect(find.text('2 KB'), findsOneWidget);
@@ -109,7 +109,7 @@ void main() {
           ),
         ),
       ),
-    ));
+    ),);
     expect(find.text('board.png'), findsOneWidget);
     await t.tap(find.byTooltip('Remove board.png'));
     await t.pump();

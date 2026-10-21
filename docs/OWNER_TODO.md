@@ -8,18 +8,24 @@ Do the sections in order, starting with section 0; each is independent of the on
 
 ## 0. URGENT — rotate the admin credentials (do this first)
 
-The admin password, email, phone and 6-digit access code were hardcoded in the app's login screen and seeded in `supabase/migrations/004_seed_admin.sql`, so they are also in git history. Anyone with the APK or the repository can read them and sign in as admin. The hardcoded fallbacks are now removed from the app, but the old password stays compromised until you change it.
+The admin password, email, phone and 6-digit access code were hardcoded in the app's login screen and seeded in `supabase/migrations/004_seed_admin.sql`, so they are also in git history. Anyone with the APK or the repository can read them and sign in as admin. The hardcoded copies are now removed from the app and from `004`, but the old password stays compromised until you change it.
 
 You need to do the following manually:
 
-1. Open Supabase Dashboard -> **Authentication -> Users** and open the admin user.
-2. Set a new strong random password (12+ characters, not reused anywhere).
-3. Change the admin access code (stored hashed in `admin_profiles`; see `supabase/migrations/003_auth_rpc.sql` for how it is checked). Tell me and I will write the SQL, without you pasting the code into chat.
-4. Keep the new values in a password manager only. Never put them in code, docs or chat.
-5. If the GitHub repository is public, make it private now.
-6. Sign in on a phone with the new credentials to confirm they work.
+1. Choose a new strong password (12+ random characters) and a new 6-digit admin access code. Keep them in a password manager only. Never put them in code, docs or chat.
+2. Open Supabase Dashboard -> **SQL Editor** and run this once, replacing the two placeholders (Supabase Auth is now the single source of truth for the password):
+   ```sql
+   update auth.users
+   set encrypted_password = crypt('NEW_PASSWORD', gen_salt('bf')), updated_at = now()
+   where id = (select id from public.users where role = 'admin');
 
-Known limitation: access-code-only login is verified on the server but creates no Supabase session, so RLS-protected data still needs an email and password sign-in. Tell me if you want that flow redesigned.
+   update public.admin_profiles
+   set access_code_hash = crypt('NEW_6_DIGIT_CODE', gen_salt('bf')), updated_at = now()
+   where id = (select id from public.users where role = 'admin');
+   ```
+3. Clear the SQL Editor query history afterwards (the new values were typed there).
+4. If the GitHub repository is public, make it private now. Old commits still contain the old password, which is why rotating it matters.
+5. After applying migrations (section 1c), sign in on a phone with **email + new password + new access code** to confirm it works.
 
 ---
 
@@ -97,6 +103,20 @@ You need to do the following manually:
 6. **Fee reminder:** Fee Overview -> "Send reminder" on an unpaid card. The student should get an in-app notification (and a push once section 1 is deployed).
 
 Known limits: teacher GPS attendance is recorded when the teacher opens the app (no background tracking); attachments are limited to jpg/png/webp/pdf/txt/mp4, 20 MB each.
+
+---
+
+## 1c. Apply migration 011 (security hardening) — do this soon
+
+Migration `011_security_hardening_and_auth_fixes.sql` closes serious holes found in an audit: any logged-in phone user could make themselves **admin** or approve themselves as a student, teachers could fake GPS check-ins, and the access-code checks could be brute-forced without logging in. It also fixes teacher/admin sign-in (they previously had no real session, so no data loaded).
+
+You need to do the following manually:
+
+1. First complete section 0 (new password + code), because from now on admin login requires email + password + 6-digit access code.
+2. Run in order in the SQL Editor (each is safe to re-run): `008`, `009`, `010`, then `011_security_hardening_and_auth_fixes.sql`. Read the "Messages" output: if you see *"Could not enforce single admin"*, there is more than one admin row; run `select id, phone from public.users where role = 'admin';`, decide which is real, set the other(s) to `role = 'student'` or delete them, then re-run 011.
+3. **Admin login test:** Role screen -> Admin -> email, password, access code. If sign-in says "Database error querying schema", send me the error (011 repairs the usual cause).
+4. **Teacher login test:** the admin adds a teacher (phone + 6-digit code). The teacher chooses Teacher -> enters the phone -> receives the SMS OTP (needs the SMS provider from section 1b step 4) -> enters the access code. Existing teachers keep their phone/code; their phone numbers were normalised by 011.
+5. Confirm a brand-new phone number can still register as a **student** (it should become `pending`), and cannot appear as teacher/admin.
 
 ---
 

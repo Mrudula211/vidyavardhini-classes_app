@@ -163,7 +163,8 @@ BEGIN
     RAISE EXCEPTION 'Type CONFIRM exactly to proceed';
   END IF;
 
-  SELECT password_hash INTO v_hash FROM admin_profiles WHERE id = v_uid;
+  -- Supabase Auth holds the real password (same source as login).
+  SELECT encrypted_password INTO v_hash FROM auth.users WHERE id = v_uid;
   IF v_hash IS NULL OR v_hash <> crypt(coalesce(p_password, ''), v_hash) THEN
     RAISE EXCEPTION 'Incorrect admin password';
   END IF;

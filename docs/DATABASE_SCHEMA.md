@@ -1072,6 +1072,17 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.8 Security hardening & auth fixes (migration 011)
+
+- `users`: insert limited to `role = 'student'`; unique index `users_single_admin`; trigger `users_guard_update` blocks role changes and non-admin phone/is_active changes.
+- `student_profiles` insert must be `pending` with null `student_id`/`approved_*`.
+- Dropped policies: `teacher_attendance: self insert` (use `mark_teacher_present`), `audit_logs: insert only` (triggers write audit rows).
+- `verify_my_teacher_access_code(code)` / `verify_my_admin_credentials(code, password)` — caller-bound (`auth.uid()`), rate-limited via `private.access_attempts`; admin password checked against `auth.users.encrypted_password`. Legacy `verify_admin_credentials` / `verify_teacher_access_code` are revoked from API roles.
+- `create_teacher_profile` — admin-only, requires 6-digit code, normalises phone via `private.normalize_phone`.
+- Data repair: phone formats normalised; NULL auth token columns set to `''`.
+
+---
+
 ## 10. Indexes Summary
 
 ```sql
