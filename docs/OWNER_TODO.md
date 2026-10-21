@@ -29,6 +29,7 @@ Supabase emailed a critical `rls_disabled_in_public` warning for project `rcocjt
 
 You need to do the following manually:
 
+0. **Fastest fix:** in the SQL Editor, paste and run the whole file `supabase/migrations/009_chat_timetable_rls_hardening.sql` (or `supabase db push`). It is safe to re-run. It enables RLS on every public table that has it off, and creates the `chat_messages` and `timetable_slots` tables the app actually uses (the app queries these, but they were missing from the migrations, which likely means they exist in your database without RLS). Then continue with step 1 to confirm.
 1. Open Supabase Dashboard -> **SQL Editor** and run this to list the exposed tables:
    ```sql
    select schemaname, tablename
