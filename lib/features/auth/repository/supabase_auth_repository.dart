@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/utils/login_identifier.dart';
 import 'auth_repository.dart';
 
 class SupabaseAuthRepository implements AuthRepository {
@@ -9,28 +10,55 @@ class SupabaseAuthRepository implements AuthRepository {
       : _client = client ?? Supabase.instance.client;
 
   @override
-  Future<void> sendOtp(String phone) async {
-    await _client.auth.signInWithOtp(
-      phone: phone,
-    );
+  Future<Session?> signInWithPassword(
+    LoginIdentifier id,
+    String password,
+  ) async {
+    final response = id.isEmail
+        ? await _client.auth.signInWithPassword(
+            email: id.email,
+            password: password,
+          )
+        : await _client.auth.signInWithPassword(
+            phone: id.phone,
+            password: password,
+          );
+    return response.session;
   }
 
   @override
-  Future<Session?> verifyOtp(String phone, String otp, String role) async {
-    await _client.auth.verifyOTP(
-      phone: phone,
-      token: otp,
-      type: OtpType.sms,
+  Future<Session?> signUpWithPassword(
+    LoginIdentifier id,
+    String password,
+  ) async {
+    final response = id.isEmail
+        ? await _client.auth.signUp(email: id.email, password: password)
+        : await _client.auth.signUp(phone: id.phone, password: password);
+    return response.session;
+  }
+
+  @override
+  Future<void> sendEmailCode(String email) async {
+    await _client.auth.signInWithOtp(email: email, shouldCreateUser: true);
+  }
+
+  @override
+  Future<Session?> verifyEmailCode(String email, String code) async {
+    final response = await _client.auth.verifyOTP(
+      email: email,
+      token: code,
+      type: OtpType.email,
     );
-
-    final session = _client.auth.currentSession;
-    final user = session?.user;
-    if (user == null) {
-      throw Exception('OTP verification failed. User session missing.');
+    final session = response.session ?? _client.auth.currentSession;
+    if (session == null) {
+      throw Exception('Code verification failed. Please try again.');
     }
-
-    await ensureUserProfile(user.id, phone, role);
     return session;
+  }
+
+  @override
+  Future<void> setPassword(String newPassword) async {
+    await _client.auth.updateUser(UserAttributes(password: newPassword));
   }
 
   @override
@@ -40,8 +68,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Stream<Session?> authStateChanges() {
-    return _client.auth.onAuthStateChange
-        .map((event) => event.session);
+    return _client.auth.onAuthStateChange.map((event) => event.session);
   }
 
   @override
@@ -76,27 +103,6 @@ class SupabaseAuthRepository implements AuthRepository {
       return response['status'] as String?;
     }
     return null;
-  }
-
-  @override
-  Future<bool> isStudentPhoneRegistered(String phone) async {
-    final response = await _client
-        .from('users')
-        .select('id')
-        .eq('phone', phone)
-        .eq('role', 'student')
-        .maybeSingle();
-
-    return response != null;
-  }
-
-  @override
-  Future<Session?> signInWithEmailAndPassword(String email, String password) async {
-    final response = await _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
-    return response.session;
   }
 
   /// Verified server-side against the signed-in admin's own record
@@ -134,40 +140,5 @@ class SupabaseAuthRepository implements AuthRepository {
     } catch (_) {
       return false;
     }
-  }
-
-  @override
-  Future<bool> ensureUserProfile(
-    String userId,
-    String phone,
-    String role,
-  ) async {
-    final existing = await _client
-        .from('users')
-        .select('id')
-        .eq('id', userId)
-        .maybeSingle();
-
-    if (existing is Map<String, dynamic>) {
-      return true;
-    }
-
-    // Only students may self-register. Teacher and admin accounts are created
-    // by the admin (create_teacher_profile / seed), so an unknown phone here
-    // is not an account and must not become one.
-    if (role != 'student') {
-      await _client.auth.signOut();
-      throw Exception('This phone number is not registered as a $role.');
-    }
-
-    await _client.from('users').insert({
-      'id': userId,
-      'phone': phone,
-      'role': role,
-      'created_at': DateTime.now().toIso8601String(),
-      'updated_at': DateTime.now().toIso8601String(),
-    });
-
-    return true;
   }
 }

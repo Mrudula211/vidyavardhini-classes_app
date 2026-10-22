@@ -8,7 +8,9 @@ import '../constants/routes.dart';
 import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/welcome_screen.dart';
-import '../../features/auth/screens/phone_entry_screen.dart';
+import '../../features/auth/screens/login_screen.dart';
+import '../../features/auth/screens/create_account_screen.dart';
+import '../../features/auth/screens/new_password_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
 import '../../features/auth/screens/admin_login_screen.dart';
 import '../../features/auth/screens/teacher_login_screen.dart';
@@ -108,8 +110,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
-        path: Routes.phone,
-        builder: (context, state) => const PhoneEntryScreen(),
+        path: Routes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.createAccount,
+        builder: (context, state) => const CreateAccountScreen(),
+      ),
+      GoRoute(
+        path: Routes.newPassword,
+        builder: (context, state) => const NewPasswordScreen(),
       ),
       GoRoute(
         path: Routes.otp,
@@ -367,6 +377,10 @@ AuthRedirect decideRedirect({
     }
   }
 
+  // Someone who just logged in with an emailed code (forgot their password)
+  // may choose a new one before anything else.
+  if (uri == Routes.newPassword) return const AuthRedirect(null);
+
   // Admin and teacher sign in once more with their access code. Until that
   // is done, the only place they may be is that step.
   if (role == 'admin' && !adminVerified) {
@@ -374,7 +388,8 @@ AuthRedirect decideRedirect({
   }
   if (role == 'teacher' && !teacherVerified) {
     return AuthRedirect(
-        uri == Routes.teacherLogin ? null : Routes.teacherLogin,);
+      uri == Routes.teacherLogin ? null : Routes.teacherLogin,
+    );
   }
 
   if (uri.startsWith('/admin') && role != 'admin') {

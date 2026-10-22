@@ -18,6 +18,7 @@ Tick items as you finish them. "Done" items were confirmed from your Supabase sc
 - [x] Admin account is complete (Auth login + admin profile + phone number).
 
 **Do next, in this order**
+- [ ] **0c.** Switch on password logins (section 0c) — replaces the SMS steps below.
 - [ ] **0a-1.** Run migration `supabase/migrations/013_fix_users_policy_recursion.sql` FIRST (fixes the real cause of being sent back to Welcome: every read of the `users` table was failing). Then run 012 if you have not.
 - [ ] **0a.** Run migration `supabase/migrations/012_auto_create_user_row.sql` in the SQL Editor (fixes new students being sent back to the Welcome screen after the OTP). Then install the newest build and retry registration.
 - [ ] **0.** Rotate the admin password and access code (SQL in section 0). Still the most urgent item.
@@ -35,6 +36,31 @@ Tick items as you finish them. "Done" items were confirmed from your Supabase sc
 - [ ] Deploy the Edge Functions for push notifications and backups (section 1, steps 1-3 and 8-11).
 - [ ] Create the Android signing key, Play Console account, and internal test release (section 4).
 - [ ] Prepare store assets: screenshots, description, privacy policy URL (section 5).
+
+---
+
+## 0c. Switch on password logins (replaces SMS OTP) — do this next
+
+The app no longer sends SMS. People log in with **mobile number or email + password**; an **email code** is the fallback for forgotten passwords. You can ignore the Twilio/DLT/SMS-provider items elsewhere in this file.
+
+You need to do the following manually:
+
+1. In the Supabase SQL Editor run, in order: `supabase/migrations/013_fix_users_policy_recursion.sql` (if not done), `012_...` (if not done), then **`014_password_logins.sql`**. Accept the "potential issues" popup if shown (it replaces a function).
+2. In Supabase Dashboard -> **Authentication -> Providers -> Email**: keep it enabled and turn **OFF "Confirm email"**. Save.
+3. **Authentication -> Providers -> Phone**: keep it enabled (this is what allows mobile-number + password), turn **OFF "Enable phone confirmations"**, and clear the **Test Phone Numbers** box. Keep the placeholder Twilio values — no SMS is ever sent. Save.
+4. **Authentication -> Providers (or Sign In / Up) -> Password**: minimum length 6 (the app requires at least 6).
+5. Optional, only if you want "Forgot password -> email code" to work: **Authentication -> Email Templates**, edit **Magic Link** (and **Confirm signup**) so the body contains `{{ .Token }}` (the 6-digit code). For more than a few emails an hour, add your own SMTP sender under **Authentication -> SMTP Settings** (Supabase's built-in sender is heavily limited).
+6. Install the newest build and test on the phone: **New student? Register here** -> choose Mobile -> a 10-digit number and a password -> fill the form -> Submit. Then log in as admin (email + password + access code), approve the student, and log in as the student.
+7. A teacher: as admin choose **Add teacher**, enter name, mobile and/or email, a **Login Password**, and an access code. The teacher logs in with that mobile/email + password, then the access code.
+
+Good to know:
+- Mobile numbers and emails are **not verified** (no code is checked at sign-up). The admin approving each student is the control. If you see spam sign-ups, tell me.
+- A person with only a mobile number who forgets the password cannot use the email code. The admin can set a new one in the SQL Editor (a button for this is not built yet):
+  ```sql
+  select admin_reset_user_password('USER-ID-HERE', 'NewPassword123');
+  ```
+  (find the user id with `select id, phone from public.users where phone like '%9876543210';`; run it while signed in as admin through the app, or tell me and I will add a button).
+- Existing phone-only teachers created before this change have no password. Create them again from the Add teacher screen, or set a password with the same reset function.
 
 ---
 

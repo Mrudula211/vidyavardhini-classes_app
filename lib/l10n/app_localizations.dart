@@ -181,7 +181,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeHint.
   ///
   /// In en, this message translates to:
-  /// **'Students, parents and teachers log in with their registered mobile number.'**
+  /// **'Log in with your mobile number or email and your password.'**
   String get welcomeHint;
 
   /// No description provided for @loginTitle.
@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Enter your mobile number. We will send you a 6-digit code.'**
+  /// **'Enter your mobile number or email and your password.'**
   String get loginSubtitle;
 
   /// No description provided for @registerSubtitle.
@@ -207,12 +207,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter your mobile number to begin. We will send you a 6-digit code.'**
   String get registerSubtitle;
-
-  /// No description provided for @emailLoginSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in with your email and password.'**
-  String get emailLoginSubtitle;
 
   /// No description provided for @mobileNumber.
   ///
@@ -225,18 +219,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send code'**
   String get sendCode;
-
-  /// No description provided for @useEmailInstead.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in with email & password instead'**
-  String get useEmailInstead;
-
-  /// No description provided for @usePhoneInstead.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in with mobile number instead'**
-  String get usePhoneInstead;
 
   /// No description provided for @emailAddress.
   ///
@@ -268,18 +250,6 @@ abstract class AppLocalizations {
   /// **'Enter your password'**
   String get enterPassword;
 
-  /// No description provided for @enterMobile.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your mobile number'**
-  String get enterMobile;
-
-  /// No description provided for @invalidMobile.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a valid 10-digit mobile number'**
-  String get invalidMobile;
-
   /// No description provided for @loginFailedCredentials.
   ///
   /// In en, this message translates to:
@@ -291,12 +261,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not log in. Please check your details and try again.'**
   String get loginFailedGeneric;
-
-  /// No description provided for @sendCodeFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not send the code. Check the number and try again.'**
-  String get sendCodeFailed;
 
   /// No description provided for @showPassword.
   ///
@@ -313,14 +277,14 @@ abstract class AppLocalizations {
   /// No description provided for @otpTitle.
   ///
   /// In en, this message translates to:
-  /// **'Verify the code'**
+  /// **'Check your email'**
   String get otpTitle;
 
   /// No description provided for @otpSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Enter the 6-digit code sent to {phone}'**
-  String otpSubtitle(String phone);
+  /// **'Enter the 6-digit code sent to {email}'**
+  String otpSubtitle(String email);
 
   /// No description provided for @otpVerify.
   ///
@@ -1227,6 +1191,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sunday'**
   String get daySunday;
+
+  /// No description provided for @identifierLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number or email'**
+  String get identifierLabel;
+
+  /// No description provided for @enterIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number or email'**
+  String get enterIdentifier;
+
+  /// No description provided for @invalidIdentifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a 10-digit mobile number or a valid email'**
+  String get invalidIdentifier;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @useEmailCodeInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Email me a code instead'**
+  String get useEmailCodeInstead;
+
+  /// No description provided for @usePasswordInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in with a password instead'**
+  String get usePasswordInstead;
+
+  /// No description provided for @emailCodeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address. We will send you a 6-digit code.'**
+  String get emailCodeSubtitle;
+
+  /// No description provided for @emailCodeNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile-only accounts cannot use a code. Ask the institute to reset your password.'**
+  String get emailCodeNotice;
+
+  /// No description provided for @sendCodeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the code. Check the email address and try again.'**
+  String get sendCodeFailed;
+
+  /// No description provided for @createAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get createAccountTitle;
+
+  /// No description provided for @createAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a mobile number or an email, and choose a password.'**
+  String get createAccountSubtitle;
+
+  /// No description provided for @createAccountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccountButton;
+
+  /// No description provided for @tabMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get tabMobile;
+
+  /// No description provided for @tabEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get tabEmail;
+
+  /// No description provided for @passwordHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters'**
+  String get passwordHelper;
+
+  /// No description provided for @accountAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this mobile number or email already exists. Please log in.'**
+  String get accountAlreadyExists;
+
+  /// No description provided for @accountCreatedConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created. Please confirm it using the message we sent, then log in.'**
+  String get accountCreatedConfirm;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Log in'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @newPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a new password'**
+  String get newPasswordTitle;
+
+  /// No description provided for @newPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password you will remember. You can use it to log in next time.'**
+  String get newPasswordBody;
+
+  /// No description provided for @skipForNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get skipForNow;
+
+  /// No description provided for @savePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Save password'**
+  String get savePassword;
+
+  /// No description provided for @passwordSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Password saved.'**
+  String get passwordSaved;
+
+  /// No description provided for @passwordSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the password. Please try again.'**
+  String get passwordSaveFailed;
+
+  /// No description provided for @contactEmailNote.
+  ///
+  /// In en, this message translates to:
+  /// **'We will use this email only to contact you about your account.'**
+  String get contactEmailNote;
 }
 
 class _AppLocalizationsDelegate

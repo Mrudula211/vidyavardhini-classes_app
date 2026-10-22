@@ -412,6 +412,18 @@ A static audit of every button, route and dashboard found the following. Fixed i
 
 - [x] **Root cause found from the phone's debug log:** `42P17 infinite recursion detected in policy for relation "users"` — the original `users: admin read all` policy queried `users`, so every API read of `users` failed (role lookup, FCM token save, and every admin policy on other tables). Fixed by migration `013_fix_users_policy_recursion.sql` (`public.is_admin()`); also corrected in `001`. This had been masked by the old flag-based admin/teacher login.
 
+## Password logins instead of SMS OTP (2026-10-22)
+
+Decision: SMS OTP needs a provider plus India DLT registration; replaced by passwords.
+- [x] Login with mobile number + password, email + password, or an emailed one-time code (forgot password). `LoginIdentifier` parses what the person typed; 10 tests.
+- [x] `CreateAccountScreen`, `LoginScreen`, email-code `OtpScreen`, `NewPasswordScreen`; welcome buttons rewired; admin login accepts mobile or email.
+- [x] Teachers: admin sets a password (+ mobile and/or email) in `create_teacher_profile`; they log in like everyone, then enter the access code. `admin_reset_user_password()` RPC (no screen yet).
+- [x] Migration 014: `users.phone` optional, trigger handles email accounts, new teacher/reset RPCs. Promotion confirmation code now goes to the admin's email.
+- [x] ARB: 207 keys; auth tests rewritten (84 tests pass).
+- [ ] Admin UI to reset a user's password (RPC exists).
+- [ ] Contact details are unverified by design (confirmations off); the admin approval gate is the control. Revisit if spam registrations appear.
+- [ ] Email codes need email templates with `{{ .Token }}` and a custom SMTP sender for real volume (Supabase default email is heavily rate-limited).
+
 ---
 
 ## Milestones

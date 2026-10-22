@@ -146,7 +146,7 @@ class _ActionSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              onPressed: () => context.go(Routes.phone),
+              onPressed: () => context.go(Routes.login),
               icon: const Icon(Icons.login_rounded),
               label: Text(
                 l10n.welcomeLogin,
@@ -170,8 +170,7 @@ class _ActionSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              onPressed: () =>
-                  context.go(Routes.phone, extra: {'register': true}),
+              onPressed: () => context.go(Routes.createAccount),
               child: Text(
                 l10n.welcomeRegister,
                 textAlign: TextAlign.center,

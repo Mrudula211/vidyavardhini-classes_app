@@ -4,7 +4,9 @@ class Routes {
   // Auth
   static const String splash = '/';
   static const String roleSelect = '/role-select';
-  static const String phone = '/auth/phone';
+  static const String login = '/auth/login';
+  static const String createAccount = '/auth/create-account';
+  static const String newPassword = '/auth/new-password';
   static const String otp = '/auth/otp';
   static const String adminLogin = '/auth/admin-login';
   static const String teacherLogin = '/auth/teacher-login';

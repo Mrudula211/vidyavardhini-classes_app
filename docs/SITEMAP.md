@@ -9,22 +9,22 @@ App Launch
               ├── "Login"                 ─┐
               └── "New student? Register" ─┤
                                            ▼
-                    PhoneEntryScreen  (mobile number → OTP;
-                                       or email + password)
-                                           ▼
-                    OtpScreen → verify → look up users.role
-                       │
-                       ├── role = admin   → AdminLoginScreen   (password + access code) → Admin dashboard
-                       ├── role = teacher → TeacherLoginScreen (access code)             → Teacher dashboard
-                       └── role = student → new number  → StudentRegistrationScreen → PendingApprovalScreen
-                                            pending     → PendingApprovalScreen (Check status / Logout)
-                                            active      → Student dashboard
-                                            rejected / banned → signed out
+   LoginScreen  /auth/login                       CreateAccountScreen  /auth/create-account
+   mobile number OR email + password              mobile OR email + password (+ confirm)
+   "Forgot password?" -> email code               -> session -> StudentRegistrationScreen
+        │                                                            -> PendingApprovalScreen
+        ├── email code -> OtpScreen -> NewPasswordScreen (optional) -> role destination
+        ▼
+   look up users.role
+        ├── admin   -> AdminLoginScreen   (password + access code) -> Admin dashboard
+        ├── teacher -> TeacherLoginScreen (access code)            -> Teacher dashboard
+        └── student -> new: registration form; pending: waiting screen;
+                       active: Student dashboard; rejected/banned: signed out
 ```
 
-Nobody chooses a role: the account decides. The router enforces the second step —
-an admin or teacher with a session but without the access-code check is held on
-their verification screen.
+No SMS is used anywhere. Nobody chooses a role: the account decides. The router
+holds an admin or teacher on their verification screen until the access code
+has been checked.
 
 ---
 
@@ -34,8 +34,10 @@ their verification screen.
 |---|---|---|
 | `/` | SplashScreen | Checks session, redirects |
 | `/role-select` | WelcomeScreen | Landing page: Login / New student, language switcher (route name kept for compatibility) |
-| `/auth/phone` | PhoneEntryScreen | Single login for all roles (`extra: {register: true}` for new students) |
-| `/auth/otp` | OTPVerificationScreen | Shared for all roles |
+| `/auth/login` | LoginScreen | Single login for all roles: mobile or email + password; "Forgot password?" sends an email code |
+| `/auth/create-account` | CreateAccountScreen | New student/parent: mobile or email + password |
+| `/auth/new-password` | NewPasswordScreen | Choose a new password after an email-code login |
+| `/auth/otp` | OtpScreen | Enter the 6-digit code emailed to the person (email-code login only) |
 | `/auth/admin-login` | AdminLoginScreen | Access code + password |
 | `/auth/teacher-login` | TeacherLoginScreen | Access code only |
 | `/auth/student-register` | StudentRegistrationScreen | Full registration form |

@@ -53,7 +53,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeHint =>
-      'Students, parents and teachers log in with their registered mobile number.';
+      'Log in with your mobile number or email and your password.';
 
   @override
   String get loginTitle => 'Welcome back';
@@ -63,26 +63,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginSubtitle =>
-      'Enter your mobile number. We will send you a 6-digit code.';
+      'Enter your mobile number or email and your password.';
 
   @override
   String get registerSubtitle =>
       'Enter your mobile number to begin. We will send you a 6-digit code.';
 
   @override
-  String get emailLoginSubtitle => 'Log in with your email and password.';
-
-  @override
   String get mobileNumber => 'Mobile number';
 
   @override
   String get sendCode => 'Send code';
-
-  @override
-  String get useEmailInstead => 'Log in with email & password instead';
-
-  @override
-  String get usePhoneInstead => 'Log in with mobile number instead';
 
   @override
   String get emailAddress => 'Email address';
@@ -100,12 +91,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterPassword => 'Enter your password';
 
   @override
-  String get enterMobile => 'Enter your mobile number';
-
-  @override
-  String get invalidMobile => 'Enter a valid 10-digit mobile number';
-
-  @override
   String get loginFailedCredentials =>
       'Incorrect email or password. Please try again.';
 
@@ -114,21 +99,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not log in. Please check your details and try again.';
 
   @override
-  String get sendCodeFailed =>
-      'Could not send the code. Check the number and try again.';
-
-  @override
   String get showPassword => 'Show password';
 
   @override
   String get hidePassword => 'Hide password';
 
   @override
-  String get otpTitle => 'Verify the code';
+  String get otpTitle => 'Check your email';
 
   @override
-  String otpSubtitle(String phone) {
-    return 'Enter the 6-digit code sent to $phone';
+  String otpSubtitle(String email) {
+    return 'Enter the 6-digit code sent to $email';
   }
 
   @override
@@ -623,4 +604,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get daySunday => 'Sunday';
+
+  @override
+  String get identifierLabel => 'Mobile number or email';
+
+  @override
+  String get enterIdentifier => 'Enter your mobile number or email';
+
+  @override
+  String get invalidIdentifier =>
+      'Enter a 10-digit mobile number or a valid email';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get useEmailCodeInstead => 'Email me a code instead';
+
+  @override
+  String get usePasswordInstead => 'Log in with a password instead';
+
+  @override
+  String get emailCodeSubtitle =>
+      'Enter your email address. We will send you a 6-digit code.';
+
+  @override
+  String get emailCodeNotice =>
+      'Mobile-only accounts cannot use a code. Ask the institute to reset your password.';
+
+  @override
+  String get sendCodeFailed =>
+      'Could not send the code. Check the email address and try again.';
+
+  @override
+  String get createAccountTitle => 'Create your account';
+
+  @override
+  String get createAccountSubtitle =>
+      'Use a mobile number or an email, and choose a password.';
+
+  @override
+  String get createAccountButton => 'Create account';
+
+  @override
+  String get tabMobile => 'Mobile number';
+
+  @override
+  String get tabEmail => 'Email';
+
+  @override
+  String get passwordHelper => 'At least 6 characters';
+
+  @override
+  String get accountAlreadyExists =>
+      'An account with this mobile number or email already exists. Please log in.';
+
+  @override
+  String get accountCreatedConfirm =>
+      'Account created. Please confirm it using the message we sent, then log in.';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? Log in';
+
+  @override
+  String get newPasswordTitle => 'Set a new password';
+
+  @override
+  String get newPasswordBody =>
+      'Choose a password you will remember. You can use it to log in next time.';
+
+  @override
+  String get skipForNow => 'Skip for now';
+
+  @override
+  String get savePassword => 'Save password';
+
+  @override
+  String get passwordSaved => 'Password saved.';
+
+  @override
+  String get passwordSaveFailed =>
+      'Could not save the password. Please try again.';
+
+  @override
+  String get contactEmailNote =>
+      'We will use this email only to contact you about your account.';
 }

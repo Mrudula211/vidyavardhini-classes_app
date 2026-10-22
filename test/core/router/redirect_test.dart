@@ -30,7 +30,7 @@ AuthRedirect _decide({
 void main() {
   group('no session', () {
     test('stays on login screens, bounces everything else to Welcome', () {
-      expect(_decide(hasSession: false, uri: Routes.phone).location, isNull);
+      expect(_decide(hasSession: false, uri: Routes.login).location, isNull);
       expect(
         _decide(hasSession: false, uri: Routes.adminDashboard).location,
         Routes.roleSelect,
@@ -53,8 +53,7 @@ void main() {
 
     test('approved student on splash goes to the dashboard', () {
       expect(
-        _decide(uri: Routes.splash, role: 'student', status: 'active')
-            .location,
+        _decide(uri: Routes.splash, role: 'student', status: 'active').location,
         Routes.studentDashboard,
       );
     });
@@ -151,6 +150,24 @@ void main() {
           teacherVerified: true,
         ).location,
         Routes.teacherDashboard,
+      );
+    });
+  });
+
+  group('forgotten-password flow', () {
+    test('the new-password screen is reachable before the access-code step',
+        () {
+      expect(_decide(uri: Routes.newPassword, role: 'admin').location, isNull);
+      expect(
+        _decide(uri: Routes.newPassword, role: 'teacher').location,
+        isNull,
+      );
+    });
+
+    test('the create-account screen is a login-area page', () {
+      expect(
+        _decide(hasSession: false, uri: Routes.createAccount).location,
+        isNull,
       );
     });
   });

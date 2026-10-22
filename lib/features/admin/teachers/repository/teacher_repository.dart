@@ -13,7 +13,8 @@ class TeacherRepository {
     }
 
     final data = await query;
-    final list = (data as List).map((json) => TeacherModel.fromJson(json)).toList();
+    final list =
+        (data as List).map((json) => TeacherModel.fromJson(json)).toList();
     list.sort((a, b) => b.teacherId.compareTo(a.teacherId));
     return list;
   }
@@ -29,6 +30,10 @@ class TeacherRepository {
     return TeacherModel.fromJson(data);
   }
 
+  /// Creates a teacher login (password + access code) through the
+  /// `create_teacher_profile` RPC (SECURITY DEFINER — creates the auth account
+  /// and the profile rows atomically; admin only). The database rejects
+  /// duplicate mobile numbers/emails with a readable message.
   Future<Map<String, dynamic>> createTeacher({
     required String fullName,
     required String phone,
@@ -38,50 +43,25 @@ class TeacherRepository {
     String? joiningDate,
     required double monthlySalary,
     required String accessCode,
+    required String password,
   }) async {
-    // 1. Check for duplicate phone in users table
-    if (phone.trim().isNotEmpty) {
-      final existingPhone = await _client
-          .from('users')
-          .select('id, phone')
-          .eq('phone', phone.trim())
-          .maybeSingle();
+    String? clean(String? v) =>
+        (v == null || v.trim().isEmpty) ? null : v.trim();
 
-      if (existingPhone != null) {
-        throw Exception('User with phone number $phone is already registered in the database.');
-      }
-    }
-
-    // 2. Check for duplicate email in teacher_profiles table
-    if (email != null && email.trim().isNotEmpty) {
-      final existingEmail = await _client
-          .from('teacher_profiles')
-          .select('id, full_name, teacher_id')
-          .eq('email', email.trim())
-          .maybeSingle();
-
-      if (existingEmail != null) {
-        final teacherId = existingEmail['teacher_id'] ?? '';
-        final name = existingEmail['full_name'] ?? 'Existing Teacher';
-        throw Exception('Teacher "$name" ($teacherId) with email $email is already registered in the database.');
-      }
-    }
-
-    // 3. Create via RPC (SECURITY DEFINER — creates matching auth.users,
-    // public.users, and teacher_profiles rows atomically; see
-    // supabase/migrations/007_fix_teacher_creation.sql). There is no
-    // client-safe fallback: public.users.id is a foreign key to
-    // auth.users.id, which only a privileged function can satisfy.
-    final response = await _client.rpc('create_teacher_profile', params: {
-      'p_phone': phone.trim(),
-      'p_full_name': fullName.trim(),
-      'p_gender': (gender != null && gender.isNotEmpty) ? gender : null,
-      'p_dob': (dob != null && dob.isNotEmpty) ? dob : null,
-      'p_email': (email != null && email.trim().isNotEmpty) ? email.trim() : null,
-      'p_joining_date': (joiningDate != null && joiningDate.isNotEmpty) ? joiningDate : null,
-      'p_monthly_salary': monthlySalary,
-      'p_access_code': accessCode.trim(),
-    },);
+    final response = await _client.rpc(
+      'create_teacher_profile',
+      params: {
+        'p_full_name': fullName.trim(),
+        'p_password': password,
+        'p_access_code': accessCode.trim(),
+        'p_phone': clean(phone),
+        'p_email': clean(email),
+        'p_gender': clean(gender),
+        'p_dob': clean(dob),
+        'p_joining_date': clean(joiningDate),
+        'p_monthly_salary': monthlySalary,
+      },
+    );
 
     if (response is! Map<String, dynamic> || response.isEmpty) {
       throw Exception('Teacher creation did not return the expected result.');
@@ -92,7 +72,10 @@ class TeacherRepository {
 
   Future<void> deleteTeacher(String teacherId) async {
     // Delete assignments first
-    await _client.from('teacher_assignments').delete().eq('teacher_id', teacherId);
+    await _client
+        .from('teacher_assignments')
+        .delete()
+        .eq('teacher_id', teacherId);
     // Delete teacher profile record
     await _client.from('teacher_profiles').delete().eq('id', teacherId);
     // Delete user record
@@ -101,13 +84,16 @@ class TeacherRepository {
     } catch (_) {}
   }
 
-  Future<List<TeacherAssignmentModel>> fetchTeacherAssignments(String teacherId) async {
+  Future<List<TeacherAssignmentModel>> fetchTeacherAssignments(
+      String teacherId,) async {
     final data = await _client
         .from('teacher_assignments')
         .select()
         .eq('teacher_id', teacherId);
 
-    return (data as List).map((json) => TeacherAssignmentModel.fromJson(json)).toList();
+    return (data as List)
+        .map((json) => TeacherAssignmentModel.fromJson(json))
+        .toList();
   }
 
   Future<void> saveTeacherAssignments({
@@ -120,7 +106,8 @@ class TeacherRepository {
         .eq('is_current', true)
         .maybeSingle();
 
-    final academicYearId = currentYearRes != null ? currentYearRes['id'] as String? : null;
+    final academicYearId =
+        currentYearRes != null ? currentYearRes['id'] as String? : null;
 
     if (academicYearId == null) {
       throw Exception('No active academic year found in database');
@@ -134,13 +121,17 @@ class TeacherRepository {
 
     if (assignments.isEmpty) return;
 
-    final rows = assignments.map((a) => {
-      'teacher_id': teacherId,
-      'academic_year_id': academicYearId,
-      'board': a['board'],
-      'standard': a['standard'],
-      'subject': a['subject'],
-    },).toList();
+    final rows = assignments
+        .map(
+          (a) => {
+            'teacher_id': teacherId,
+            'academic_year_id': academicYearId,
+            'board': a['board'],
+            'standard': a['standard'],
+            'subject': a['subject'],
+          },
+        )
+        .toList();
 
     await _client.from('teacher_assignments').insert(rows);
   }

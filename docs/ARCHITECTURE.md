@@ -153,9 +153,11 @@ Role is stored in the `users` table and embedded in JWT via a Supabase Auth hook
 
 ### 3.1 Unified login (as built)
 
-There is no role picker. `WelcomeScreen` -> `PhoneEntryScreen` (mobile OTP, or email + password) -> `OtpScreen`; after sign-in the app reads `users.role` (`fetchUserRole`) and `roleDestination()` decides the next step. Unknown phone numbers become `student` users (the only role self-registration can create — enforced by RLS) and continue to registration. Admin/teacher accounts are created by the admin, so they simply exist and are recognised.
+There is no role picker and **no SMS**. `WelcomeScreen` -> `LoginScreen` (mobile number or email + password; `LoginIdentifier.parse` decides which) or `CreateAccountScreen` for new students. "Forgot password?" emails a one-time code (`OtpScreen`) and then offers `NewPasswordScreen`. After sign-in the app reads `users.role` (`fetchUserRole`) and `roleDestination()` decides the next step.
 
-`appRouterProvider.redirect` is the single gate: no session -> auth screens only; session without a known role -> auth screens; student status gates (pending / rejected / banned / set-password); **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked. `currentUserIdProvider` makes the user/role/status providers react to login and logout (previously they were evaluated once and went stale).
+Accounts: students/parents self-register with a password (the database trigger `on_auth_user_created` creates their `users` row as `student`); admin and teacher accounts are created by the admin (`create_teacher_profile` with a password, mobile and/or email, and an access code; `admin_reset_user_password` for forgotten passwords). Supabase must have "Confirm email" and "Enable phone confirmations" **off** so password sign-up works without SMS/email verification — contact details are therefore unverified, and the admin approving every student is the gate.
+
+`appRouterProvider.redirect` is the single gate (pure function `decideRedirect`): no session -> auth screens only; session without a known role -> Welcome (never the splash); student status gates (pending / rejected / banned); **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked; `/auth/new-password` is allowed for any signed-in role. `currentUserIdProvider` makes the user/role/status providers react to login and logout.
 
 ### 3.2 Localization
 

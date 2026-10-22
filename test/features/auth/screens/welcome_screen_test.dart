@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vidyavardhini_classes/core/constants/routes.dart';
 import 'package:vidyavardhini_classes/core/providers/locale_provider.dart';
-import 'package:vidyavardhini_classes/features/auth/screens/phone_entry_screen.dart'
+import 'package:vidyavardhini_classes/features/auth/screens/login_screen.dart'
     show roleDestination;
 import 'package:vidyavardhini_classes/features/auth/screens/welcome_screen.dart';
 import 'package:vidyavardhini_classes/l10n/app_localizations.dart';
@@ -28,12 +28,12 @@ GoRouter _router() => GoRouter(
       routes: [
         GoRoute(path: '/', builder: (_, __) => const WelcomeScreen()),
         GoRoute(
-          path: Routes.phone,
-          builder: (_, state) => Scaffold(
-            body: Text(
-              'PHONE register=${(state.extra as Map?)?['register'] ?? false}',
-            ),
-          ),
+          path: Routes.login,
+          builder: (_, __) => const Scaffold(body: Text('LOGIN PAGE')),
+        ),
+        GoRoute(
+          path: Routes.createAccount,
+          builder: (_, __) => const Scaffold(body: Text('CREATE ACCOUNT PAGE')),
         ),
       ],
     );
@@ -76,12 +76,12 @@ void main() {
     expect(find.text('Login'), findsOneWidget);
   });
 
-  testWidgets('Login and Register both go to the single phone screen',
+  testWidgets('Login and Register go to the login and create-account screens',
       (t) async {
     await _pump(t);
     await t.tap(find.text('Login'));
     await t.pumpAndSettle();
-    expect(find.text('PHONE register=false'), findsOneWidget);
+    expect(find.text('LOGIN PAGE'), findsOneWidget);
 
     final router = _router();
     t.view.physicalSize = const Size(800, 1600);
@@ -89,7 +89,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.text('New student? Register here'));
     await t.pumpAndSettle();
-    expect(find.text('PHONE register=true'), findsOneWidget);
+    expect(find.text('CREATE ACCOUNT PAGE'), findsOneWidget);
   });
 
   test('roleDestination sends each role to the right next step', () {

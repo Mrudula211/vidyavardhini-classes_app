@@ -48,21 +48,15 @@ class PromotionRepository {
     return data == null ? null : AcademicYearInfo.fromJson(data);
   }
 
-  static String _e164(String phone) =>
-      phone.startsWith('+') ? phone : '+$phone';
-
-  /// Sends an SMS code to the admin's own phone.
-  Future<void> sendOtp(String phone) {
-    return _client.auth.signInWithOtp(
-      phone: _e164(phone),
-      shouldCreateUser: false,
-    );
+  /// Emails a one-time code to the admin's own address.
+  Future<void> sendOtp(String email) {
+    return _client.auth.signInWithOtp(email: email, shouldCreateUser: false);
   }
 
-  /// Verifies the SMS code (which refreshes the session with an OTP proof)
+  /// Verifies the emailed code (which refreshes the session with an OTP proof)
   /// and then runs the promotion.
   Future<PromotionResult> verifyOtpAndPromote({
-    required String phone,
+    required String email,
     required String otp,
     required String confirmText,
     required String password,
@@ -71,18 +65,21 @@ class PromotionRepository {
     required DateTime endDate,
   }) async {
     await _client.auth.verifyOTP(
-      phone: _e164(phone),
+      email: email,
       token: otp,
-      type: OtpType.sms,
+      type: OtpType.email,
     );
 
-    final res = await _client.rpc('promote_students', params: {
-      'p_confirm': confirmText,
-      'p_password': password,
-      'p_year_label': yearLabel,
-      'p_start_date': _date(startDate),
-      'p_end_date': _date(endDate),
-    },);
+    final res = await _client.rpc(
+      'promote_students',
+      params: {
+        'p_confirm': confirmText,
+        'p_password': password,
+        'p_year_label': yearLabel,
+        'p_start_date': _date(startDate),
+        'p_end_date': _date(endDate),
+      },
+    );
     final map = Map<String, dynamic>.from(res as Map);
     return PromotionResult(
       promoted: (map['promoted'] as num).toInt(),

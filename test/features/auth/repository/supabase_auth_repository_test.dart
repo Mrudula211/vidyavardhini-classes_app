@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:vidyavardhini_classes/core/utils/login_identifier.dart';
 import 'package:vidyavardhini_classes/features/auth/repository/supabase_auth_repository.dart';
 
 // ---------------------------------------------------------
@@ -58,6 +59,7 @@ class FakeGoTrueClient extends Fake implements GoTrueClient {
     String? redirectTo,
   }) async {
     verifyOtpCallCount++;
+    lastVerifyType = type;
     if (verifyOtpCallback != null) {
       final res = verifyOtpCallback!();
       if (res != null) return res;
@@ -67,6 +69,47 @@ class FakeGoTrueClient extends Fake implements GoTrueClient {
 
   @override
   Session? get currentSession => currentSessionMock;
+
+  // Password logins -----------------------------------------------------
+  String? lastPasswordEmail;
+  String? lastPasswordPhone;
+  String? lastPassword;
+  String? lastSignUpEmail;
+  String? lastSignUpPhone;
+  Session? signUpSession;
+  Object? signInError;
+  String? lastOtpEmail;
+  bool? lastShouldCreateUser;
+  OtpType? lastVerifyType;
+
+  @override
+  Future<AuthResponse> signInWithPassword({
+    String? email,
+    String? phone,
+    required String password,
+    String? captchaToken,
+  }) async {
+    if (signInError != null) throw signInError!;
+    lastPasswordEmail = email;
+    lastPasswordPhone = phone;
+    lastPassword = password;
+    return FakeAuthResponse(session: currentSessionMock);
+  }
+
+  @override
+  Future<AuthResponse> signUp({
+    String? email,
+    String? phone,
+    required String password,
+    String? emailRedirectTo,
+    Map<String, dynamic>? data,
+    String? captchaToken,
+    OtpChannel channel = OtpChannel.sms,
+  }) async {
+    lastSignUpEmail = email;
+    lastSignUpPhone = phone;
+    return FakeAuthResponse(session: signUpSession);
+  }
 
   @override
   Future<void> signInWithOtp({
@@ -79,6 +122,8 @@ class FakeGoTrueClient extends Fake implements GoTrueClient {
     OtpChannel channel = OtpChannel.sms,
   }) async {
     lastSignInPhone = phone;
+    lastOtpEmail = email;
+    lastShouldCreateUser = shouldCreateUser;
   }
 }
 
@@ -199,225 +244,107 @@ void main() {
     );
   });
 
-  group('verifyOtp & ensureUserProfile', () {
-    const phone = '+1234567890';
-    const otp = '123456';
-    const role = 'student';
-    final fakeUser = FakeUser(id: 'user-123');
-    final fakeSession = FakeSession(user: fakeUser);
+  group('password logins', () {
+    final session = FakeSession(user: FakeUser(id: 'user-123'));
 
-    test('Happy Path (Existing User): returns session without inserting',
-        () async {
-      fakeAuth.currentSessionMock = fakeSession;
-      fakeAuth.verifyOtpCallback =
-          () => FakeAuthResponse(session: fakeSession, user: fakeUser);
-
-      when(
-        () => mockClient.from(
-          'users',
-        ),
-      ).thenAnswer(
-        (_) => FakeSupabaseQueryBuilder(
-          {
-            'id': fakeUser.id,
-          },
-          null,
-        ),
+    test('signs in with an email', () async {
+      fakeAuth.currentSessionMock = session;
+      final result = await repository.signInWithPassword(
+        const LoginIdentifier.email('a@b.com'),
+        'secret1',
       );
-
-      final session = await repository.verifyOtp(phone, otp, role);
-
-      expect(session, isNotNull);
-      expect(session?.user.id, 'user-123');
-
-      expect(fakeAuth.verifyOtpCallCount, 1);
-      verify(
-        () => mockClient.from(
-          'users',
-        ),
-      ).called(1);
+      expect(result, session);
+      expect(fakeAuth.lastPasswordEmail, 'a@b.com');
+      expect(fakeAuth.lastPasswordPhone, isNull);
+      expect(fakeAuth.lastPassword, 'secret1');
     });
 
-    test('Happy Path (New User): returns session after inserting', () async {
-      fakeAuth.currentSessionMock = fakeSession;
-      fakeAuth.verifyOtpCallback =
-          () => FakeAuthResponse(session: fakeSession, user: fakeUser);
-
-      var calls = 0;
-      when(
-        () => mockClient.from(
-          'users',
-        ),
-      ).thenAnswer((_) {
-        calls++;
-        if (calls == 1) {
-          return FakeSupabaseQueryBuilder(null, null);
-        } else {
-          return FakeSupabaseQueryBuilder([], null);
-        }
-      });
-
-      final session = await repository.verifyOtp(phone, otp, role);
-
-      expect(session, isNotNull);
-      expect(session?.user.id, 'user-123');
-
-      expect(fakeAuth.verifyOtpCallCount, 1);
-      verify(
-        () => mockClient.from(
-          'users',
-        ),
-      ).called(2);
-    });
-
-    test('Error Path: Null Session/User Error throws Exception', () async {
-      fakeAuth.currentSessionMock = null;
-      fakeAuth.verifyOtpCallback =
-          () => FakeAuthResponse(session: null, user: null);
-
-      await expectLater(
-        () => repository.verifyOtp(phone, otp, role),
-        throwsA(
-          isA<Exception>().having(
-            (e) => e.toString(),
-            'message',
-            contains(
-              'User session missing',
-            ),
-          ),
-        ),
+    test('signs in with a mobile number', () async {
+      fakeAuth.currentSessionMock = session;
+      await repository.signInWithPassword(
+        const LoginIdentifier.phone('+919876543210'),
+        'secret1',
       );
-
-      expect(fakeAuth.verifyOtpCallCount, 1);
-      verifyNever(() => mockClient.from('users'));
+      expect(fakeAuth.lastPasswordPhone, '+919876543210');
+      expect(fakeAuth.lastPasswordEmail, isNull);
     });
 
-    test('Error Path: AuthException Propagation bubbles up', () async {
-      fakeAuth.verifyOtpCallback = () {
-        throw const AuthException('Invalid OTP');
-      };
-
-      await expectLater(
-        () => repository.verifyOtp(phone, otp, role),
+    test('wrong credentials bubble up as AuthException', () async {
+      fakeAuth.signInError = const AuthException('Invalid login credentials');
+      expect(
+        () => repository.signInWithPassword(
+          const LoginIdentifier.email('a@b.com'),
+          'nope',
+        ),
         throwsA(isA<AuthException>()),
       );
-
-      expect(fakeAuth.verifyOtpCallCount, 1);
-      verifyNever(() => mockClient.from('users'));
     });
 
-    test('Error Path: Profile Insert Error bubbles up', () async {
-      fakeAuth.currentSessionMock = fakeSession;
-      fakeAuth.verifyOtpCallback =
-          () => FakeAuthResponse(session: fakeSession, user: fakeUser);
-
-      var calls = 0;
-      when(
-        () => mockClient.from(
-          'users',
-        ),
-      ).thenAnswer((_) {
-        calls++;
-        if (calls == 1) {
-          return FakeSupabaseQueryBuilder(null, null);
-        } else {
-          return FakeSupabaseQueryBuilder(
-            null,
-            const PostgrestException(
-              message: 'DB error',
-            ),
-          );
-        }
-      });
-
-      await expectLater(
-        () => repository.verifyOtp(phone, otp, role),
-        throwsA(isA<PostgrestException>()),
+    test('sign-up returns the session when Supabase signs the person in',
+        () async {
+      fakeAuth.signUpSession = session;
+      final result = await repository.signUpWithPassword(
+        const LoginIdentifier.phone('+919876543210'),
+        'secret1',
       );
+      expect(result, session);
+      expect(fakeAuth.lastSignUpPhone, '+919876543210');
+      expect(fakeAuth.lastSignUpEmail, isNull);
+    });
 
-      expect(fakeAuth.verifyOtpCallCount, 1);
-      verify(
-        () => mockClient.from(
-          'users',
-        ),
-      ).called(2);
+    test('sign-up returns null when confirmation is still required', () async {
+      fakeAuth.signUpSession = null;
+      final result = await repository.signUpWithPassword(
+        const LoginIdentifier.email('a@b.com'),
+        'secret1',
+      );
+      expect(result, isNull);
     });
   });
 
-  group('Helper Methods', () {
-    test('sendOtp calls signInWithOtp with correct phone', () async {
-      await repository.sendOtp('+1234567890');
-      expect(fakeAuth.lastSignInPhone, '+1234567890');
+  group('email codes', () {
+    final session = FakeSession(user: FakeUser(id: 'user-123'));
+
+    test('sendEmailCode asks Supabase to email a code', () async {
+      await repository.sendEmailCode('a@b.com');
+      expect(fakeAuth.lastOtpEmail, 'a@b.com');
+      expect(fakeAuth.lastShouldCreateUser, isTrue);
     });
 
-    test('fetchUserRole returns role on success', () async {
-      when(
-        () => mockClient.from(
-          'users',
-        ),
-      ).thenAnswer(
-        (_) => FakeSupabaseQueryBuilder(
-          {
-            'role': 'teacher',
-          },
-          null,
-        ),
-      );
-
-      final role = await repository.fetchUserRole('user-123');
-
-      expect(role, 'teacher');
-      verify(
-        () => mockClient.from(
-          'users',
-        ),
-      ).called(1);
-    });
-
-    test('isStudentPhoneRegistered returns true if user exists', () async {
-      when(
-        () => mockClient.from(
-          'users',
-        ),
-      ).thenAnswer(
-        (_) => FakeSupabaseQueryBuilder(
-          {
-            'id': 'user-123',
-          },
-          null,
-        ),
-      );
-
-      final isRegistered =
-          await repository.isStudentPhoneRegistered('+1234567890');
-
-      expect(isRegistered, true);
-      verify(
-        () => mockClient.from(
-          'users',
-        ),
-      ).called(1);
-    });
-
-    test('isStudentPhoneRegistered returns false if user does not exist',
+    test('verifyEmailCode uses the email type and returns the session',
         () async {
-      when(
-        () => mockClient.from(
-          'users',
-        ),
-      ).thenAnswer(
+      fakeAuth.currentSessionMock = session;
+      fakeAuth.verifyOtpCallback = () => FakeAuthResponse(session: session);
+      final result = await repository.verifyEmailCode('a@b.com', '123456');
+      expect(result, session);
+      expect(fakeAuth.lastVerifyType, OtpType.email);
+      expect(fakeAuth.verifyOtpCallCount, 1);
+    });
+
+    test('verifyEmailCode throws when no session comes back', () async {
+      fakeAuth.currentSessionMock = null;
+      fakeAuth.verifyOtpCallback = () => FakeAuthResponse();
+      expect(
+        () => repository.verifyEmailCode('a@b.com', '123456'),
+        throwsException,
+      );
+    });
+  });
+
+  group('role lookup', () {
+    test('fetchUserRole returns role on success', () async {
+      when(() => mockClient.from('users')).thenAnswer(
+        (_) => FakeSupabaseQueryBuilder({'role': 'teacher'}, null),
+      );
+      expect(await repository.fetchUserRole('user-123'), 'teacher');
+      verify(() => mockClient.from('users')).called(1);
+    });
+
+    test('fetchUserRole returns null when there is no row', () async {
+      when(() => mockClient.from('users')).thenAnswer(
         (_) => FakeSupabaseQueryBuilder(null, null),
       );
-
-      final isRegistered =
-          await repository.isStudentPhoneRegistered('+1234567890');
-
-      expect(isRegistered, false);
-      verify(
-        () => mockClient.from(
-          'users',
-        ),
-      ).called(1);
+      expect(await repository.fetchUserRole('user-123'), isNull);
     });
   });
 }
