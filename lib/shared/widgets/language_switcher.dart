@@ -14,7 +14,7 @@ class LanguageSwitcher extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = Localizations.localeOf(context).languageCode;
-    final fg = onDark ? AppColors.parchment : AppColors.brown;
+    final fg = onDark ? AppColors.parchment : context.bodyTextColor;
 
     return Wrap(
       spacing: 8,
