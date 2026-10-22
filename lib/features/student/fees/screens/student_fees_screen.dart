@@ -65,7 +65,7 @@ class StudentFeesScreen extends ConsumerWidget {
                     Text(
                       context.l10n.noFeeRecords,
                       textAlign: TextAlign.center,
-                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                      style: AppTypography.poppins(fontSize: 14, color: context.mutedTextColor),
                     ),
                   ],
                 ),

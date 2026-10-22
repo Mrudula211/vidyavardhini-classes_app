@@ -235,7 +235,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                                 'No audit log entries found.',
                                 style: AppTypography.poppins(
                                   fontSize: 14,
-                                  color: AppColors.lightOutline,
+                                  color: context.mutedTextColor,
                                 ),
                               ),
                             ],
@@ -342,7 +342,7 @@ class _AuditLogsScreenState extends ConsumerState<AuditLogsScreen> {
                   Text(
                     'Entity: ${log['entity_type'] ?? '-'}  (${log['entity_id'] ?? '-'})',
                     style: AppTypography.poppins(
-                        fontSize: 12, color: AppColors.lightOutline,),
+                        fontSize: 12, color: context.mutedTextColor,),
                   ),
                   const SizedBox(height: 16),
                   Text('Old Value',
@@ -416,14 +416,14 @@ class _AuditLogCard extends ConsumerWidget {
             Text(
               'By: ${performedByAsync.value ?? performedBy ?? '-'}',
               style: AppTypography.poppins(
-                  fontSize: 11, color: AppColors.lightOutline,),
+                  fontSize: 11, color: context.mutedTextColor,),
             ),
             if (createdAt != null) ...[
               const SizedBox(height: 2),
               Text(
                 dateFormat.format(createdAt),
                 style: AppTypography.poppins(
-                    fontSize: 11, color: AppColors.lightOutline,),
+                    fontSize: 11, color: context.mutedTextColor,),
               ),
             ],
           ],

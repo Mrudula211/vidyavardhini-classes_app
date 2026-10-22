@@ -20,12 +20,14 @@ final userChatRoomsProvider = FutureProvider<List<ChatRoomModel>>((ref) async {
   );
 });
 
-final chatMessagesStreamProvider = StreamProvider.family<List<ChatMessageModel>, String>((ref, roomId) {
+final chatMessagesStreamProvider =
+    StreamProvider.family<List<ChatMessageModel>, String>((ref, roomId) {
   final repo = ref.watch(chatRepositoryProvider);
   return repo.streamMessages(roomId);
 });
 
-final chatRoomDetailProvider = FutureProvider.family<ChatRoomModel?, String>((ref, roomId) async {
+final chatRoomDetailProvider =
+    FutureProvider.family<ChatRoomModel?, String>((ref, roomId) async {
   final repo = ref.watch(chatRepositoryProvider);
   return repo.fetchChatRoomById(roomId);
 });

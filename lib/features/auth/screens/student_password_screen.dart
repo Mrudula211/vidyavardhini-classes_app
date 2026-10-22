@@ -97,7 +97,7 @@ class _StudentPasswordScreenState
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.maroon,
+                    color: context.headingColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -105,7 +105,7 @@ class _StudentPasswordScreenState
                   context.l10n.setPasswordBody,
                   style: AppTypography.poppins(
                     fontSize: 14,
-                    color: AppColors.brown,
+                    color: context.bodyTextColor,
                     height: 1.5,
                   ),
                 ),

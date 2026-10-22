@@ -83,7 +83,7 @@ class StudentClassworkListScreen extends ConsumerWidget {
                     Text(
                       context.l10n.noClasswork,
                       textAlign: TextAlign.center,
-                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                      style: AppTypography.poppins(fontSize: 14, color: context.mutedTextColor),
                     ),
                   ],
                 ),
@@ -139,7 +139,7 @@ class StudentClassworkListScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(

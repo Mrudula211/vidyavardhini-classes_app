@@ -62,3 +62,22 @@ class AppColors {
   static const Color heatmapLow = Color(0xFFC62828);
   static const Color heatmapNone = Color(0xFFEEEEEE);
 }
+
+/// Text colours that stay readable in both themes. The raw brand colours
+/// (maroon, brown) are only legible on the light parchment background.
+extension ThemeTone on BuildContext {
+  bool get isDarkTheme => Theme.of(this).brightness == Brightness.dark;
+
+  /// Headings and emphasis: maroon on light, warm gold on dark.
+  Color get headingColor =>
+      isDarkTheme ? AppColors.goldLight : AppColors.maroon;
+
+  /// Regular body text: brown on light, parchment on dark.
+  Color get bodyTextColor =>
+      isDarkTheme ? AppColors.darkOnBackground : AppColors.brown;
+
+  /// Secondary / hint text.
+  Color get mutedTextColor => isDarkTheme
+      ? AppColors.darkOnBackground.withValues(alpha: 0.65)
+      : AppColors.brownLight.withValues(alpha: 0.8);
+}

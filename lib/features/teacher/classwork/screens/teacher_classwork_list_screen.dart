@@ -84,7 +84,7 @@ class TeacherClassworkListScreen extends ConsumerWidget {
                     Text(
                       'No classwork published yet.\nTap "+ Add Classwork" to publish class notes.',
                       textAlign: TextAlign.center,
-                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                      style: AppTypography.poppins(fontSize: 14, color: context.mutedTextColor),
                     ),
                   ],
                 ),

@@ -155,7 +155,7 @@ class AdminAttendanceScreen extends ConsumerWidget {
                                             textAlign: TextAlign.center,
                                             style: AppTypography.poppins(
                                               fontSize: 14,
-                                              color: AppColors.lightOutline,
+                                              color: context.mutedTextColor,
                                             ),
                                           ),
                                         ],

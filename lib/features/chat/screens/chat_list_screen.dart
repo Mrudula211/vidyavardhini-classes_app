@@ -55,7 +55,8 @@ class ChatListScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.maroon),
+                const Icon(Icons.error_outline_rounded,
+                    size: 40, color: AppColors.maroon,),
                 const SizedBox(height: 12),
                 Text(
                   context.l10n.couldNotLoadChats,
@@ -79,14 +80,16 @@ class ChatListScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.chat_bubble_outline, size: 48, color: AppColors.lightOutline),
+                    const Icon(Icons.chat_bubble_outline,
+                        size: 48, color: AppColors.lightOutline,),
                     const SizedBox(height: 12),
                     Text(
                       role == 'student'
                           ? context.l10n.noChatsStudent
                           : context.l10n.noChatsTeacher,
                       textAlign: TextAlign.center,
-                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                      style: AppTypography.poppins(
+                          fontSize: 14, color: context.mutedTextColor,),
                     ),
                   ],
                 ),
@@ -97,48 +100,54 @@ class ChatListScreen extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(userChatRoomsProvider),
             child: ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: rooms.length,
-            itemBuilder: (context, index) {
-              final room = rooms[index];
-              final recipientName = role == 'student'
-                  ? (room.teacherName ?? context.l10n.teacherFallback)
-                  : (room.studentName ?? context.l10n.studentFallback);
+              padding: const EdgeInsets.all(16.0),
+              itemCount: rooms.length,
+              itemBuilder: (context, index) {
+                final room = rooms[index];
+                final recipientName = role == 'student'
+                    ? (room.teacherName ?? context.l10n.teacherFallback)
+                    : (room.studentName ?? context.l10n.studentFallback);
 
-              final dateStr = room.lastMessageAt != null && room.lastMessageAt!.contains('T')
-                  ? room.lastMessageAt!.split('T').first
-                  : '';
+                final dateStr = room.lastMessageAt != null &&
+                        room.lastMessageAt!.contains('T')
+                    ? room.lastMessageAt!.split('T').first
+                    : '';
 
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                    child: Text(
-                      recipientName.isNotEmpty ? recipientName[0].toUpperCase() : 'U',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                      child: Text(
+                        recipientName.isNotEmpty
+                            ? recipientName[0].toUpperCase()
+                            : 'U',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,),
+                      ),
                     ),
+                    title: Text(
+                      recipientName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      room.lastMessage ?? context.l10n.noMessagesYet,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    trailing: Text(
+                      dateStr,
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                    onTap: () => context.push('/chat/${room.id}'),
                   ),
-                  title: Text(
-                    recipientName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    room.lastMessage ?? context.l10n.noMessagesYet,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                  trailing: Text(
-                    dateStr,
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
-                  ),
-                  onTap: () => context.push('/chat/${room.id}'),
-                ),
-              );
-            },
+                );
+              },
             ),
           );
         },
@@ -156,7 +165,8 @@ class ChatListScreen extends ConsumerWidget {
     );
   }
 
-  void _showStartChatDialog(BuildContext context, WidgetRef ref, String studentId) {
+  void _showStartChatDialog(
+      BuildContext context, WidgetRef ref, String studentId,) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -175,7 +185,8 @@ class ChatListScreen extends ConsumerWidget {
                 children: [
                   Text(
                     context.l10n.selectTeacherToAsk,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold,),
                   ),
                   const SizedBox(height: 12),
                   teachersAsync.when(
@@ -191,14 +202,18 @@ class ChatListScreen extends ConsumerWidget {
                           final teacher = teachers[index];
                           return ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                              backgroundColor:
+                                  AppColors.primary.withValues(alpha: 0.1),
                               child: Text(teacher.fullName[0].toUpperCase()),
                             ),
                             title: Text(teacher.fullName),
-                            subtitle: Text(context.l10n.subjectsLabel(teacher.subjects.join(', '))),
+                            subtitle: Text(context.l10n
+                                .subjectsLabel(teacher.subjects.join(', ')),),
                             onTap: () async {
                               Navigator.pop(ctx);
-                              final roomId = await ref.read(chatRepositoryProvider).getOrCreateChatRoom(
+                              final roomId = await ref
+                                  .read(chatRepositoryProvider)
+                                  .getOrCreateChatRoom(
                                     studentId: studentId,
                                     teacherId: teacher.id,
                                   );
@@ -211,7 +226,8 @@ class ChatListScreen extends ConsumerWidget {
                         },
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, stack) => Text(context.l10n.couldNotLoadChats),
                   ),
                 ],

@@ -137,7 +137,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
                                   'No schedule slots for this day.',
                                   style: AppTypography.poppins(
                                     fontSize: 14,
-                                    color: AppColors.lightOutline,
+                                    color: context.mutedTextColor,
                                   ),
                                 ),
                                 const SizedBox(height: 16),

@@ -250,7 +250,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                                             textAlign: TextAlign.center,
                                             style: AppTypography.poppins(
                                               fontSize: 14,
-                                              color: AppColors.lightOutline,
+                                              color: context.mutedTextColor,
                                             ),
                                           ),
                                         ],

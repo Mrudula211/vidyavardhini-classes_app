@@ -153,14 +153,14 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 style: AppTypography.cinzel(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.maroon,
+                  color: context.headingColor,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 l10n.otpSubtitle(maskedPhone),
                 style:
-                    AppTypography.poppins(fontSize: 14, color: AppColors.brown),
+                    AppTypography.poppins(fontSize: 14, color: context.bodyTextColor),
               ),
               const SizedBox(height: 40),
 
@@ -192,7 +192,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                         l10n.otpResendIn(_resendSeconds.toString()),
                         style: AppTypography.poppins(
                           fontSize: 13,
-                          color: AppColors.lightOutline,
+                          color: context.mutedTextColor,
                         ),
                       )
                     : TextButton(
@@ -201,7 +201,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                           l10n.otpResend,
                           style: AppTypography.poppins(
                             fontSize: 14,
-                            color: AppColors.maroon,
+                            color: context.headingColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -251,7 +251,7 @@ class _OtpBox extends StatelessWidget {
           style: AppTypography.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: AppColors.maroon,
+            color: context.headingColor,
           ),
           decoration: InputDecoration(
             counterText: '',

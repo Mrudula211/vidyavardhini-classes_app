@@ -222,7 +222,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                                   'No students found.',
                                   style: AppTypography.poppins(
                                     fontSize: 14,
-                                    color: AppColors.lightOutline,
+                                    color: context.mutedTextColor,
                                   ),
                                 ),
                               ],

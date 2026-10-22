@@ -6,6 +6,36 @@ Do the sections in order, starting with section 0; each is independent of the on
 
 ---
 
+## Status checklist (updated 2026-10-22)
+
+Tick items as you finish them. "Done" items were confirmed from your Supabase screenshots.
+
+**Done**
+- [x] Migrations 008, 009, 010 and 011 applied (the three checks passed: no tables without RLS, 3 cron jobs present, 5 new functions present).
+- [x] `private` schema is not exposed in the Data API (only `public` and `graphql_public`).
+- [x] Vault secrets `project_url` and `automation_secret` created.
+- [x] Phone sign-in enabled; test phone numbers + expiry saved for testing without SMS.
+- [x] Admin account is complete (Auth login + admin profile + phone number).
+
+**Do next, in this order**
+- [ ] **0.** Rotate the admin password and access code (SQL in section 0). Still the most urgent item.
+- [ ] **0.** If the GitHub repository is public, make it private.
+- [ ] **A.** Install the newest build on the phone (it fixes unreadable text in dark mode): `flutter install -d <your phone> --release`, or `flutter run --release`.
+- [ ] **B.** Test student registration with the fake number `9999900001`, code `123456` (use only fake numbers — never a real person's number).
+- [ ] **C.** Test admin login: Login -> "Log in with email & password instead" -> email, password -> access code -> dashboard. Approve the test student.
+- [ ] **D.** Test a teacher with a second fake number (`9999900002`): the admin adds the teacher, then log in as that teacher.
+- [ ] **E.** Test one attachment (homework with a PDF + photo) and one language switch (Hindi, Marathi) on the student screens.
+- [ ] **F.** Delete the test phone numbers (Supabase -> Authentication -> Providers -> Phone) before real parents use the app.
+
+**Decisions / bigger tasks**
+- [ ] Choose an SMS provider that can reach Indian numbers (needs DLT registration whichever one you pick). Twilio trial cannot create a Verify service. If you choose an India-based provider (e.g. MSG91), tell me and I will write the Supabase "Send SMS hook" function.
+- [ ] Ask Mrs. Gharat or a staff member to review the Hindi and Marathi wording.
+- [ ] Deploy the Edge Functions for push notifications and backups (section 1, steps 1-3 and 8-11).
+- [ ] Create the Android signing key, Play Console account, and internal test release (section 4).
+- [ ] Prepare store assets: screenshots, description, privacy policy URL (section 5).
+
+---
+
 ## 0. URGENT — rotate the admin credentials (do this first)
 
 The admin password, email, phone and 6-digit access code were hardcoded in the app's login screen and seeded in `supabase/migrations/004_seed_admin.sql`, so they are also in git history. Anyone with the APK or the repository can read them and sign in as admin. The hardcoded copies are now removed from the app and from `004`, but the old password stays compromised until you change it.
