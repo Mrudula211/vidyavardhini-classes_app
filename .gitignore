@@ -1,80 +1,169 @@
-# Flutter / Dart
+# ============================================================
+# Vidyavardhini Classes App
+# Rule of thumb: commit source, config templates and docs.
+# Never commit secrets, build output, generated platform glue or local files.
+# ============================================================
+
+# ── Secrets & environment (NEVER COMMIT) ──────────────────────
+.env
+.env.*
+!.env.example
+lib/core/constants/supabase_keys.dart
+lib/firebase_options.dart
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+**/macos/Runner/GoogleService-Info.plist
+# Signing keys and certificates
+**/android/key.properties
+!**/android/key.properties.example
+*.keystore
+*.jks
+*.pem
+*.p12
+*.pfx
+*.p8
+*.cer
+*.mobileprovision
+# Firebase / Google service-account keys, any other secret dumps
+*service-account*.json
+*serviceAccount*.json
+*adminsdk*.json
+google-credentials*.json
+secrets/
+.secrets/
+*.secret
+*.secrets
+# Supabase CLI local state and function secrets
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+supabase/.env.*
+supabase/functions/.env
+supabase/functions/.env.*
+.supabase/
+
+# ── Flutter / Dart ────────────────────────────────────────────
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
+pubspec_overrides.yaml
 build/
+# Not used (no build_runner codegen); keep stray generated files out
 *.g.dart
 *.freezed.dart
+# Symbolication / obfuscation output
+app.*.symbols
+app.*.map.json
+# Test & coverage output
+coverage/
+lcov.info
+test/.test_coverage.dart
+.test_coverage.dart
+failures/
 
-# Android
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
+# ── Android ───────────────────────────────────────────────────
+**/android/.gradle/
 **/android/captures/
+**/android/local.properties
 **/android/gradlew
 **/android/gradlew.bat
-**/android/local.properties
+**/android/**/gradle-wrapper.jar
 **/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
-**/*.keystore
-**/*.jks
+**/android/app/.cxx/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
 
-# iOS
+# ── iOS ───────────────────────────────────────────────────────
 **/ios/**/*.mode1v3
 **/ios/**/*.mode2v3
 **/ios/**/*.moved-aside
 **/ios/**/*.pbxuser
 **/ios/**/*.perspectivev3
-**/ios/**/xcuserdata
+**/ios/**/xcuserdata/
 **/ios/.generated/
 **/ios/Flutter/.last_build_id
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
 **/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
 **/ios/Flutter/app.flx
 **/ios/Flutter/app.zip
 **/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
 **/ios/Pods/
+*.xcworkspace/xcuserdata/
 
-# macOS
+# ── macOS ─────────────────────────────────────────────────────
 **/macos/Flutter/ephemeral/
 **/macos/Flutter/Generated.xcconfig
 **/macos/Flutter/flutter_export_environment.sh
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Pods/
 
-# Linux
+# ── Linux ─────────────────────────────────────────────────────
 **/linux/flutter/ephemeral/
+**/linux/flutter/generated_plugin_registrant.*
+**/linux/flutter/generated_plugins.cmake
 
-# Windows
+# ── Windows ───────────────────────────────────────────────────
 **/windows/flutter/ephemeral/
+**/windows/flutter/generated_plugin_registrant.*
+**/windows/flutter/generated_plugins.cmake
 
-# IDEs & Editor Files
+# ── Web ───────────────────────────────────────────────────────
+**/web/.last_build_id
+
+# ── IDEs, editors and AI/agent tools ──────────────────────────
 .idea/
 .vscode/
+.history/
+.fleet/
 *.iml
 *.ipr
 *.iws
+*.code-workspace
 .settings/
 .project
 .classpath
 .factorypath
-
-# Secrets & Environment Configurations (NEVER COMMIT)
-.env
-.env.*
-lib/firebase_options.dart
-lib/core/constants/supabase_keys.dart
-**/android/app/google-services.json
-**/ios/Runner/GoogleService-Info.plist
-
-# Claude / Agent directories
+# Local tooling state (keep CLAUDE.md / AGENTS.md; ignore the rest)
 .claude/
+.cursor/
+.cursorrules
+.Jules/
+.jules/
+.aider*
+.continue/
 
-# Misc Caches & Logs
+# ── Logs, scratch files and OS noise ──────────────────────────
 *.log
+npm-debug.log*
+tmp/
+temp/
+scratch/
+.scratch/
+*.tmp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
+ehthumbs.db
+desktop.ini

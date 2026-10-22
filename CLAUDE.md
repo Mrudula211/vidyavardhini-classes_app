@@ -81,14 +81,14 @@ Never say "set up your Supabase project" without listing exactly how. Never say 
 
 1. **Student IDs** (STU0001…) are permanent and never reused — enforce at DB level with a sequence and a trigger.
 2. **Admin is unique** — only one admin account exists in the system.
-3. **Students need admin approval** before any access. Status flow: `pending → active | rejected | banned`.
+3. **Students are created by the admin only** (`create_student_account`; no self-registration). They start `active`; `rejected | banned` (and legacy `pending`) are still enforced by the router.
 4. **Fees are admin-only write** — teachers and students are read-only.
 5. **Audit logs are immutable** — no UPDATE or DELETE on `audit_logs`.
 6. **Academic year data is isolated** — students/teachers see current year only; only admin can access historical years.
 7. **Teacher attendance via GPS geofence** — admin sets lat/lng/radius; entering the geofence auto-marks present.
 8. **Automatic monthly fees** — a database trigger/cron generates `monthly_fees` records on the 1st of every month for all active students.
 9. **Fee reminder push** — sent on the 10th of every month to students with pending/partial fees.
-10. **Promotion requires OTP + CONFIRM text + admin password** — triple confirmation guard.
+10. **Promotion requires an emailed one-time code + CONFIRM text + admin password** — triple confirmation guard, enforced in the `promote_students` database function.
 
 ---
 
@@ -183,7 +183,7 @@ lib/
 
 - All tables have Row Level Security (RLS) **enabled**.
 - Use Supabase **service role** only in Edge Functions (never in Flutter).
-- Auth is OTP (phone) — Supabase Auth handles OTP via SMS.
+- Auth is mobile number or email + password. **No SMS.** A student's password is a generated access code (`student_access_codes`, admin-read-only). Admin/teacher also pass an access-code step. Accounts are created only by admin RPCs (`create_student_account`, `create_teacher_profile`); "Allow new users to sign up" stays off.
 - Additional access codes (admin code, teacher code) are stored **hashed** in the DB.
 - Use Supabase Realtime for chat (`messages` table).
 - Storage buckets: `profile-photos`, `homework-attachments`, `classwork-attachments`, `chat-files`.
@@ -285,7 +285,8 @@ dev_dependencies:
 - Do not call Supabase directly in widgets — always through providers → repositories.
 - Do not delete audit log records for any reason.
 - Do not allow teachers to write fee or revenue data — enforce at DB + UI level.
-- Do not skip OTP verification in any auth flow.
+- Do not add self-registration or any client-side account creation; accounts come from the admin RPCs.
+- A policy on `users` must never query `users` (infinite recursion); use `public.is_admin()`.
 - Do not reuse Student IDs.
 - Do not allow students to access data from other academic years.
 - Do not use `flutter_bloc` — this project uses Riverpod exclusively.
