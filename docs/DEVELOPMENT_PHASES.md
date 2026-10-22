@@ -420,6 +420,7 @@ Decision: SMS OTP needs a provider plus India DLT registration; replaced by pass
 - [x] Teachers: admin sets a password (+ mobile and/or email) in `create_teacher_profile`; they log in like everyone, then enter the access code. `admin_reset_user_password()` RPC (no screen yet).
 - [x] Migration 014: `users.phone` optional, trigger handles email accounts, new teacher/reset RPCs. Promotion confirmation code now goes to the admin's email.
 - [x] ARB: 207 keys; auth tests rewritten (84 tests pass).
+- [x] Admin **Security** screen (`/admin/settings/security`): change password (Supabase Auth) and 6-digit access code (`change_my_admin_access_code`, migration 015), after re-proving the current password + access code; 4 tests.
 - [ ] Admin UI to reset a user's password (RPC exists).
 - [ ] Contact details are unverified by design (confirmations off); the admin approval gate is the control. Revisit if spam registrations appear.
 - [ ] Email codes need email templates with `{{ .Token }}` and a custom SMTP sender for real volume (Supabase default email is heavily rate-limited).

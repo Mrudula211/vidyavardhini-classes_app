@@ -37,6 +37,7 @@ has been checked.
 | `/auth/login` | LoginScreen | Single login for all roles: mobile or email + password; "Forgot password?" sends an email code |
 | `/auth/create-account` | CreateAccountScreen | New student/parent: mobile or email + password |
 | `/auth/new-password` | NewPasswordScreen | Choose a new password after an email-code login |
+| `/admin/settings/security` | AdminSecurityScreen | Admin changes own password and/or access code (needs current ones) |
 | `/auth/otp` | OtpScreen | Enter the 6-digit code emailed to the person (email-code login only) |
 | `/auth/admin-login` | AdminLoginScreen | Access code + password |
 | `/auth/teacher-login` | TeacherLoginScreen | Access code only |

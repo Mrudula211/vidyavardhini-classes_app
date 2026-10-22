@@ -68,7 +68,9 @@ Good to know:
 
 The admin password, email, phone and 6-digit access code were hardcoded in the app's login screen and seeded in `supabase/migrations/004_seed_admin.sql`, so they are also in git history. Anyone with the APK or the repository can read them and sign in as admin. The hardcoded copies are now removed from the app and from `004`, but the old password stays compromised until you change it.
 
-You need to do the following manually:
+**Easiest way (in the app):** run migration `supabase/migrations/015_admin_change_access_code.sql` once in the SQL Editor, install the newest build, log in as admin (old details), open **Security** on the dashboard, enter the current password and access code, then choose the new password and/or new access code and tap SAVE. The SQL below is the alternative if you cannot log in.
+
+You need to do the following manually (SQL way):
 
 1. Choose a new strong password (12+ random characters) and a new 6-digit admin access code. Keep them in a password manager only. Never put them in code, docs or chat.
 2. Open Supabase Dashboard -> **SQL Editor** and run this once, replacing the two placeholders (Supabase Auth is now the single source of truth for the password):
