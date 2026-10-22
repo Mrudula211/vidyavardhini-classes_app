@@ -87,6 +87,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       // Unknown numbers become pending students; admin and teacher accounts
       // already exist (created by the admin) and keep their own role.
       final session = await repo.verifyOtp(_phone, _otp, 'student');
+      // The role/status providers fetched as soon as the session appeared —
+      // before a new student's account row existed. Refresh them.
+      ref.invalidate(currentUserRoleProvider);
+      ref.invalidate(currentStudentStatusProvider);
       final role =
           session == null ? null : await repo.fetchUserRole(session.user.id);
       if (!mounted) return;
@@ -159,8 +163,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               const SizedBox(height: 8),
               Text(
                 l10n.otpSubtitle(maskedPhone),
-                style:
-                    AppTypography.poppins(fontSize: 14, color: context.bodyTextColor),
+                style: AppTypography.poppins(
+                    fontSize: 14, color: context.bodyTextColor,),
               ),
               const SizedBox(height: 40),
 

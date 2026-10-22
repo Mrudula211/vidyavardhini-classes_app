@@ -69,97 +69,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: Routes.splash,
     debugLogDiagnostics: true,
     redirect: (context, state) async {
-      final uri = state.uri.toString();
-      final isAuthRoute = uri.startsWith('/auth') ||
-          uri == Routes.roleSelect ||
-          uri == Routes.splash;
-
-      if (authState.isLoading) {
-        return Routes.splash;
+      final session = authState.valueOrNull;
+      final decision = decideRedirect(
+        uri: state.uri.toString(),
+        authLoading: authState.isLoading,
+        hasSession: session != null,
+        roleLoading: userRole.isLoading,
+        role: userRole.valueOrNull,
+        statusLoading: studentStatus.isLoading,
+        status: studentStatus.valueOrNull,
+        email: session?.user.email,
+        adminVerified: isAdminLoggedIn,
+        teacherVerified: isTeacherLoggedIn,
+      );
+      if (decision.signOut) {
+        await Supabase.instance.client.auth.signOut();
       }
-
-      // Everything beyond the auth screens needs a real Supabase session:
-      // all data access is enforced against it by row-level security.
-      final session = authState.value;
-      if (session == null) {
-        return isAuthRoute ? null : Routes.roleSelect;
-      }
-
-      if (userRole.isLoading) {
-        return Routes.splash; // Wait for role
-      }
-
-      final role = userRole.value;
-      if (role == null) {
-        return isAuthRoute ? null : Routes.roleSelect;
-      }
-
-      // A student's account must be 'active' to use the app. Pending
-      // students are parked on the pending-approval screen; rejected/banned
-      // students are signed out immediately, even if they still hold a
-      // valid Supabase session token.
-      if (role == 'student') {
-        if (studentStatus.isLoading) {
-          return Routes.splash;
-        }
-        final status = studentStatus.value;
-        if (status == 'rejected' || status == 'banned') {
-          await Supabase.instance.client.auth.signOut();
-          return Routes.roleSelect;
-        }
-        if (status == null || status == 'pending') {
-          // New students finish registration; submitted ones wait.
-          if (uri == Routes.studentRegister) return null;
-          if (uri != Routes.pendingApproval) {
-            return status == null
-                ? Routes.studentRegister
-                : Routes.pendingApproval;
-          }
-          return null;
-        }
-
-        // Active students without an email/password must set one before
-        // reaching student routes (splash already does this once; enforce
-        // here too so deep links cannot skip the step).
-        final email = session.user.email;
-        final needsPassword = email == null || email.trim().isEmpty;
-        if (needsPassword && uri != Routes.studentSetPassword) {
-          return Routes.studentSetPassword;
-        }
-        if (!needsPassword && uri == Routes.studentSetPassword) {
-          return Routes.studentDashboard;
-        }
-      }
-
-      // Admin and teacher sign in once more with their access code. Until
-      // that is done, the only place they may be is that step.
-      if (role == 'admin' && !isAdminLoggedIn) {
-        return uri == Routes.adminLogin ? null : Routes.adminLogin;
-      }
-      if (role == 'teacher' && !isTeacherLoggedIn) {
-        return uri == Routes.teacherLogin ? null : Routes.teacherLogin;
-      }
-
-      // Check route against roles
-      if (uri.startsWith('/admin') && role != 'admin') {
-        return _getDashboardRoute(role);
-      }
-      if (uri.startsWith('/teacher') && role != 'teacher') {
-        return _getDashboardRoute(role);
-      }
-      if (uri.startsWith('/student') && role != 'student') {
-        return _getDashboardRoute(role);
-      }
-
-      // Signed-in people never need the login screens again.
-      if (isAuthRoute &&
-          uri != Routes.splash &&
-          uri != Routes.pendingApproval &&
-          uri != Routes.studentSetPassword) {
-        return _getDashboardRoute(role);
-      }
-
-      return null;
+      return decision.location;
     },
     routes: [
       // Auth
@@ -357,6 +283,109 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ),
   );
 });
+
+/// Outcome of [decideRedirect]: where to go (null = stay) and whether the
+/// session must be ended first.
+class AuthRedirect {
+  const AuthRedirect(this.location, {this.signOut = false});
+
+  final String? location;
+  final bool signOut;
+}
+
+/// Every navigation rule in one pure function (easy to test):
+///  * no session -> only the login screens;
+///  * session but unknown role -> never park on the splash, go to Welcome;
+///  * students: new -> registration, pending -> waiting screen,
+///    rejected/banned -> signed out, approved without email -> set password;
+///  * admin/teacher must pass their access-code step before anything else;
+///  * role-prefixed routes are only for that role.
+AuthRedirect decideRedirect({
+  required String uri,
+  required bool authLoading,
+  required bool hasSession,
+  required bool roleLoading,
+  required String? role,
+  required bool statusLoading,
+  required String? status,
+  required String? email,
+  required bool adminVerified,
+  required bool teacherVerified,
+}) {
+  final isAuthRoute = uri.startsWith('/auth') ||
+      uri == Routes.roleSelect ||
+      uri == Routes.splash;
+
+  if (authLoading) return const AuthRedirect(Routes.splash);
+
+  // Everything beyond the auth screens needs a real Supabase session: all
+  // data access is enforced against it by row-level security.
+  if (!hasSession) {
+    return AuthRedirect(isAuthRoute ? null : Routes.roleSelect);
+  }
+
+  if (roleLoading) return const AuthRedirect(Routes.splash);
+
+  if (role == null) {
+    // Signed in but no account row could be read: do not leave the person
+    // staring at the splash screen.
+    if (uri == Routes.splash) return const AuthRedirect(Routes.roleSelect);
+    return AuthRedirect(isAuthRoute ? null : Routes.roleSelect);
+  }
+
+  if (role == 'student') {
+    if (statusLoading) return const AuthRedirect(Routes.splash);
+    if (status == 'rejected' || status == 'banned') {
+      return const AuthRedirect(Routes.roleSelect, signOut: true);
+    }
+    if (status == null || status == 'pending') {
+      // New students finish registration; submitted ones wait.
+      if (uri == Routes.studentRegister) return const AuthRedirect(null);
+      if (uri == Routes.pendingApproval) return const AuthRedirect(null);
+      return AuthRedirect(
+        status == null ? Routes.studentRegister : Routes.pendingApproval,
+      );
+    }
+
+    // Approved students without an email/password must set one first.
+    final needsPassword = email == null || email.trim().isEmpty;
+    if (needsPassword && uri != Routes.studentSetPassword) {
+      return const AuthRedirect(Routes.studentSetPassword);
+    }
+    if (!needsPassword && uri == Routes.studentSetPassword) {
+      return const AuthRedirect(Routes.studentDashboard);
+    }
+  }
+
+  // Admin and teacher sign in once more with their access code. Until that
+  // is done, the only place they may be is that step.
+  if (role == 'admin' && !adminVerified) {
+    return AuthRedirect(uri == Routes.adminLogin ? null : Routes.adminLogin);
+  }
+  if (role == 'teacher' && !teacherVerified) {
+    return AuthRedirect(
+        uri == Routes.teacherLogin ? null : Routes.teacherLogin,);
+  }
+
+  if (uri.startsWith('/admin') && role != 'admin') {
+    return AuthRedirect(_getDashboardRoute(role));
+  }
+  if (uri.startsWith('/teacher') && role != 'teacher') {
+    return AuthRedirect(_getDashboardRoute(role));
+  }
+  if (uri.startsWith('/student') && role != 'student') {
+    return AuthRedirect(_getDashboardRoute(role));
+  }
+
+  // Signed-in people never need the login screens again.
+  if (isAuthRoute &&
+      uri != Routes.pendingApproval &&
+      uri != Routes.studentSetPassword) {
+    return AuthRedirect(_getDashboardRoute(role));
+  }
+
+  return const AuthRedirect(null);
+}
 
 String _getDashboardRoute(String role) {
   switch (role) {

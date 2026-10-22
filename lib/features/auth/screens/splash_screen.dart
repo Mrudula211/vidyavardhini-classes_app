@@ -33,7 +33,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
     _controller.forward();
-    _navigate();
+    _navigateSafely();
+  }
+
+  Future<void> _navigateSafely() async {
+    try {
+      await _navigate();
+    } catch (_) {
+      // Network or permission error: fall back to the welcome screen rather
+      // than spinning forever.
+      if (mounted) context.go(Routes.roleSelect);
+    }
   }
 
   Future<void> _navigate() async {
