@@ -19,6 +19,7 @@ import '../../features/auth/screens/pending_approval_screen.dart';
 import '../../features/auth/screens/student_password_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
 import '../../features/admin/students/screens/student_list_screen.dart';
+import '../../features/admin/students/screens/add_student_screen.dart';
 import '../../features/admin/students/screens/student_approval_screen.dart';
 import '../../features/admin/students/screens/student_detail_screen.dart';
 import '../../features/admin/teachers/screens/teacher_list_screen.dart';
@@ -155,6 +156,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.adminStudents,
         builder: (context, state) => const StudentListScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminStudentAdd,
+        builder: (context, state) => const AddStudentScreen(),
       ),
       GoRoute(
         path: Routes.adminStudentApprove,

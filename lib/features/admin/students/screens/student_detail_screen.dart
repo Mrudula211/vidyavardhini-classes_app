@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/student_model.dart';
 import '../providers/student_providers.dart';
+import '../widgets/access_code_card.dart';
 
 class StudentDetailScreen extends ConsumerStatefulWidget {
   final String studentId;
@@ -19,6 +20,8 @@ class StudentDetailScreen extends ConsumerStatefulWidget {
 
 class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
   StudentModel? _student;
+  String? _accessCode;
+  String? _login;
   bool _isLoading = true;
 
   @override
@@ -30,11 +33,50 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
   Future<void> _loadStudent() async {
     final repo = ref.read(studentRepositoryProvider);
     final student = await repo.fetchStudentDetail(widget.studentId);
+    String? code;
+    String? phone;
+    try {
+      code = await repo.fetchAccessCode(widget.studentId);
+      phone = await repo.fetchLoginPhone(widget.studentId);
+    } catch (_) {
+      // The card then shows "Not available".
+    }
     if (mounted) {
       setState(() {
         _student = student;
+        _accessCode = code;
+        _login = (student?.email != null && student!.email!.isNotEmpty)
+            ? student.email
+            : phone;
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _regenerateCode() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Generate a new access code?'),
+        content: const Text(
+          'The old code stops working immediately. Share the new one with the parent.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Generate')),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final code = await ref
+          .read(studentRepositoryProvider)
+          .regenerateAccessCode(widget.studentId);
+      if (mounted) setState(() => _accessCode = code);
+      messenger.showSnackBar(const SnackBar(content: Text('New access code created')));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Could not create a new code: $e')));
     }
   }
 
@@ -147,6 +189,14 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
               ),
             ),
             const SizedBox(height: 20),
+
+            if (student.status == 'active')
+              AccessCodeCard(
+                login: _login,
+                accessCode: _accessCode,
+                onRegenerate: _regenerateCode,
+              ),
+            const SizedBox(height: 8),
 
             // Academic Info
             _buildSectionHeader('Academic Details'),

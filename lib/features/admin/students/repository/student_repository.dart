@@ -150,6 +150,16 @@ class StudentRepository {
     return Map<String, dynamic>.from(res as Map);
   }
 
+  /// The mobile number the student logs in with (admin only).
+  Future<String?> fetchLoginPhone(String studentId) async {
+    final data = await _client
+        .from('users')
+        .select('phone')
+        .eq('id', studentId)
+        .maybeSingle();
+    return data?['phone'] as String?;
+  }
+
   /// The student's current access code (admin only; null if none stored).
   Future<String?> fetchAccessCode(String studentId) async {
     final data = await _client

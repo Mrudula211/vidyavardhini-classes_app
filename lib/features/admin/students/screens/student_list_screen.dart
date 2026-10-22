@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/student_model.dart';
 import '../providers/student_providers.dart';
+import '../../../../core/constants/routes.dart';
 
 class StudentListScreen extends ConsumerStatefulWidget {
   const StudentListScreen({super.key});
@@ -64,6 +65,11 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
       appBar: AppBar(
         title: const Text('Student Management'),
         actions: [
+          IconButton(
+            tooltip: 'Add Student',
+            icon: const Icon(Icons.person_add_alt_1_rounded),
+            onPressed: () => context.push(Routes.adminStudentAdd),
+          ),
           _isRefreshing
               ? const Padding(
                   padding: EdgeInsets.all(12.0),

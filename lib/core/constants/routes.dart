@@ -17,6 +17,7 @@ class Routes {
   // Admin shell
   static const String adminDashboard = '/admin/dashboard';
   static const String adminStudents = '/admin/students';
+  static const String adminStudentAdd = '/admin/students/add';
   static const String adminStudentDetail = '/admin/students/:id';
   static const String adminStudentApprove = '/admin/students/:id/approve';
   static const String adminTeachers = '/admin/teachers';
