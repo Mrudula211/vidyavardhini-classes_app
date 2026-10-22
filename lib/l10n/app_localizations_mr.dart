@@ -54,7 +54,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get welcomeHint =>
-      'विद्यार्थी, पालक आणि शिक्षक नोंदणीकृत मोबाईल नंबरने लॉगिन करा.';
+      'तुमच्या मोबाईल नंबर किंवा ईमेल आणि पासवर्डने लॉगिन करा.';
 
   @override
   String get loginTitle => 'पुन्हा स्वागत आहे';
@@ -63,27 +63,17 @@ class AppLocalizationsMr extends AppLocalizations {
   String get registerTitle => 'नवीन विद्यार्थी नोंदणी';
 
   @override
-  String get loginSubtitle =>
-      'तुमचा मोबाईल नंबर टाका. आम्ही तुम्हाला ६ अंकी कोड पाठवू.';
+  String get loginSubtitle => 'तुमचा मोबाईल नंबर किंवा ईमेल आणि पासवर्ड टाका.';
 
   @override
   String get registerSubtitle =>
       'सुरू करण्यासाठी मोबाईल नंबर टाका. आम्ही तुम्हाला ६ अंकी कोड पाठवू.';
 
   @override
-  String get emailLoginSubtitle => 'तुमचा ईमेल आणि पासवर्ड वापरून लॉगिन करा.';
-
-  @override
   String get mobileNumber => 'मोबाईल नंबर';
 
   @override
   String get sendCode => 'कोड पाठवा';
-
-  @override
-  String get useEmailInstead => 'त्याऐवजी ईमेल व पासवर्डने लॉगिन करा';
-
-  @override
-  String get usePhoneInstead => 'त्याऐवजी मोबाईल नंबरने लॉगिन करा';
 
   @override
   String get emailAddress => 'ईमेल पत्ता';
@@ -101,12 +91,6 @@ class AppLocalizationsMr extends AppLocalizations {
   String get enterPassword => 'तुमचा पासवर्ड टाका';
 
   @override
-  String get enterMobile => 'तुमचा मोबाईल नंबर टाका';
-
-  @override
-  String get invalidMobile => '१० अंकी योग्य मोबाईल नंबर टाका';
-
-  @override
   String get loginFailedCredentials =>
       'ईमेल किंवा पासवर्ड चुकीचा आहे. कृपया पुन्हा प्रयत्न करा.';
 
@@ -115,21 +99,17 @@ class AppLocalizationsMr extends AppLocalizations {
       'लॉगिन होऊ शकले नाही. कृपया माहिती तपासून पुन्हा प्रयत्न करा.';
 
   @override
-  String get sendCodeFailed =>
-      'कोड पाठवता आला नाही. नंबर तपासून पुन्हा प्रयत्न करा.';
-
-  @override
   String get showPassword => 'पासवर्ड दाखवा';
 
   @override
   String get hidePassword => 'पासवर्ड लपवा';
 
   @override
-  String get otpTitle => 'कोड तपासा';
+  String get otpTitle => 'तुमचा ईमेल तपासा';
 
   @override
-  String otpSubtitle(String phone) {
-    return '$phone वर पाठवलेला ६ अंकी कोड टाका';
+  String otpSubtitle(String email) {
+    return '$email वर पाठवलेला ६ अंकी कोड टाका';
   }
 
   @override
@@ -621,4 +601,88 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get daySunday => 'रविवार';
+
+  @override
+  String get identifierLabel => 'मोबाईल नंबर किंवा ईमेल';
+
+  @override
+  String get enterIdentifier => 'तुमचा मोबाईल नंबर किंवा ईमेल टाका';
+
+  @override
+  String get invalidIdentifier => '१० अंकी मोबाईल नंबर किंवा योग्य ईमेल टाका';
+
+  @override
+  String get forgotPassword => 'पासवर्ड विसरलात?';
+
+  @override
+  String get useEmailCodeInstead => 'त्याऐवजी ईमेलवर कोड मागवा';
+
+  @override
+  String get usePasswordInstead => 'त्याऐवजी पासवर्डने लॉगिन करा';
+
+  @override
+  String get emailCodeSubtitle =>
+      'तुमचा ईमेल पत्ता टाका. आम्ही तुम्हाला ६ अंकी कोड पाठवू.';
+
+  @override
+  String get emailCodeNotice =>
+      'फक्त मोबाईल असलेली खाती कोड वापरू शकत नाहीत. पासवर्ड रीसेट करण्यासाठी संस्थेशी संपर्क साधा.';
+
+  @override
+  String get sendCodeFailed =>
+      'कोड पाठवता आला नाही. ईमेल पत्ता तपासून पुन्हा प्रयत्न करा.';
+
+  @override
+  String get createAccountTitle => 'तुमचे खाते तयार करा';
+
+  @override
+  String get createAccountSubtitle =>
+      'मोबाईल नंबर किंवा ईमेल वापरा आणि पासवर्ड निवडा.';
+
+  @override
+  String get createAccountButton => 'खाते तयार करा';
+
+  @override
+  String get tabMobile => 'मोबाईल नंबर';
+
+  @override
+  String get tabEmail => 'ईमेल';
+
+  @override
+  String get passwordHelper => 'किमान ६ अक्षरे';
+
+  @override
+  String get accountAlreadyExists =>
+      'या मोबाईल नंबर किंवा ईमेलने खाते आधीच आहे. कृपया लॉगिन करा.';
+
+  @override
+  String get accountCreatedConfirm =>
+      'खाते तयार झाले. कृपया आम्ही पाठवलेल्या संदेशाने ते निश्चित करा, मग लॉगिन करा.';
+
+  @override
+  String get alreadyHaveAccount => 'आधीच खाते आहे? लॉगिन करा';
+
+  @override
+  String get newPasswordTitle => 'नवीन पासवर्ड तयार करा';
+
+  @override
+  String get newPasswordBody =>
+      'तुम्हाला लक्षात राहील असा पासवर्ड निवडा. पुढच्या वेळी त्याने लॉगिन करता येईल.';
+
+  @override
+  String get skipForNow => 'आत्ता वगळा';
+
+  @override
+  String get savePassword => 'पासवर्ड जतन करा';
+
+  @override
+  String get passwordSaved => 'पासवर्ड जतन केला.';
+
+  @override
+  String get passwordSaveFailed =>
+      'पासवर्ड जतन करता आला नाही. कृपया पुन्हा प्रयत्न करा.';
+
+  @override
+  String get contactEmailNote =>
+      'आम्ही हा ईमेल फक्त तुमच्या खात्याबद्दल संपर्क करण्यासाठी वापरू.';
 }

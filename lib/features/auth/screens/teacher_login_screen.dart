@@ -29,7 +29,7 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
     // session no data can be read (row-level security), so start over.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && ref.read(currentUserProvider) == null) {
-        context.go(Routes.phone, extra: {'role': 'teacher'});
+        context.go(Routes.login, extra: {'role': 'teacher'});
       }
     });
   }

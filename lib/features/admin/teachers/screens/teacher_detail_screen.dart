@@ -308,7 +308,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                     backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     child: Text(
                       teacher.fullName.isNotEmpty ? teacher.fullName[0].toUpperCase() : 'T',
-                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary),
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.headingColor),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -358,9 +358,9 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Personal & Employment Info',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.headingColor),
                   ),
                   const Divider(),
                   if (teacher.email != null) _buildDetailRow('Email', teacher.email!),
@@ -382,9 +382,9 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Monthly Salary Structure',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.headingColor),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -483,7 +483,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                                child: Text(a['board'] ?? 'S', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                                child: Text(a['board'] ?? 'S', style: TextStyle(fontWeight: FontWeight.bold, color: context.headingColor)),
                               ),
                               title: Text('${a['board']} • Standard ${a['standard']}', style: const TextStyle(fontWeight: FontWeight.bold)),
                               subtitle: Text('Subject: ${a['subject']}'),

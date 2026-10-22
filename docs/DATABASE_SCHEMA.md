@@ -1083,6 +1083,18 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.9 Auto-created user rows (migration 012)
+
+- Trigger `on_auth_user_created` (AFTER INSERT on `auth.users`) -> `private.handle_new_auth_user()` creates the matching `public.users` row (role `student`, phone `+<digits>`) for self-registering phone accounts, so the role always exists the moment the login account does. Accounts flagged `raw_user_meta_data.created_by_admin = true` (teachers via `create_teacher_profile`, the seeded admin) are skipped. Existing orphaned auth accounts are backfilled.
+
+---
+
+### 9.10 users policy recursion fix (migration 013)
+
+- `"users: admin read all"` used `EXISTS (SELECT 1 FROM users ...)` on the `users` table itself -> `42P17 infinite recursion detected in policy for relation "users"` on every API read of `users` (and on every other table's admin policy). It now calls `public.is_admin()` (SECURITY DEFINER, reads `users` without RLS). Rule: a policy on `users` must never query `users`.
+
+---
+
 ## 10. Indexes Summary
 
 ```sql

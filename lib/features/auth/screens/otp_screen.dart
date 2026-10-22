@@ -10,7 +10,7 @@ import '../../../core/constants/routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../l10n/l10n_context.dart';
-import 'phone_entry_screen.dart' show roleDestination;
+import 'login_screen.dart' show roleDestination;
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
 
@@ -29,13 +29,15 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   bool _isLoading = false;
   int _resendSeconds = AppConstants.otpResendSeconds;
   Timer? _resendTimer;
-  late String _phone;
+  late String _email;
+  bool _forgot = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-    _phone = extra?['phone'] as String? ?? '';
+    _email = extra?['email'] as String? ?? '';
+    _forgot = extra?['forgot'] as bool? ?? false;
     _startResendTimer();
   }
 
@@ -86,7 +88,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       final repo = ref.read(authRepositoryProvider);
       // Unknown numbers become pending students; admin and teacher accounts
       // already exist (created by the admin) and keep their own role.
-      final session = await repo.verifyOtp(_phone, _otp, 'student');
+      final session = await repo.verifyEmailCode(_email, _otp);
+      // The role/status providers fetched as soon as the session appeared —
+      // before a new student's account row existed. Refresh them.
+      ref.invalidate(currentUserRoleProvider);
+      ref.invalidate(currentStudentStatusProvider);
       final role =
           session == null ? null : await repo.fetchUserRole(session.user.id);
       if (!mounted) return;
@@ -105,15 +111,18 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     }
   }
 
-  /// The account's own role decides the next step. Admin and teacher go on
-  /// to their access-code check; everyone else continues as a student (the
-  /// router sends new students to registration, pending ones to the waiting
-  /// screen and approved ones to their dashboard).
+  /// After a code login: forgotten-password people choose a new password;
+  /// otherwise the account's own role decides the next step. Admin and
+  /// teacher go on to their access-code check; everyone else continues as a
+  /// student (the router sends new students to registration, pending ones to
+  /// the waiting screen and approved ones to their dashboard).
   void _navigateAfterOtp(String? role) {
-    if (role == 'admin' || role == 'teacher') {
-      context.go(roleDestination(role), extra: {'phone': _phone});
+    if (_forgot) {
+      context.go(Routes.newPassword, extra: {'role': role});
+    } else if (role == 'admin' || role == 'teacher') {
+      context.go(roleDestination(role));
     } else {
-      context.go(Routes.studentRegister, extra: {'phone': _phone});
+      context.go(Routes.studentRegister);
     }
   }
 
@@ -121,7 +130,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await ref.read(authRepositoryProvider).sendOtp(_phone);
+      await ref.read(authRepositoryProvider).sendEmailCode(_email);
       if (!mounted) return;
       _startResendTimer();
       messenger.showSnackBar(SnackBar(content: Text(l10n.otpResent)));
@@ -133,9 +142,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final maskedPhone = _phone.length > 4
-        ? '${_phone.substring(0, _phone.length - 4)}XXXX'
-        : _phone;
 
     return Scaffold(
       body: SafeArea(
@@ -158,9 +164,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                l10n.otpSubtitle(maskedPhone),
-                style:
-                    AppTypography.poppins(fontSize: 14, color: context.bodyTextColor),
+                l10n.otpSubtitle(_email),
+                style: AppTypography.poppins(
+                  fontSize: 14,
+                  color: context.bodyTextColor,
+                ),
               ),
               const SizedBox(height: 40),
 

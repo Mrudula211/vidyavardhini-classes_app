@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/student_model.dart';
 import '../providers/student_providers.dart';
+import '../widgets/access_code_card.dart';
 
 class StudentDetailScreen extends ConsumerStatefulWidget {
   final String studentId;
@@ -19,6 +20,8 @@ class StudentDetailScreen extends ConsumerStatefulWidget {
 
 class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
   StudentModel? _student;
+  String? _accessCode;
+  String? _login;
   bool _isLoading = true;
 
   @override
@@ -30,11 +33,50 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
   Future<void> _loadStudent() async {
     final repo = ref.read(studentRepositoryProvider);
     final student = await repo.fetchStudentDetail(widget.studentId);
+    String? code;
+    String? phone;
+    try {
+      code = await repo.fetchAccessCode(widget.studentId);
+      phone = await repo.fetchLoginPhone(widget.studentId);
+    } catch (_) {
+      // The card then shows "Not available".
+    }
     if (mounted) {
       setState(() {
         _student = student;
+        _accessCode = code;
+        _login = (student?.email != null && student!.email!.isNotEmpty)
+            ? student.email
+            : phone;
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _regenerateCode() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Generate a new access code?'),
+        content: const Text(
+          'The old code stops working immediately. Share the new one with the parent.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Generate')),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final code = await ref
+          .read(studentRepositoryProvider)
+          .regenerateAccessCode(widget.studentId);
+      if (mounted) setState(() => _accessCode = code);
+      messenger.showSnackBar(const SnackBar(content: Text('New access code created')));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Could not create a new code: $e')));
     }
   }
 
@@ -120,7 +162,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                       backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       child: Text(
                         student.fullName.isNotEmpty ? student.fullName[0].toUpperCase() : 'S',
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary),
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.headingColor),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -131,7 +173,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'ID: ${student.studentId ?? "Pending"}',
-                      style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: context.mutedTextColor, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
                     Chip(
@@ -147,6 +189,14 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
               ),
             ),
             const SizedBox(height: 20),
+
+            if (student.status == 'active')
+              AccessCodeCard(
+                login: _login,
+                accessCode: _accessCode,
+                onRegenerate: _regenerateCode,
+              ),
+            const SizedBox(height: 8),
 
             // Academic Info
             _buildSectionHeader('Academic Details'),
@@ -197,7 +247,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
         padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
         child: Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.headingColor),
         ),
       ),
     );
@@ -209,9 +259,9 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        leading: Icon(icon, color: iconColor ?? AppColors.primary),
-        title: Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-        subtitle: Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+        leading: Icon(icon, color: iconColor ?? context.headingColor),
+        title: Text(label, style: TextStyle(fontSize: 12, color: context.mutedTextColor)),
+        subtitle: Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
       ),
     );
   }

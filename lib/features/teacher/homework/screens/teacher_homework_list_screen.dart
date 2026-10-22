@@ -118,10 +118,10 @@ class TeacherHomeworkListScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               '${hw.board} • Standard ${hw.standard} • ${hw.subject}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                                color: context.headingColor,
                               ),
                             ),
                           ),

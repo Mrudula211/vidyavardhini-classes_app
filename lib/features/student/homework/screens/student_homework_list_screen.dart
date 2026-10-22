@@ -118,10 +118,10 @@ class StudentHomeworkListScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               hw.subject.toUpperCase(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                                color: context.headingColor,
                               ),
                             ),
                           ),

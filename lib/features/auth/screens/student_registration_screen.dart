@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,6 +39,14 @@ class _StudentRegistrationScreenState
   String? _selectedStandard;
   File? _profilePhoto;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // People who signed up with an email already gave it; reuse it.
+    _emailController.text =
+        Supabase.instance.client.auth.currentUser?.email ?? '';
+  }
 
   @override
   void dispose() {
@@ -100,11 +109,11 @@ class _StudentRegistrationScreenState
 
     setState(() => _isLoading = true);
     try {
-      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-      final registrationPhone = extra?['phone'] as String?;
-      if (registrationPhone == null) {
-        throw Exception('Phone number is missing.');
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('Session expired. Please log in again.');
       }
+      final registrationPhone = user.id;
 
       final profilePhotoUrl = _profilePhoto == null
           ? null
@@ -135,6 +144,7 @@ class _StudentRegistrationScreenState
       context.go(Routes.pendingApproval);
     } catch (e) {
       if (!mounted) return;
+      if (kDebugMode) debugPrint('[register] submit failed: $e');
       _showError(context.l10n.registrationFailed);
     } finally {
       if (mounted) setState(() => _isLoading = false);

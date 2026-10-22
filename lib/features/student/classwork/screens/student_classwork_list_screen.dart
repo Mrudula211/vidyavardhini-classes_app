@@ -115,10 +115,10 @@ class StudentClassworkListScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           cw.subject.toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: context.headingColor,
                           ),
                         ),
                       ),

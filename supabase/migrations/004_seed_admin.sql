@@ -41,7 +41,7 @@ BEGIN
     v_admin_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
     v_email, crypt(v_password, gen_salt('bf')), NOW(),
     regexp_replace(v_phone, '\D', '', 'g'), NOW(),
-    '{"provider":"email","providers":["email"]}', '{"full_name":"Admin"}', NOW(), NOW(),
+    '{"provider":"email","providers":["email"]}', '{"full_name":"Admin","created_by_admin":true}', NOW(), NOW(),
     '', '', '', ''
   );
 

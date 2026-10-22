@@ -63,23 +63,25 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
     return m?.group(1) ?? text;
   }
 
-  Future<void> _sendOtp(String phone) async {
+  Future<void> _sendOtp(String email) async {
     if (!guardOnline(context, ref)) return;
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      await ref.read(promotionRepositoryProvider).sendOtp(phone);
+      await ref.read(promotionRepositoryProvider).sendOtp(email);
       if (mounted) setState(() => _otpSent = true);
     } catch (e) {
-      if (mounted) setState(() => _error = 'Could not send OTP: ${_clean(e)}');
+      if (mounted) {
+        setState(() => _error = 'Could not send the code: ${_clean(e)}');
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
-  Future<void> _promote(String phone) async {
+  Future<void> _promote(String email) async {
     if (!guardOnline(context, ref)) return;
     setState(() {
       _busy = true;
@@ -88,7 +90,7 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
     try {
       final result =
           await ref.read(promotionRepositoryProvider).verifyOtpAndPromote(
-                phone: phone,
+                email: email,
                 otp: _otp.text.trim(),
                 confirmText: _confirm.text,
                 password: _password.text,
@@ -128,14 +130,15 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
       appBar: AppBar(title: const Text('Promote Students')),
       body: yearAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Could not load academic year.\n$e')),
+        error: (e, _) =>
+            Center(child: Text('Could not load academic year.\n$e')),
         data: (current) {
           if (current == null) {
             return const Center(child: Text('No current academic year found.'));
           }
           if (_result != null) return _buildDone(current);
           _prefill(current);
-          final phone = user?.phone;
+          final email = user?.email;
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -153,12 +156,12 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
                   ),
                 ),
               ),
-              if (user == null || phone == null || phone.isEmpty) ...[
+              if (user == null || email == null || email.isEmpty) ...[
                 const SizedBox(height: 12),
                 const _ErrorNote(
                   'Sign in with your admin email and password (not only the '
                   'access code) to promote students. Promotion needs a verified '
-                  'admin session with a phone number.',
+                  'admin session with an email address.',
                 ),
               ],
               const SizedBox(height: 16),
@@ -176,14 +179,16 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _busy ? null : () => _pickDate(true),
-                      child: Text('Start: ${_start == null ? '--' : fmt.format(_start!)}'),
+                      child: Text(
+                          'Start: ${_start == null ? '--' : fmt.format(_start!)}',),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _busy ? null : () => _pickDate(false),
-                      child: Text('End: ${_end == null ? '--' : fmt.format(_end!)}'),
+                      child: Text(
+                          'End: ${_end == null ? '--' : fmt.format(_end!)}',),
                     ),
                   ),
                 ],
@@ -212,11 +217,12 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
               const SizedBox(height: 16),
               if (!_otpSent)
                 ElevatedButton.icon(
-                  onPressed: (_busy || !_inputsValid || phone == null || phone.isEmpty)
-                      ? null
-                      : () => _sendOtp(phone),
+                  onPressed:
+                      (_busy || !_inputsValid || email == null || email.isEmpty)
+                          ? null
+                          : () => _sendOtp(email),
                   icon: const Icon(Icons.sms_outlined),
-                  label: const Text('Send OTP to my phone'),
+                  label: const Text('Email me a code'),
                 )
               else ...[
                 TextField(
@@ -225,7 +231,7 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
                   keyboardType: TextInputType.number,
                   maxLength: 6,
                   decoration: const InputDecoration(
-                    labelText: 'Enter 6-digit OTP',
+                    labelText: 'Enter the 6-digit code from your email',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -234,9 +240,10 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
                     backgroundColor: AppColors.maroon,
                     foregroundColor: Colors.white,
                   ),
-                  onPressed: (_busy || _otp.text.trim().length < 6 || phone == null)
-                      ? null
-                      : () => _promote(phone),
+                  onPressed:
+                      (_busy || _otp.text.trim().length < 6 || email == null)
+                          ? null
+                          : () => _promote(email),
                   icon: _busy
                       ? const SizedBox(
                           width: 18,
@@ -250,8 +257,8 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
                   label: const Text('Verify OTP & Promote'),
                 ),
                 TextButton(
-                  onPressed: _busy ? null : () => _sendOtp(phone!),
-                  child: const Text('Resend OTP'),
+                  onPressed: _busy ? null : () => _sendOtp(email!),
+                  child: const Text('Resend code'),
                 ),
               ],
               if (_error != null) ...[
@@ -280,8 +287,10 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
-            Text('${r.promoted} students promoted\n${r.archived} students archived',
-                textAlign: TextAlign.center,),
+            Text(
+              '${r.promoted} students promoted\n${r.archived} students archived',
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),

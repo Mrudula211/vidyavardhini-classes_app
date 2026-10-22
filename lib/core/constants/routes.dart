@@ -4,7 +4,9 @@ class Routes {
   // Auth
   static const String splash = '/';
   static const String roleSelect = '/role-select';
-  static const String phone = '/auth/phone';
+  static const String login = '/auth/login';
+  static const String createAccount = '/auth/create-account';
+  static const String newPassword = '/auth/new-password';
   static const String otp = '/auth/otp';
   static const String adminLogin = '/auth/admin-login';
   static const String teacherLogin = '/auth/teacher-login';
@@ -15,6 +17,7 @@ class Routes {
   // Admin shell
   static const String adminDashboard = '/admin/dashboard';
   static const String adminStudents = '/admin/students';
+  static const String adminStudentAdd = '/admin/students/add';
   static const String adminStudentDetail = '/admin/students/:id';
   static const String adminStudentApprove = '/admin/students/:id/approve';
   static const String adminTeachers = '/admin/teachers';
@@ -28,6 +31,7 @@ class Routes {
   static const String adminAcademicYear = '/admin/settings/academic-year';
   static const String adminAuditLogs = '/admin/settings/audit-logs';
   static const String adminBackup = '/admin/settings/backup';
+  static const String adminSecurity = '/admin/settings/security';
 
   // Teacher shell
   static const String teacherDashboard = '/teacher/dashboard';

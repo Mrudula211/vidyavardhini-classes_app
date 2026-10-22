@@ -9,6 +9,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../l10n/l10n_context.dart';
+import '../../../core/utils/login_identifier.dart';
 
 class AdminLoginScreen extends ConsumerStatefulWidget {
   const AdminLoginScreen({super.key});
@@ -40,7 +41,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     var signedInHere = false;
     try {
       final repo = ref.read(authRepositoryProvider);
-      final email = _identifierController.text.trim();
+      final identifier = LoginIdentifier.parse(_identifierController.text);
       final password = _passwordController.text;
       final code = _accessCodeController.text.trim();
 
@@ -48,7 +49,8 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
       //    by row-level security against it. (An OTP session from the phone
       //    screen is also accepted.)
       if (ref.read(currentUserProvider) == null) {
-        final session = await repo.signInWithEmailAndPassword(email, password);
+        if (identifier == null) throw Exception('invalid identifier');
+        final session = await repo.signInWithPassword(identifier, password);
         if (session == null) throw Exception('Invalid admin credentials.');
         signedInHere = true;
       }
@@ -130,12 +132,13 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                     controller: _identifierController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: context.l10n.adminEmail,
+                      labelText: context.l10n.identifierLabel,
                       prefixIcon: const Icon(Icons.person_outline_rounded),
                     ),
                     validator: (value) {
-                      if (value == null || !value.contains('@')) {
-                        return context.l10n.enterAdminEmail;
+                      if (value == null ||
+                          LoginIdentifier.parse(value) == null) {
+                        return context.l10n.invalidIdentifier;
                       }
                       return null;
                     },

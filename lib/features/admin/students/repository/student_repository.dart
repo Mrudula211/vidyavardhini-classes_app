@@ -113,6 +113,72 @@ class StudentRepository {
     }
   }
 
+  /// Admin only (`create_student_account` RPC): creates the student, the
+  /// login (mobile and/or email) and a generated access code in one step.
+  /// Returns `{id, student_id, access_code, login}`.
+  Future<Map<String, dynamic>> createStudent({
+    required String fullName,
+    required String gender,
+    required DateTime dob,
+    required String parentName,
+    required String parentPhone,
+    required String schoolName,
+    required String board,
+    required String standard,
+    required double monthlyFee,
+    String? loginPhone,
+    String? loginEmail,
+    String? whatsappNumber,
+  }) async {
+    String? clean(String? v) =>
+        (v == null || v.trim().isEmpty) ? null : v.trim();
+
+    final res = await _client.rpc('create_student_account', params: {
+      'p_full_name': fullName.trim(),
+      'p_gender': gender,
+      'p_dob': dob.toIso8601String().split('T').first,
+      'p_parent_name': parentName.trim(),
+      'p_parent_phone': parentPhone.trim(),
+      'p_school_name': schoolName.trim(),
+      'p_board': board,
+      'p_standard': standard,
+      'p_monthly_fee': monthlyFee,
+      'p_login_phone': clean(loginPhone),
+      'p_login_email': clean(loginEmail),
+      'p_whatsapp_number': clean(whatsappNumber),
+    },);
+    return Map<String, dynamic>.from(res as Map);
+  }
+
+  /// The mobile number the student logs in with (admin only).
+  Future<String?> fetchLoginPhone(String studentId) async {
+    final data = await _client
+        .from('users')
+        .select('phone')
+        .eq('id', studentId)
+        .maybeSingle();
+    return data?['phone'] as String?;
+  }
+
+  /// The student's current access code (admin only; null if none stored).
+  Future<String?> fetchAccessCode(String studentId) async {
+    final data = await _client
+        .from('student_access_codes')
+        .select('access_code')
+        .eq('student_id', studentId)
+        .maybeSingle();
+    return data?['access_code'] as String?;
+  }
+
+  /// Replaces a lost access code and returns the new one.
+  Future<String> regenerateAccessCode(String studentId) async {
+    final res = await _client.rpc(
+      'regenerate_student_access_code',
+      params: {'p_student_id': studentId},
+    );
+    return res as String;
+  }
+
   Future<void> rejectStudent({
     required String studentId,
     required String reason,

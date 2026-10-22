@@ -18,8 +18,10 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _salaryController = TextEditingController(text: '20000');
+  final TextEditingController _salaryController =
+      TextEditingController(text: '20000');
   final TextEditingController _accessCodeController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   String _gender = 'male';
   bool _isSubmitting = false;
@@ -36,6 +38,7 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
     _phoneController.dispose();
     _emailController.dispose();
     _salaryController.dispose();
+    _passwordController.dispose();
     _accessCodeController.dispose();
     super.dispose();
   }
@@ -62,6 +65,7 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
         gender: _gender,
         monthlySalary: double.tryParse(_salaryController.text.trim()) ?? 0.0,
         accessCode: _accessCodeController.text.trim(),
+        password: _passwordController.text,
       );
 
       final assignedId = res['teacher_id'] as String? ?? 'TCHXXXX';
@@ -79,11 +83,24 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
               children: [
                 Text('Teacher Name: ${_fullNameController.text.trim()}'),
                 const SizedBox(height: 8),
-                Text('Assigned ID: $assignedId', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('Assigned ID: $assignedId',
+                    style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 4),
-                Text('Access Code: ${_accessCodeController.text.trim()}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                Text(
+                    'Login: ${_emailController.text.trim().isNotEmpty ? _emailController.text.trim() : _phoneController.text.trim()}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 4),
+                Text('Password: ${_passwordController.text}',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: context.headingColor,),),
+                const SizedBox(height: 4),
+                Text('Access Code: ${_accessCodeController.text.trim()}',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: context.headingColor,),),
                 const SizedBox(height: 12),
-                const Text('Please share this Teacher ID and Access Code with the teacher for logging into the app.', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                const Text(
+                    'Share the login, password and access code with the teacher. They log in with their mobile number or email and the password, then enter the access code.',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),),
               ],
             ),
             actions: [
@@ -133,23 +150,26 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                   prefixIcon: Icon(Icons.person),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Full name is required' : null,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Full name is required'
+                    : null,
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
-                  labelText: 'Phone Number *',
-                  hintText: 'e.g. +919876543211',
+                  labelText: 'Mobile Number (or email below) *',
+                  hintText: 'e.g. 9876543211',
                   prefixIcon: Icon(Icons.phone),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Phone number is required' : null,
+                validator: (val) => ((val == null || val.trim().isEmpty) &&
+                        _emailController.text.trim().isEmpty)
+                    ? 'Enter a mobile number or an email'
+                    : null,
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -161,7 +181,18 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-
+              TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Login Password * (min 6 characters)',
+                  prefixIcon: Icon(Icons.key),
+                  border: OutlineInputBorder(),
+                ),
+                validator: (val) => (val == null || val.length < 6)
+                    ? 'Password must be at least 6 characters'
+                    : null,
+              ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _gender,
                 decoration: const InputDecoration(
@@ -179,7 +210,6 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                 },
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _salaryController,
                 keyboardType: TextInputType.number,
@@ -190,13 +220,16 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Monthly salary is required';
-                  if (double.tryParse(val.trim()) == null) return 'Enter a valid number';
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Monthly salary is required';
+                  }
+                  if (double.tryParse(val.trim()) == null) {
+                    return 'Enter a valid number';
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -234,7 +267,6 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-
               if (_isSubmitting)
                 const Center(child: CircularProgressIndicator())
               else
@@ -245,12 +277,14 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),),
                     ),
                     onPressed: _submitTeacher,
                     child: const Text(
                       'CREATE TEACHER ACCOUNT',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                 ),
