@@ -17,15 +17,15 @@ class StudentDashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(context.l10n.studentDashboardTitle),
         actions: [
-          const NotificationBellButton(iconColor: AppColors.primary),
+          NotificationBellButton(iconColor: context.headingColor),
           IconButton(
             tooltip: context.l10n.announcements,
-            icon: const Icon(Icons.campaign_outlined, color: AppColors.primary),
+            icon: Icon(Icons.campaign_outlined, color: context.headingColor),
             onPressed: () => context.push(Routes.announcementList),
           ),
           IconButton(
             tooltip: context.l10n.logout,
-            icon: const Icon(Icons.logout_rounded, color: AppColors.primary),
+            icon: Icon(Icons.logout_rounded, color: context.headingColor),
             onPressed: () async {
               await ref.read(authRepositoryProvider).signOut();
               if (context.mounted) context.go(Routes.roleSelect);

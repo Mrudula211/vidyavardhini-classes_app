@@ -19,15 +19,15 @@ class TeacherDashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Teacher Dashboard'),
         actions: [
-          const NotificationBellButton(iconColor: AppColors.primary),
+          NotificationBellButton(iconColor: context.headingColor),
           IconButton(
             tooltip: 'Announcements',
-            icon: const Icon(Icons.campaign_outlined, color: AppColors.primary),
+            icon: Icon(Icons.campaign_outlined, color: context.headingColor),
             onPressed: () => context.push(Routes.announcementList),
           ),
           IconButton(
             tooltip: 'Logout',
-            icon: const Icon(Icons.logout_rounded, color: AppColors.primary),
+            icon: Icon(Icons.logout_rounded, color: context.headingColor),
             onPressed: () async {
               await ref.read(authRepositoryProvider).signOut();
               ref.read(teacherAuthenticatedProvider.notifier).state = false;
