@@ -1,246 +1,117 @@
 # OWNER_TODO.md — Steps only you can do
 
-Everything in the repo that can be built without your accounts, devices or secrets is done.
-What remains needs your Supabase / Firebase / Google Play access or a physical phone.
-Do the sections in order, starting with section 0; each is independent of the ones after it.
+Everything that can be built without your accounts, devices or secrets is done.
+This file is the single, current list of what is left for you. (Older steps about
+SMS providers, DLT registration, test phone numbers and parent self-registration
+no longer apply and were removed: the app has **no SMS**, and **the admin creates
+every student**.)
+
+Updated 2026-10-22.
 
 ---
 
-## Status checklist (updated 2026-10-22)
+## 1. Where things stand
 
-Tick items as you finish them. "Done" items were confirmed from your Supabase screenshots.
+**Confirmed working on your phone**
+- [x] Admin login (email/mobile + password + access code) and the admin dashboard.
+- [x] Admin credentials replaced (the exposed ones are no longer valid).
+- [x] Student approval, student ID, student dashboard login, dark-mode text, Hindi/Marathi chips.
+- [x] Migrations up to 014 applied (RLS safety net, hardening, recursion fix, password logins).
 
-**Done**
-- [x] Migrations 008, 009, 010 and 011 applied (the three checks passed: no tables without RLS, 3 cron jobs present, 5 new functions present).
-- [x] `private` schema is not exposed in the Data API (only `public` and `graphql_public`).
-- [x] Vault secrets `project_url` and `automation_secret` created.
-- [x] Phone sign-in enabled; test phone numbers + expiry saved for testing without SMS.
-- [x] Admin account is complete (Auth login + admin profile + phone number).
-
-**Do next, in this order**
-- [ ] **0c.** Admin adds students with an access code (section 0c) — replaces the SMS and self-registration steps below.
-- [ ] **0a-1.** Run migration `supabase/migrations/013_fix_users_policy_recursion.sql` FIRST (fixes the real cause of being sent back to Welcome: every read of the `users` table was failing). Then run 012 if you have not.
-- [ ] **0a.** Run migration `supabase/migrations/012_auto_create_user_row.sql` in the SQL Editor (fixes new students being sent back to the Welcome screen after the OTP). Then install the newest build and retry registration.
-- [ ] **0.** Rotate the admin password and access code (SQL in section 0). Still the most urgent item.
-- [ ] **0.** If the GitHub repository is public, make it private.
-- [ ] **A.** Install the newest build on the phone (it fixes unreadable text in dark mode): `flutter install -d <your phone> --release`, or `flutter run --release`.
-- [ ] **B.** Test student registration with the fake number `9999900001`, code `123456` (use only fake numbers — never a real person's number).
-- [ ] **C.** Test admin login: Login -> "Log in with email & password instead" -> email, password -> access code -> dashboard. Approve the test student.
-- [ ] **D.** Test a teacher with a second fake number (`9999900002`): the admin adds the teacher, then log in as that teacher.
-- [ ] **E.** Test one attachment (homework with a PDF + photo) and one language switch (Hindi, Marathi) on the student screens.
-- [ ] **F.** Delete the test phone numbers (Supabase -> Authentication -> Providers -> Phone) before real parents use the app.
-
-**Decisions / bigger tasks**
-- [ ] Choose an SMS provider that can reach Indian numbers (needs DLT registration whichever one you pick). Twilio trial cannot create a Verify service. If you choose an India-based provider (e.g. MSG91), tell me and I will write the Supabase "Send SMS hook" function.
-- [ ] Ask Mrs. Gharat or a staff member to review the Hindi and Marathi wording.
-- [ ] Deploy the Edge Functions for push notifications and backups (section 1, steps 1-3 and 8-11).
-- [ ] Create the Android signing key, Play Console account, and internal test release (section 4).
-- [ ] Prepare store assets: screenshots, description, privacy policy URL (section 5).
+**Written and tested in code, but not yet confirmed against your live database**
+- [ ] Migrations **015, 016, 017** (admin Security screen, admin creates students + access codes, real login methods on the student card).
+- [ ] Add Student screen, access-code card, "Generate a new code".
+- [ ] Attachments, teacher GPS check-in, promotion, fee reminders, audit logs.
+- [ ] Push notifications, monthly fee generation, fee reminders and nightly backups (need section 4).
 
 ---
 
-## 0c. Admin adds students; access code is the login — do this next
+## 2. Do this next (about 15 minutes)
 
-Students are no longer created by the parent. The admin adds them in the app and the app generates an **8-character access code** that the parent uses as the password.
-
-You need to do the following manually:
-
-1. In the Supabase SQL Editor run, in order (skip any you already ran): `013_fix_users_policy_recursion.sql`, `014_password_logins.sql`, `015_admin_change_access_code.sql`, then **`016_admin_creates_students.sql`**. Accept the "potential issues" popup (it replaces functions and drops old policies).
-2. **Authentication -> Sign In / Providers** (or User Signups): turn **OFF "Allow new users to sign up"** and save. This makes sure nobody can create an account on their own.
-3. Keep **Email** and **Phone** providers enabled (they are needed for logging in), with **"Confirm email"** and **"Enable phone confirmations"** off. The Twilio placeholder values stay; nothing is ever sent.
-4. Install the newest build, log in as admin, open **Student Desk**, tap the **add person** icon at the top right, fill the form (parent mobile, login mobile or email, monthly fee) and tap ADD STUDENT. A dialog shows the login and the access code — copy it.
-5. Log out. Log in as that student: tap **Login**, enter the login (10-digit mobile or email) and the access code in the second box. You should reach the **Student dashboard**.
-6. Later, on the student's page in Student Desk the **App login** card shows the same login and code again, with **Generate a new code** for a lost one.
-
-Good to know:
-- The existing test student (STU0001) keeps working with the password it already has; press **Generate a new code** on its page to give it an access code too.
-- Accounts made earlier through the old registration screen that have no student profile are signed out at login.
-- The code is stored readable so you can show it again; only the admin can read it.
-- Teachers cannot add students yet (admin only). Tell me if you want that.
-
----
-
-## 0. URGENT — rotate the admin credentials (do this first)
-
-The admin password, email, phone and 6-digit access code were hardcoded in the app's login screen and seeded in `supabase/migrations/004_seed_admin.sql`, so they are also in git history. Anyone with the APK or the repository can read them and sign in as admin. The hardcoded copies are now removed from the app and from `004`, but the old password stays compromised until you change it.
-
-**Easiest way (in the app):** run migration `supabase/migrations/015_admin_change_access_code.sql` once in the SQL Editor, install the newest build, log in as admin (old details), open **Security** on the dashboard, enter the current password and access code, then choose the new password and/or new access code and tap SAVE. The SQL below is the alternative if you cannot log in.
-
-You need to do the following manually (SQL way):
-
-1. Choose a new strong password (12+ random characters) and a new 6-digit admin access code. Keep them in a password manager only. Never put them in code, docs or chat.
-2. Open Supabase Dashboard -> **SQL Editor** and run this once, replacing the two placeholders (Supabase Auth is now the single source of truth for the password):
+1. **Check which migrations are applied.** In the Supabase SQL Editor run this. Every column should say `true`:
    ```sql
-   update auth.users
-   set encrypted_password = crypt('NEW_PASSWORD', gen_salt('bf')), updated_at = now()
-   where id = (select id from public.users where role = 'admin');
-
-   update public.admin_profiles
-   set access_code_hash = crypt('NEW_6_DIGIT_CODE', gen_salt('bf')), updated_at = now()
-   where id = (select id from public.users where role = 'admin');
+   select
+     exists (select 1 from pg_proc where proname = 'is_admin')                       as m013_is_admin,
+     exists (select 1 from pg_proc where proname = 'admin_reset_user_password')      as m014_reset,
+     exists (select 1 from pg_proc where proname = 'change_my_admin_access_code')    as m015_security,
+     exists (select 1 from pg_proc where proname = 'create_student_account')         as m016_students,
+     exists (select 1 from pg_tables where tablename = 'student_access_codes')       as m016_codes,
+     exists (select 1 from pg_proc where proname = 'get_student_login_methods')      as m017_logins;
    ```
-3. Clear the SQL Editor query history afterwards (the new values were typed there).
-4. If the GitHub repository is public, make it private now. Old commits still contain the old password, which is why rotating it matters.
-5. After applying migrations (section 1c), sign in on a phone with **email + new password + new access code** to confirm it works.
+2. **Run any missing migration**, in numeric order, from `supabase/migrations/` (paste the whole file, click Run, accept the "potential issues" popup — it only replaces functions and old policies). Each file is safe to re-run.
+3. **Authentication -> Sign In / Providers:**
+   - turn **OFF "Allow new users to sign up"** (nobody should be able to create an account on their own);
+   - keep the **Email** and **Phone** providers enabled with **"Confirm email"** and **"Enable phone confirmations"** off. The Twilio placeholder values stay — nothing is ever sent.
+4. **Make the GitHub repository private** (Settings -> General -> Danger zone -> Change visibility). The old admin password is still in its history.
+5. **Install the newest build:** plug in the phone, run `flutter install -d <your phone id> --release` (find the id with `flutter devices`), or copy `build\app\outputs\flutter-apk\app-release.apk` to the phone.
 
 ---
 
-## 0b. URGENT — table without Row-Level Security (Supabase advisory, 17 Oct 2026)
+## 3. Test on the phone, in this order
 
-Supabase emailed a critical `rls_disabled_in_public` warning for project `rcocjtblpbbslrivqpmm`: at least one table in `public` can be read, edited and deleted by anyone who has the project URL and anon key (the anon key ships inside the app). The repository is not the cause — all 28 tables created by migrations 001-007 enable RLS — so the table was probably created by hand in the dashboard, or a migration was only partly applied.
+Use made-up names and numbers. Tell me what happens, with a screenshot of anything wrong.
 
-You need to do the following manually:
-
-0. **Fastest fix:** in the SQL Editor, paste and run the whole file `supabase/migrations/009_chat_timetable_rls_hardening.sql` (or `supabase db push`). It is safe to re-run. It enables RLS on every public table that has it off, and creates the `chat_messages` and `timetable_slots` tables the app actually uses (the app queries these, but they were missing from the migrations, which likely means they exist in your database without RLS). Then continue with step 1 to confirm.
-1. Open Supabase Dashboard -> **SQL Editor** and run this to list the exposed tables:
-   ```sql
-   select schemaname, tablename
-   from pg_tables
-   where schemaname = 'public' and not rowsecurity;
-   ```
-2. If a table is one of ours (for example `audit_logs`, `fee_payments`, `student_profiles`), re-run the matching part of `supabase/migrations/001_initial_schema.sql` so its RLS policies exist, then run: `alter table public.<name> enable row level security;`
-3. If a table is not in the migrations (something you created manually), tell me its name and columns and I will write correct policies. Until then, lock it down with `alter table public.<name> enable row level security;` — with RLS on and no policy, only the service role can access it.
-4. Re-run the query from step 1; it must return zero rows.
-5. Dashboard -> **Advisors** (sidebar) -> run the Security advisor and clear every remaining warning, or tell me what is left.
-6. If any exposed table held real student, fee or phone data, treat it as possibly read by others: check **Logs -> API** for unexpected access, and let affected families know if needed.
+1. **Admin:** Login -> email/mobile + password -> access code -> dashboard.
+2. **Add a student:** Student Desk -> add-person icon (top right) -> fill the form (a login mobile number you will remember, e.g. `9000000001`) -> ADD STUDENT. Copy the access code from the dialog.
+3. **Student login:** log out -> Login -> the student's mobile number + the access code -> Student dashboard. Open Homework, Classwork, My fee status, Timetable: they should show empty messages, not errors.
+4. **Lost code:** as admin open the student -> "Generate a new code" -> log in again with the new one (the old one must fail).
+5. **Language:** on the Login screen tap हिन्दी, then मराठी; log in and check the dashboard follows.
+6. **Teacher:** as admin choose Teacher Desk -> add a teacher (name, mobile and/or email, a login password, an access code). Log in as that teacher with mobile/email + password, then the access code.
+7. **Homework with files:** as the teacher create homework with a PDF and a photo; as the student open both. A student of a different class must not see it.
+8. **Teacher GPS attendance:** as admin set the geofence (Geofence Settings -> use current location); as the teacher open My Attendance inside and outside the radius.
+9. **Security screen:** as admin open Security -> change the password and/or access code -> log out and in with the new ones.
+10. **Offline:** turn on airplane mode: the offline banner shows and changes are blocked.
 
 ---
 
-## 1. Turn on automation (push, monthly fees, reminders, backups)
+## 4. Turn on push notifications, monthly fees and backups (needs a computer with the Supabase CLI)
 
-Code is ready: `supabase/migrations/008_automation.sql` and `supabase/functions/`.
-Until you do this, **push notifications are never delivered, monthly fees are not auto-generated, fee reminders are not sent, and the Backup button does nothing**.
+The code and database parts are ready. Until this is done: push notifications are not delivered and the Backup button does nothing. (The monthly-fee and reminder jobs are already scheduled in the database.)
 
-You need to do the following manually:
-
-1. Install the Supabase CLI: `npm install -g supabase` (or `scoop install supabase`), then run `supabase login`.
-2. In the project folder run: `supabase link --project-ref rcocjtblpbbslrivqpmm`
-3. Check migration 006/007 are already applied in your project (SQL Editor → run `select * from supabase_migrations.schema_migrations;` if you use the CLI, otherwise confirm 001–007 were pasted earlier).
-4. Open Supabase Dashboard → **Database → Extensions** and enable **pg_cron** and **pg_net** (008 also tries to enable them).
-5. Generate a random secret (any 32+ character string), e.g. run `openssl rand -hex 32`. Keep it; you use it twice below.
-6. Open Dashboard → **SQL Editor** and run (replace the secret):
-   ```sql
-   select vault.create_secret('https://rcocjtblpbbslrivqpmm.supabase.co', 'project_url');
-   select vault.create_secret('PASTE_YOUR_SECRET', 'automation_secret');
+1. Install the CLI (`npm install -g supabase` or `scoop install supabase`), then `supabase login` and, in the project folder, `supabase link --project-ref rcocjtblpbbslrivqpmm`.
+2. The two Vault secrets (`project_url`, `automation_secret`) already exist. Use the **same secret value** below.
+3. Firebase Console -> Project settings -> Service accounts -> **Generate new private key** (a `.json` file; never commit it).
+4. Set the function secrets:
    ```
-7. Run the migration: `supabase db push` (or paste `supabase/migrations/008_automation.sql` into the SQL Editor and run it).
-8. Get the Firebase service account: Firebase Console → **Project settings → Service accounts → Generate new private key**. A `.json` file downloads. **Never commit it.**
-9. Set the Edge Function secrets:
-   ```
-   supabase secrets set AUTOMATION_SECRET=PASTE_YOUR_SECRET
+   supabase secrets set AUTOMATION_SECRET=THE_SAME_VALUE_AS_IN_VAULT
    supabase secrets set FIREBASE_SERVICE_ACCOUNT="$(cat path/to/service-account.json)"
    ```
-   (`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided to functions automatically.)
-10. Deploy both functions (they authenticate via the shared secret, so JWT verification is off):
-    ```
-    supabase functions deploy send-push --no-verify-jwt
-    supabase functions deploy backup-trigger --no-verify-jwt
-    ```
-11. Verify:
-    - Log in as admin → **Backups → Trigger Manual Backup**, wait ~1 minute, refresh: status should be `success`. If `failed`, the `error_msg` column in `backup_logs` says why.
-    - Post an announcement and confirm a phone with the app installed receives a push.
-    - Dashboard → **Database → Cron Jobs**: three jobs should be listed (`monthly-fee-generate`, `monthly-fee-reminder`, `daily-backup`).
-
-> Note: the fee generation job only creates rows for students who have a `fee_structure` entry for the current academic year.
-
----
-
-## 1b. Apply migration 010 and verify the new features
-
-Migration `010_attachments_geofence_promotion_audit.sql` adds the server side of: homework/classwork attachments, teacher GPS attendance, student promotion, manual fee reminders and audit logging. It also fixes an access bug where any student could read every class's homework. **The app screens for these features will error until it is applied.** It needs migration 008 applied first (it uses the `private` schema).
-
-You need to do the following manually:
-
-1. In the Supabase SQL Editor, run `supabase/migrations/008_automation.sql` (if not done), then `009_...`, then `010_attachments_geofence_promotion_audit.sql` in that order. Each is safe to re-run.
-2. **Attachments:** log in as a teacher, create homework with a PDF and a photo; log in as a student of that class and open both. Log in as a student of a *different* class and confirm they do not see it.
-3. **Teacher GPS attendance (admin first):** as admin open Geofence Settings, tap "use current location", set a radius (e.g. 100 m), save. As a teacher open My Attendance while standing inside the radius: status becomes "Marked present". Then test from outside the radius: it must show the distance and not mark present.
-4. **Promotion (do this on a copy first, never test on real data):** it needs a real SMS provider. In Supabase Dashboard -> **Authentication -> Providers -> Phone**, enable it and connect Twilio (or another listed provider). The admin user must have a phone number on its Auth record. Take a backup first (Backups -> Trigger Manual Backup). Then Admin -> Academic Year: type CONFIRM, enter the password, request the OTP, enter it. If you get "OTP verification required", the JWT did not carry the OTP proof; tell me the exact message and I will adjust it. It fails closed, so nothing is changed in that case.
-5. **Audit logs:** record a fee payment, approve a student, then open Admin -> Audit Logs. Entries should appear. If the list is empty, tell me.
-6. **Fee reminder:** Fee Overview -> "Send reminder" on an unpaid card. The student should get an in-app notification (and a push once section 1 is deployed).
-
-Known limits: teacher GPS attendance is recorded when the teacher opens the app (no background tracking); attachments are limited to jpg/png/webp/pdf/txt/mp4, 20 MB each.
-
----
-
-## 1c. Apply migration 011 (security hardening) — do this soon
-
-Migration `011_security_hardening_and_auth_fixes.sql` closes serious holes found in an audit: any logged-in phone user could make themselves **admin** or approve themselves as a student, teachers could fake GPS check-ins, and the access-code checks could be brute-forced without logging in. It also fixes teacher/admin sign-in (they previously had no real session, so no data loaded).
-
-You need to do the following manually:
-
-1. First complete section 0 (new password + code), because from now on admin login requires email + password + 6-digit access code.
-2. Run in order in the SQL Editor (each is safe to re-run): `008`, `009`, `010`, then `011_security_hardening_and_auth_fixes.sql`. Read the "Messages" output: if you see *"Could not enforce single admin"*, there is more than one admin row; run `select id, phone from public.users where role = 'admin';`, decide which is real, set the other(s) to `role = 'student'` or delete them, then re-run 011.
-3. **Admin login test:** Role screen -> Admin -> email, password, access code. If sign-in says "Database error querying schema", send me the error (011 repairs the usual cause).
-4. **Teacher login test:** the admin adds a teacher (phone + 6-digit code). The teacher chooses Teacher -> enters the phone -> receives the SMS OTP (needs the SMS provider from section 1b step 4) -> enters the access code. Existing teachers keep their phone/code; their phone numbers were normalised by 011.
-5. Confirm a brand-new phone number can still register as a **student** (it should become `pending`), and cannot appear as teacher/admin.
-
----
-
-## 1d. New landing page, single login and languages — what to check
-
-The app now opens on a Welcome screen with one **Login** button (no role cards). Everyone — students, parents, teachers, admin — logs in the same way, and the account decides where they land. Hindi and Marathi are available from the language chips on the first screen.
-
-You need to do the following manually:
-
-1. **SMS provider (required now for teachers and admin too).** In Supabase Dashboard -> **Authentication -> Providers -> Phone**, enable phone sign-in and connect an SMS provider (Twilio is listed there; use a provider that sends to Indian numbers and, if asked, register the DLT sender/template). Without it nobody can log in with a mobile number. As a fallback, admin and teachers can use "Log in with email & password" only if they have an email account set up in Supabase Auth (teachers created by the app have phone-only accounts).
-2. **Make sure the admin account has a phone number in Supabase Auth** (Authentication -> Users -> the admin user). The login looks the account up by that number.
-3. **Try each path on a phone** (airplane mode off): (a) new number -> Register -> fill form -> "Registration submitted"; (b) approve that student as admin, then log in as the student; (c) admin: Login -> phone -> OTP -> password + access code -> dashboard; (d) teacher: Login -> phone -> OTP -> access code -> dashboard. Tell me anything that lands on the wrong screen.
-4. **Language review:** ask Mrs. Gharat or a staff member who reads Marathi and Hindi to switch the app to each language and read through the student screens. Send me any wording that sounds unnatural and I will correct it (all text lives in `lib/l10n/app_hi.arb` and `app_mr.arb`).
-5. Parents' phones: the first screen shows the language chips top-right; the choice is remembered. A phone set to Hindi/Marathi but starting in English is normal until a chip is tapped on first launch.
-
-Known limits: the admin/teacher working screens (fees, marking attendance, creating homework, etc.) are still English; the access-code step is a screen-level second factor.
-
----
-
-## 2. Verify security against the live database
-
-The RLS audit so far was static (code read-through only). Live per-role testing was never done.
-
-1. Create or use one account for each role: admin, an active teacher, an active student.
-2. For each, sign in on a phone and try: a student opening another student's fees, a teacher opening Fees/Revenue, a teacher editing a fee payment.
-3. Everything outside the role's own data must be refused or hidden. Write down anything that is not and send it to me.
-4. Confirm students can still read their own notifications and fees after migration 008.
-
----
-
-## 3. Manual QA on a real Android phone
-
-1. Install a debug build: `flutter run --dart-define-from-file=.env` (or your usual command).
-2. Walk through each role end to end: student registration → admin approval → student first-login password → attendance → homework → fees → chat → announcements.
-3. Switch the phone to **dark mode** and open every screen (the "Dark mode QA pass" item is still open). Note any unreadable text or white-on-white areas.
-4. Turn on airplane mode: the offline banner should appear, cached lists should still load, and writes should be blocked with a message.
-5. Test on at least three screen sizes (small phone, large phone, tablet or emulator).
-6. Send me the list of problems and I will fix them.
-
----
-
-## 4. Release build and Play Store
-
-1. Create the signing key (once, keep it safe — **losing it means you cannot update the app**):
+5. Deploy both functions:
    ```
-   keytool -genkey -v -keystore C:\Users\asusm\keys\vidyavardhini-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+   supabase functions deploy send-push --no-verify-jwt
+   supabase functions deploy backup-trigger --no-verify-jwt
    ```
-2. Copy `android/key.properties.example` to `android/key.properties` and fill in the real path and passwords. (Gitignored.)
-3. Build: `flutter build appbundle --release` → output at `build/app/outputs/bundle/release/app-release.aab`.
-4. Create a Google Play Developer account (one-time US$25 fee) at https://play.google.com/console.
-5. Create the app, then upload the `.aab` to **Testing → Internal testing**, add tester emails, and install via the opt-in link.
-6. Add your upload key's SHA-1 to Firebase (Project settings → Your apps → Add fingerprint). Get it with: `keytool -list -v -keystore C:\Users\asusm\keys\vidyavardhini-upload.jks -alias upload`. Replace `google-services.json` with the re-downloaded copy if Firebase gives you a new one.
-7. If you use Google Maps in release, add the same SHA-1 to your Maps API key restrictions.
+6. Verify: Admin -> Backups -> Trigger Manual Backup, wait a minute, refresh: status `success`. Post an announcement: a phone with the app should get a push.
 
 ---
 
-## 5. Store assets (need your design decisions)
+## 5. Things to decide
 
-1. **App icon / splash**: already generated from `images/logo-icon.png` (about 580px). Check how it looks on a phone. For a crisper result, supply a 1024×1024 PNG and ask me to regenerate.
-2. **Play Store listing**: app name, short description (80 chars), full description, 2–8 phone screenshots, a 512×512 icon and a 1024×500 feature graphic.
-3. **Privacy policy URL** — required by Play because the app collects phone numbers, location and photos. Host a page and paste the URL into the Play Console.
-4. Fill the Play Console **Data safety** form (phone, location, photos, files, FCM token).
+- [ ] **Hindi and Marathi wording:** ask Mrs. Gharat or a staff member to read the student screens in both languages. Send me any wording that sounds unnatural (all text is in `lib/l10n/app_hi.arb` and `app_mr.arb`).
+- [ ] **Teachers adding students?** Today only the admin can (the database function is admin-only). Say the word if teachers should too.
+- [ ] **Forgot-password by email:** optional. To enable it, edit the Supabase "Magic Link" email template so it contains `{{ .Token }}` and add your own SMTP sender (the built-in sender is heavily rate-limited). Students do not need it: the admin regenerates a lost code.
+- [ ] **Access codes are stored readable** (admin-only) so you can show them again. Say if you would rather have them shown only once.
+- [ ] **Merge the work into `main`:** the branch `feat/automation-and-release-prep` is pushed; open the pull request when you are happy.
+- [ ] **Old commits:** about 16 older commits on `main` carry a "Co-Authored-By: Claude" line. Removing it means rewriting `main` and force-pushing; I will not do that without your explicit OK (and a backup branch first).
 
 ---
 
-## 6. Optional / later
+## 6. Release to the Play Store
 
-- **Build flavors (dev/prod)** — still open in Phase 0; only worth doing if you want a separate Supabase project for testing.
-- **Backup restore** — v1 only creates backups (JSON in the private `backups` bucket; download from Dashboard → Storage). Restoring is a manual database operation for now.
-- **Login form widget test** and **integration tests** (auth flow, fee payment) — need a test Supabase project and credentials.
-- **Multi-device release testing** — step 3 above.
+1. Create the signing key (once; keep it safe — losing it means you cannot update the app):
+   `keytool -genkey -v -keystore C:\Users\asusm\keys\vidyavardhini-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
+2. Copy `android/key.properties.example` to `android/key.properties` and fill in the real path and passwords (gitignored).
+3. Build: `flutter build appbundle --release` -> `build/app/outputs/bundle/release/app-release.aab`.
+4. Create a Google Play Developer account (one-time US$25) at https://play.google.com/console, create the app, upload the `.aab` to **Testing -> Internal testing**, add tester emails.
+5. Add your upload key's SHA-1 to Firebase (Project settings -> Your apps -> Add fingerprint): `keytool -list -v -keystore C:\Users\asusm\keys\vidyavardhini-upload.jks -alias upload`. Re-download `google-services.json` if Firebase gives a new one.
+6. Store assets: app name, short and full description, 2-8 phone screenshots, 512x512 icon, 1024x500 feature graphic, and a **privacy policy URL** (required: the app collects phone numbers, location and photos). Fill the Play **Data safety** form (phone, email, location, photos, files, FCM token).
+7. The app icon and splash come from `images/logo-icon.png` (about 580 px). For a crisper icon, supply a 1024x1024 PNG and ask me to regenerate.
+
+---
+
+## 7. Optional / later
+
+- Build flavors (dev/prod) if you want a separate Supabase project for testing.
+- Restoring a backup is a manual database operation for now (backups are JSON files in the private `backups` storage bucket).
+- Integration tests for the auth and fee-payment flows (need a test Supabase project).
+- Teacher/admin working screens are English only (student and login screens are translated).
