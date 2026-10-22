@@ -120,7 +120,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                       backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       child: Text(
                         student.fullName.isNotEmpty ? student.fullName[0].toUpperCase() : 'S',
-                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary),
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.headingColor),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -131,7 +131,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'ID: ${student.studentId ?? "Pending"}',
-                      style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: context.mutedTextColor, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
                     Chip(
@@ -197,7 +197,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
         padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
         child: Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primary),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.headingColor),
         ),
       ),
     );
@@ -209,9 +209,9 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        leading: Icon(icon, color: iconColor ?? AppColors.primary),
-        title: Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-        subtitle: Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+        leading: Icon(icon, color: iconColor ?? context.headingColor),
+        title: Text(label, style: TextStyle(fontSize: 12, color: context.mutedTextColor)),
+        subtitle: Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
       ),
     );
   }

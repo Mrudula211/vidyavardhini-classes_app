@@ -179,7 +179,7 @@ class RevenueScreen extends ConsumerWidget {
                                       ),
                                       Text(
                                         '₹${coll.toStringAsFixed(0)} / ₹${exp.toStringAsFixed(0)}',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: context.headingColor),
                                       ),
                                     ],
                                   ),

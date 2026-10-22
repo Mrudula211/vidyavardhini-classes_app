@@ -125,9 +125,9 @@ class ChatListScreen extends ConsumerWidget {
                         recipientName.isNotEmpty
                             ? recipientName[0].toUpperCase()
                             : 'U',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,),
+                            color: context.headingColor,),
                       ),
                     ),
                     title: Text(

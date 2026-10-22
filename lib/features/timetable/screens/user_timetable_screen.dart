@@ -153,10 +153,10 @@ class UserTimetableScreen extends ConsumerWidget {
                           ),
                           child: Text(
                             '${slot.board} ${slot.standard}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+                              color: context.headingColor,
                             ),
                           ),
                         ),

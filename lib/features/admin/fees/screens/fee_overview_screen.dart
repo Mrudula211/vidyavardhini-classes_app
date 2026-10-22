@@ -371,7 +371,7 @@ class _FeeOverviewScreenState extends ConsumerState<FeeOverviewScreen> {
                   backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   child: Text(
                     item.studentName != null && item.studentName!.isNotEmpty ? item.studentName![0].toUpperCase() : 'S',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: context.headingColor),
                   ),
                 ),
                 const SizedBox(width: 12),

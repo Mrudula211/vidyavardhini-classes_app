@@ -91,12 +91,12 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                     style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 4),
                 Text('Password: ${_passwordController.text}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: AppColors.primary,),),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: context.headingColor,),),
                 const SizedBox(height: 4),
                 Text('Access Code: ${_accessCodeController.text.trim()}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: AppColors.primary,),),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: context.headingColor,),),
                 const SizedBox(height: 12),
                 const Text(
                     'Share the login, password and access code with the teacher. They log in with their mobile number or email and the password, then enter the access code.',

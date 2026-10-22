@@ -116,10 +116,10 @@ class TeacherClassworkListScreen extends ConsumerWidget {
                         ),
                         child: Text(
                           '${cw.board} • Standard ${cw.standard} • ${cw.subject}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: context.headingColor,
                           ),
                         ),
                       ),

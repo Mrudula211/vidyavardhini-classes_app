@@ -209,10 +209,10 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                         backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         child: Text(
                           student.fullName[0].toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: context.headingColor,
                           ),
                         ),
                       ),

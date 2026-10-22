@@ -235,7 +235,7 @@ class _AdminTimetableScreenState extends ConsumerState<AdminTimetableScreen> {
           backgroundColor: AppColors.primary.withValues(alpha: 0.1),
           child: Text(
             slotsIndex(slot.startTime),
-            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 12),
+            style: TextStyle(fontWeight: FontWeight.bold, color: context.headingColor, fontSize: 12),
           ),
         ),
         title: Text(
