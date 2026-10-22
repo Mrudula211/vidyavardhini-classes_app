@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,6 +83,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         adminVerified: isAdminLoggedIn,
         teacherVerified: isTeacherLoggedIn,
       );
+      if (kDebugMode) {
+        debugPrint(
+          '[redirect] uri=${state.uri} session=${session != null} '
+          'authLoading=${authState.isLoading} roleLoading=${userRole.isLoading} '
+          'role=${userRole.valueOrNull} roleError=${userRole.hasError} '
+          'statusLoading=${studentStatus.isLoading} status=${studentStatus.valueOrNull} '
+          '-> ${decision.location} signOut=${decision.signOut}',
+        );
+      }
       if (decision.signOut) {
         await Supabase.instance.client.auth.signOut();
       }

@@ -36,7 +36,14 @@ CREATE TABLE users (
 );
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "users: own read" ON users FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "users: admin read all" ON users FOR SELECT USING (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'));
+-- NOTE: a policy on `users` must not query `users` (infinite recursion,
+-- error 42P17). The admin check lives in a SECURITY DEFINER helper instead.
+CREATE OR REPLACE FUNCTION public.is_admin() RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin');
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+CREATE POLICY "users: admin read all" ON users FOR SELECT USING (public.is_admin());
 CREATE POLICY "users: insert own" ON users FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "users: update own" ON users FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 

@@ -410,6 +410,8 @@ A static audit of every button, route and dashboard found the following. Fixed i
 
 - [x] Found on a real phone: a new student verified the OTP, then was sent back to Welcome. The login account existed in `auth.users` but the client-side insert of the `public.users` row did not land, so the role was unknown. Fixed in two layers: migration `012_auto_create_user_row.sql` (database trigger creates the row, backfills orphans) and the router no longer parks on the splash screen when a role is unknown (`decideRedirect`, 12 tests).
 
+- [x] **Root cause found from the phone's debug log:** `42P17 infinite recursion detected in policy for relation "users"` — the original `users: admin read all` policy queried `users`, so every API read of `users` failed (role lookup, FCM token save, and every admin policy on other tables). Fixed by migration `013_fix_users_policy_recursion.sql` (`public.is_admin()`); also corrected in `001`. This had been masked by the old flag-based admin/teacher login.
+
 ---
 
 ## Milestones

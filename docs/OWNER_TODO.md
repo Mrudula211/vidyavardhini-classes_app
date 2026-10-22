@@ -18,6 +18,7 @@ Tick items as you finish them. "Done" items were confirmed from your Supabase sc
 - [x] Admin account is complete (Auth login + admin profile + phone number).
 
 **Do next, in this order**
+- [ ] **0a-1.** Run migration `supabase/migrations/013_fix_users_policy_recursion.sql` FIRST (fixes the real cause of being sent back to Welcome: every read of the `users` table was failing). Then run 012 if you have not.
 - [ ] **0a.** Run migration `supabase/migrations/012_auto_create_user_row.sql` in the SQL Editor (fixes new students being sent back to the Welcome screen after the OTP). Then install the newest build and retry registration.
 - [ ] **0.** Rotate the admin password and access code (SQL in section 0). Still the most urgent item.
 - [ ] **0.** If the GitHub repository is public, make it private.
