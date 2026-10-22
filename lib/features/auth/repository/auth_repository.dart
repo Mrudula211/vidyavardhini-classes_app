@@ -26,4 +26,10 @@ abstract class AuthRepository {
   Future<String?> fetchStudentStatus(String userId);
   Future<bool> verifyAdminCredentials(String accessCode, String password);
   Future<bool> verifyTeacherAccessCode(String accessCode);
+
+  /// Admin only: sets a new 6-digit access code (needs the current password).
+  Future<void> changeAdminAccessCode({
+    required String currentPassword,
+    required String newCode,
+  });
 }

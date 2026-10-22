@@ -30,6 +30,7 @@ import '../../features/admin/revenue/screens/revenue_screen.dart';
 import '../../features/admin/settings/geofence_settings_screen.dart';
 import '../../features/admin/audit_logs/screens/audit_logs_screen.dart';
 import '../../features/admin/backup/screens/backup_screen.dart';
+import '../../features/admin/settings/admin_security_screen.dart';
 import '../../features/admin/promotion/screens/promotion_screen.dart';
 import '../../features/teacher/attendance/screens/teacher_checkin_screen.dart';
 import '../../features/admin/announcements/screens/announcement_create_screen.dart';
@@ -207,6 +208,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.adminAcademicYear,
         builder: (context, state) => const PromotionScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminSecurity,
+        builder: (context, state) => const AdminSecurityScreen(),
       ),
       GoRoute(
         path: Routes.adminBackup,

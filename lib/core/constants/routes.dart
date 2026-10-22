@@ -30,6 +30,7 @@ class Routes {
   static const String adminAcademicYear = '/admin/settings/academic-year';
   static const String adminAuditLogs = '/admin/settings/audit-logs';
   static const String adminBackup = '/admin/settings/backup';
+  static const String adminSecurity = '/admin/settings/security';
 
   // Teacher shell
   static const String teacherDashboard = '/teacher/dashboard';

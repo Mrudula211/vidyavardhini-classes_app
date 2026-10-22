@@ -323,7 +323,7 @@ void main() {
 
     test('verifyEmailCode throws when no session comes back', () async {
       fakeAuth.currentSessionMock = null;
-      fakeAuth.verifyOtpCallback = () => FakeAuthResponse();
+      fakeAuth.verifyOtpCallback = FakeAuthResponse.new;
       expect(
         () => repository.verifyEmailCode('a@b.com', '123456'),
         throwsException,
