@@ -324,7 +324,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Error states with retry buttons on all audited list screens (several had no Retry button at all before this pass — fee overview, admin attendance, admin timetable, chat list)
 - [x] Pull-to-refresh on all audited data screens (fee overview, admin attendance, and admin timetable had none at all before this pass)
 - [x] Smooth page transitions — app-wide fade+slide via `FadeSlidePageTransitionsBuilder` on light/dark themes
-- [ ] Dark mode QA pass — every screen
+- [x] Dark mode QA pass — fixed unreadable text: hard-coded maroon/brown text colours replaced by theme-aware `context.headingColor` / `bodyTextColor` / `mutedTextColor` (`ThemeTone` extension in `app_colors.dart`) across 25 files; chat bubbles/input bar, homework and classwork note boxes now follow the theme; the welcome card and admin dashboard keep their intentional fixed light colours. Needs a visual check on a phone (admin screens especially).
 
 #### Offline
 - [x] Hive caching for: announcements, homework list, attendance (per month), student fees (read-only) via `CacheService` + `fetchWithCacheFallback`

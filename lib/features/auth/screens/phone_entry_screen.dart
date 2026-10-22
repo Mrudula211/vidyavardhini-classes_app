@@ -142,7 +142,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.maroon,
+                    color: context.headingColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -154,7 +154,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                           : l10n.loginSubtitle),
                   style: AppTypography.poppins(
                     fontSize: 14,
-                    color: AppColors.brown,
+                    color: context.bodyTextColor,
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -181,7 +181,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                         textAlign: TextAlign.center,
                         style: AppTypography.poppins(
                           fontSize: 13,
-                          color: AppColors.maroon,
+                          color: context.headingColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -215,7 +215,7 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
             style: AppTypography.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AppColors.brown,
+              color: context.bodyTextColor,
             ),
           ),
         ),

@@ -208,7 +208,7 @@ class _StudentRegistrationScreenState
                     context.l10n.addPhotoOptional,
                     style: AppTypography.poppins(
                       fontSize: 13,
-                      color: AppColors.maroon,
+                      color: context.headingColor,
                     ),
                   ),
                 ),
@@ -360,7 +360,7 @@ class _StudentRegistrationScreenState
                   context.l10n.registrationReviewNote,
                   style: AppTypography.poppins(
                     fontSize: 12,
-                    color: AppColors.lightOutline,
+                    color: context.mutedTextColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -413,7 +413,7 @@ class _SectionLabel extends StatelessWidget {
       style: AppTypography.cinzel(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: AppColors.maroon,
+        color: context.headingColor,
         letterSpacing: 0.5,
       ),
     );

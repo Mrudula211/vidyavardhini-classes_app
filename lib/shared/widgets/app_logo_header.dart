@@ -26,7 +26,7 @@ class AppLogoHeader extends StatelessWidget {
               style: AppTypography.cinzel(
                 fontSize: compact ? 14 : 17,
                 fontWeight: FontWeight.w700,
-                color: AppColors.maroon,
+                color: context.headingColor,
                 letterSpacing: 0.5,
               ),
             ),
@@ -35,7 +35,7 @@ class AppLogoHeader extends StatelessWidget {
               style: AppTypography.cinzel(
                 fontSize: compact ? 12 : 14,
                 fontWeight: FontWeight.w400,
-                color: AppColors.brown,
+                color: context.bodyTextColor,
               ),
             ),
           ],

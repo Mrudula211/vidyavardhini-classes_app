@@ -126,9 +126,15 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           maxWidth: MediaQuery.of(context).size.width * 0.75,
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10,),
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
-                          color: isMe ? AppColors.primary : Colors.white,
+                          color: isMe
+                              ? AppColors.primary
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                           borderRadius: BorderRadius.only(
                             topLeft: const Radius.circular(12),
                             topRight: const Radius.circular(12),
@@ -148,7 +154,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         child: Text(
                           msg.content,
                           style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black87,
+                            color: isMe
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.onSurface,
                             fontSize: 14,
                           ),
                         ),
@@ -166,7 +174,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           // Message Input Field
           Container(
             padding: const EdgeInsets.all(8.0),
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             child: Row(
               children: [
                 Expanded(
@@ -179,7 +187,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         borderRadius: BorderRadius.circular(24),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10,),
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                     ),
                     onSubmitted: (_) => _sendMessage(),
                   ),
@@ -196,7 +206,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2,),)
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
                       : const Icon(Icons.send),
                   onPressed: _sendMessage,
                 ),

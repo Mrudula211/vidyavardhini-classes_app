@@ -100,7 +100,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                               'No salary records yet.',
                               style: AppTypography.poppins(
                                 fontSize: 14,
-                                color: AppColors.lightOutline,
+                                color: context.mutedTextColor,
                               ),
                             ),
                           ],
@@ -139,7 +139,7 @@ class TeacherSalaryScreen extends ConsumerWidget {
                       'No earlier records found.',
                       style: AppTypography.poppins(
                         fontSize: 13,
-                        color: AppColors.lightOutline,
+                        color: context.mutedTextColor,
                       ),
                     ),
                   )

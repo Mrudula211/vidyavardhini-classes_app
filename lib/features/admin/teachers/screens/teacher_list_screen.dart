@@ -127,7 +127,7 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                                   'No teachers found.',
                                   style: AppTypography.poppins(
                                     fontSize: 14,
-                                    color: AppColors.lightOutline,
+                                    color: context.mutedTextColor,
                                   ),
                                 ),
                               ],

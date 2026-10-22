@@ -76,7 +76,7 @@ class NotificationListScreen extends ConsumerWidget {
                       context.l10n.noNotifications,
                       style: AppTypography.poppins(
                         fontSize: 14,
-                        color: AppColors.lightOutline,
+                        color: context.mutedTextColor,
                       ),
                     ),
                   ],
@@ -133,7 +133,7 @@ class NotificationListScreen extends ConsumerWidget {
                             ).format(createdAt),
                             style: AppTypography.poppins(
                               fontSize: 11,
-                              color: AppColors.lightOutline,
+                              color: context.mutedTextColor,
                             ),
                           ),
                         ],

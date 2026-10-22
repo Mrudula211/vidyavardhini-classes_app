@@ -84,7 +84,7 @@ class TeacherHomeworkListScreen extends ConsumerWidget {
                     Text(
                       'No homework created yet.\nTap "+ Create Homework" to publish an assignment.',
                       textAlign: TextAlign.center,
-                      style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                      style: AppTypography.poppins(fontSize: 14, color: context.mutedTextColor),
                     ),
                   ],
                 ),

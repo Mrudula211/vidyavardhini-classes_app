@@ -87,7 +87,7 @@ class _PendingApprovalScreenState extends ConsumerState<PendingApprovalScreen> {
                   style: AppTypography.cinzel(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.maroon,
+                    color: context.headingColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -96,7 +96,7 @@ class _PendingApprovalScreenState extends ConsumerState<PendingApprovalScreen> {
                   l10n.awaitingApproval,
                   style: AppTypography.poppins(
                     fontSize: 15,
-                    color: AppColors.brown,
+                    color: context.bodyTextColor,
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
@@ -106,7 +106,7 @@ class _PendingApprovalScreenState extends ConsumerState<PendingApprovalScreen> {
                   l10n.notifyOnApproval,
                   style: AppTypography.poppins(
                     fontSize: 13,
-                    color: AppColors.lightOutline,
+                    color: context.mutedTextColor,
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,

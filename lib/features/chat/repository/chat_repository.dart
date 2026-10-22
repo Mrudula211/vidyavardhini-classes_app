@@ -16,7 +16,9 @@ class ChatRepository {
     required String userId,
     required String role,
   }) async {
-    dynamic query = _client.from('chat_rooms').select('*, student_profiles(*), teacher_profiles(*)');
+    dynamic query = _client
+        .from('chat_rooms')
+        .select('*, student_profiles(*), teacher_profiles(*)');
 
     if (role == 'student') {
       query = query.eq('student_id', userId);
@@ -87,10 +89,10 @@ class ChatRepository {
         .eq('room_id', roomId)
         .order('created_at', ascending: true)
         .map((data) {
-      final all = data.map(ChatMessageModel.fromJson).toList();
-      if (all.length <= messageWindowSize) return all;
-      return all.sublist(all.length - messageWindowSize);
-    });
+          final all = data.map(ChatMessageModel.fromJson).toList();
+          if (all.length <= messageWindowSize) return all;
+          return all.sublist(all.length - messageWindowSize);
+        });
   }
 
   Future<ChatRoomModel?> fetchChatRoomById(String roomId) async {

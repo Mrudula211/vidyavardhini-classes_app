@@ -111,7 +111,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   style: AppTypography.cinzel(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.maroon,
+                    color: context.headingColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -121,7 +121,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                       : context.l10n.adminLoginSubtitle,
                   style: AppTypography.poppins(
                     fontSize: 14,
-                    color: AppColors.brown,
+                    color: context.bodyTextColor,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -203,7 +203,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                       context.l10n.useDifferentAccount,
                       style: AppTypography.poppins(
                         fontSize: 14,
-                        color: AppColors.maroon,
+                        color: context.headingColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

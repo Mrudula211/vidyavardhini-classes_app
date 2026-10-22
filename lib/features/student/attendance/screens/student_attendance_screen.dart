@@ -139,7 +139,7 @@ class StudentAttendanceScreen extends ConsumerWidget {
                               Text(
                                 context.l10n.noAttendanceRecords,
                                 textAlign: TextAlign.center,
-                                style: AppTypography.poppins(fontSize: 14, color: AppColors.lightOutline),
+                                style: AppTypography.poppins(fontSize: 14, color: context.mutedTextColor),
                               ),
                             ],
                           ),
