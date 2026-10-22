@@ -133,10 +133,13 @@ class SupabaseAuthRepository implements AuthRepository {
     required String currentPassword,
     required String newCode,
   }) async {
-    await _client.rpc('change_my_admin_access_code', params: {
-      'p_current_password': currentPassword,
-      'p_new_code': newCode,
-    },);
+    await _client.rpc(
+      'change_my_admin_access_code',
+      params: {
+        'p_current_password': currentPassword,
+        'p_new_code': newCode,
+      },
+    );
   }
 
   Future<bool> _verify(String function, Map<String, dynamic> params) async {

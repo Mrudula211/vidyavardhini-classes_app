@@ -305,10 +305,11 @@ void main() {
   group('email codes', () {
     final session = FakeSession(user: FakeUser(id: 'user-123'));
 
-    test('sendEmailCode asks Supabase to email a code', () async {
+    test('sendEmailCode emails a code without creating accounts', () async {
       await repository.sendEmailCode('a@b.com');
       expect(fakeAuth.lastOtpEmail, 'a@b.com');
-      expect(fakeAuth.lastShouldCreateUser, isTrue);
+      // Accounts are created by the admin only.
+      expect(fakeAuth.lastShouldCreateUser, isFalse);
     });
 
     test('verifyEmailCode uses the email type and returns the session',

@@ -226,15 +226,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () => context.go(Routes.createAccount),
-                    child: Text(l10n.welcomeRegister),
-                  ),
-                ),
                 const SizedBox(height: 12),
                 Text(
                   l10n.noLoginHint,
@@ -257,8 +248,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
 /// Where a signed-in person goes next, decided by their account's role.
 /// Admin and teacher continue to their access-code step; students go straight
-/// to their dashboard (the router sends pending/new students to the right
-/// registration or approval screen).
+/// to their dashboard (the router sends pending students to the waiting
+/// screen).
 String roleDestination(String? role) {
   switch (role) {
     case 'admin':
