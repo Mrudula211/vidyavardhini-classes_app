@@ -18,6 +18,7 @@ Tick items as you finish them. "Done" items were confirmed from your Supabase sc
 - [x] Admin account is complete (Auth login + admin profile + phone number).
 
 **Do next, in this order**
+- [ ] **0a.** Run migration `supabase/migrations/012_auto_create_user_row.sql` in the SQL Editor (fixes new students being sent back to the Welcome screen after the OTP). Then install the newest build and retry registration.
 - [ ] **0.** Rotate the admin password and access code (SQL in section 0). Still the most urgent item.
 - [ ] **0.** If the GitHub repository is public, make it private.
 - [ ] **A.** Install the newest build on the phone (it fixes unreadable text in dark mode): `flutter install -d <your phone> --release`, or `flutter run --release`.

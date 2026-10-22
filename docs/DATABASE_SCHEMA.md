@@ -1083,6 +1083,12 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.9 Auto-created user rows (migration 012)
+
+- Trigger `on_auth_user_created` (AFTER INSERT on `auth.users`) -> `private.handle_new_auth_user()` creates the matching `public.users` row (role `student`, phone `+<digits>`) for self-registering phone accounts, so the role always exists the moment the login account does. Accounts flagged `raw_user_meta_data.created_by_admin = true` (teachers via `create_teacher_profile`, the seeded admin) are skipped. Existing orphaned auth accounts are backfilled.
+
+---
+
 ## 10. Indexes Summary
 
 ```sql

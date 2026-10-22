@@ -406,6 +406,12 @@ A static audit of every button, route and dashboard found the following. Fixed i
 
 ---
 
+## Login hang fixes (2026-10-22)
+
+- [x] Found on a real phone: a new student verified the OTP, then was sent back to Welcome. The login account existed in `auth.users` but the client-side insert of the `public.users` row did not land, so the role was unknown. Fixed in two layers: migration `012_auto_create_user_row.sql` (database trigger creates the row, backfills orphans) and the router no longer parks on the splash screen when a role is unknown (`decideRedirect`, 12 tests).
+
+---
+
 ## Milestones
 
 | Milestone | Phases | Target |
