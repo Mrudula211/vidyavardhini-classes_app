@@ -5,13 +5,10 @@ class Routes {
   static const String splash = '/';
   static const String roleSelect = '/role-select';
   static const String login = '/auth/login';
-  static const String createAccount = '/auth/create-account';
   static const String newPassword = '/auth/new-password';
   static const String otp = '/auth/otp';
   static const String adminLogin = '/auth/admin-login';
   static const String teacherLogin = '/auth/teacher-login';
-  static const String studentRegister = '/auth/student-register';
-  static const String studentSetPassword = '/auth/student-set-password';
   static const String pendingApproval = '/auth/pending';
 
   // Admin shell

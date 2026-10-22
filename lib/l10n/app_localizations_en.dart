@@ -53,7 +53,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeHint =>
-      'Log in with your mobile number or email and your password.';
+      'Log in with the mobile number or email and the access code given by the institute.';
 
   @override
   String get loginTitle => 'Welcome back';
@@ -63,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginSubtitle =>
-      'Enter your mobile number or email and your password.';
+      'Enter your mobile number or email and your access code (or password).';
 
   @override
   String get registerSubtitle =>
@@ -689,4 +689,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get contactEmailNote =>
       'We will use this email only to contact you about your account.';
+
+  @override
+  String get passwordOrCode => 'Access code or password';
+
+  @override
+  String get noLoginHint =>
+      'Do not have a login yet? Ask the institute. They will give you a mobile number or email and an access code.';
 }

@@ -28,8 +28,10 @@ void main() {
     await t.pump();
     await t.tap(find.text('Login'));
     await t.pump();
-    expect(find.text('Enter a 10-digit mobile number or a valid email'),
-        findsOneWidget,);
+    expect(
+      find.text('Enter a 10-digit mobile number or a valid email'),
+      findsOneWidget,
+    );
     expect(find.text('Enter your password'), findsOneWidget);
     expect(find.text('Enter the 6-digit access code'), findsOneWidget);
   });

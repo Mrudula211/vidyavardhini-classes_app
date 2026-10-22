@@ -10,7 +10,6 @@ AuthRedirect _decide({
   String? role,
   bool statusLoading = false,
   String? status,
-  String? email = 'a@b.c',
   bool adminVerified = false,
   bool teacherVerified = false,
 }) =>
@@ -22,7 +21,6 @@ AuthRedirect _decide({
       role: role,
       statusLoading: statusLoading,
       status: status,
-      email: email,
       adminVerified: adminVerified,
       teacherVerified: teacherVerified,
     );
@@ -60,14 +58,23 @@ void main() {
   });
 
   group('students', () {
-    test('new student (no profile yet) goes to registration', () {
+    test('a login without a student profile gets no access', () {
+      final d = _decide(uri: Routes.splash, role: 'student', status: null);
+      expect(d.signOut, isTrue);
+      expect(d.location, Routes.roleSelect);
+    });
+
+    test('an approved student goes straight to the dashboard', () {
       expect(
-        _decide(uri: Routes.splash, role: 'student', status: null).location,
-        Routes.studentRegister,
+        _decide(uri: Routes.splash, role: 'student', status: 'active').location,
+        Routes.studentDashboard,
       );
       expect(
-        _decide(uri: Routes.studentRegister, role: 'student', status: null)
-            .location,
+        _decide(
+          uri: Routes.studentDashboard,
+          role: 'student',
+          status: 'active',
+        ).location,
         isNull,
       );
     });
@@ -87,18 +94,6 @@ void main() {
       final d = _decide(role: 'student', status: 'banned');
       expect(d.signOut, isTrue);
       expect(d.location, Routes.roleSelect);
-    });
-
-    test('approved student without email must set a password first', () {
-      expect(
-        _decide(
-          uri: Routes.studentDashboard,
-          role: 'student',
-          status: 'active',
-          email: null,
-        ).location,
-        Routes.studentSetPassword,
-      );
     });
 
     test('students cannot open admin or teacher areas', () {
@@ -164,11 +159,8 @@ void main() {
       );
     });
 
-    test('the create-account screen is a login-area page', () {
-      expect(
-        _decide(hasSession: false, uri: Routes.createAccount).location,
-        isNull,
-      );
+    test('the email-code screen is a login-area page', () {
+      expect(_decide(hasSession: false, uri: Routes.otp).location, isNull);
     });
   });
 }

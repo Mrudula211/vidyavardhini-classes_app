@@ -39,7 +39,8 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> sendEmailCode(String email) async {
-    await _client.auth.signInWithOtp(email: email, shouldCreateUser: true);
+    // Accounts are created by the admin only; never create one here.
+    await _client.auth.signInWithOtp(email: email, shouldCreateUser: false);
   }
 
   @override

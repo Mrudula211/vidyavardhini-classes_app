@@ -158,30 +158,6 @@ class _ActionSheet extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.maroon,
-                side: const BorderSide(color: AppColors.gold, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              onPressed: () => context.go(Routes.createAccount),
-              child: Text(
-                l10n.welcomeRegister,
-                textAlign: TextAlign.center,
-                style: AppTypography.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.maroon,
-                ),
-              ),
-            ),
-          ),
           const SizedBox(height: 16),
           Text(
             l10n.welcomeHint,

@@ -54,7 +54,7 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get welcomeHint =>
-      'तुमच्या मोबाईल नंबर किंवा ईमेल आणि पासवर्डने लॉगिन करा.';
+      'संस्थेने दिलेल्या मोबाईल नंबर किंवा ईमेल आणि ॲक्सेस कोडने लॉगिन करा.';
 
   @override
   String get loginTitle => 'पुन्हा स्वागत आहे';
@@ -63,7 +63,8 @@ class AppLocalizationsMr extends AppLocalizations {
   String get registerTitle => 'नवीन विद्यार्थी नोंदणी';
 
   @override
-  String get loginSubtitle => 'तुमचा मोबाईल नंबर किंवा ईमेल आणि पासवर्ड टाका.';
+  String get loginSubtitle =>
+      'तुमचा मोबाईल नंबर किंवा ईमेल आणि ॲक्सेस कोड (किंवा पासवर्ड) टाका.';
 
   @override
   String get registerSubtitle =>
@@ -685,4 +686,11 @@ class AppLocalizationsMr extends AppLocalizations {
   @override
   String get contactEmailNote =>
       'आम्ही हा ईमेल फक्त तुमच्या खात्याबद्दल संपर्क करण्यासाठी वापरू.';
+
+  @override
+  String get passwordOrCode => 'ॲक्सेस कोड किंवा पासवर्ड';
+
+  @override
+  String get noLoginHint =>
+      'अजून लॉगिन नाही? संस्थेला विचारा. ते तुम्हाला मोबाईल नंबर किंवा ईमेल आणि ॲक्सेस कोड देतील.';
 }

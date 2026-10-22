@@ -182,7 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     obscureText: !_passwordVisible,
                     autofillHints: const [AutofillHints.password],
                     decoration: InputDecoration(
-                      labelText: l10n.password,
+                      labelText: l10n.passwordOrCode,
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: IconButton(
                         tooltip: _passwordVisible
@@ -226,7 +226,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -234,6 +233,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ? null
                         : () => context.go(Routes.createAccount),
                     child: Text(l10n.welcomeRegister),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.noLoginHint,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.poppins(
+                    fontSize: 12,
+                    color: context.mutedTextColor,
+                    height: 1.5,
                   ),
                 ),
                 const SizedBox(height: 16),
