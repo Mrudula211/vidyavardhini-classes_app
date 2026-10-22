@@ -76,8 +76,8 @@ Instructors assigned to specific classes.
 
 Enrolled learners.
 
-**Registration Flow:** Create account (mobile or email + password) → Registration Form → Pending Approval  
-**Post-Approval Login:** Login → mobile number or email + password → Dashboard. Forgot password: email code, then choose a new one (phone-only accounts: the admin resets it).
+**Onboarding:** the admin adds the student in the app (name, class, parent contact, fee, login mobile/email). The app generates an access code, shown on the student's page. There is no self-registration.  
+**Login:** Login → mobile number or email + the access code → Dashboard. Lost code: the admin generates a new one on the student's page. (Email accounts can also use "Forgot password?" with an emailed code.)
 
 **Languages:** English, Hindi (हिन्दी) and Marathi (मराठी), switchable on the first screen and remembered. Parent/student-facing screens are fully translated.
 

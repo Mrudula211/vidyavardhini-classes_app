@@ -425,6 +425,17 @@ Decision: SMS OTP needs a provider plus India DLT registration; replaced by pass
 - [ ] Contact details are unverified by design (confirmations off); the admin approval gate is the control. Revisit if spam registrations appear.
 - [ ] Email codes need email templates with `{{ .Token }}` and a custom SMTP sender for real volume (Supabase default email is heavily rate-limited).
 
+## Admin creates students; access code = login (2026-10-22)
+
+Decision: no self-registration. The admin adds each student; the generated access code is the student's password.
+- [x] Migration 016: `student_access_codes` (admin-read-only), `create_student_account`, `regenerate_student_access_code`, 8-character code generator; self-registration policies and the auth trigger removed.
+- [x] Admin: **Add Student** screen (Student Management app bar), code dialog with copy, "App login" card + "Generate a new code" on the student page.
+- [x] Removed: create-account, student registration and set-password screens/routes; Welcome shows Login only; login box accepts mobile/email + access code; email codes no longer create accounts.
+- [x] Router: no student profile -> signed out; tests updated; new tests for Add Student and the code card.
+- [ ] Teachers adding students (RPC is admin-only for now).
+- [ ] Turn off "Allow new users to sign up" in Supabase (owner step).
+- [ ] The code is stored readable for the admin (RLS-protected); revisit if that is not acceptable.
+
 ---
 
 ## Milestones

@@ -153,11 +153,16 @@ Role is stored in the `users` table and embedded in JWT via a Supabase Auth hook
 
 ### 3.1 Unified login (as built)
 
-There is no role picker and **no SMS**. `WelcomeScreen` -> `LoginScreen` (mobile number or email + password; `LoginIdentifier.parse` decides which) or `CreateAccountScreen` for new students. "Forgot password?" emails a one-time code (`OtpScreen`) and then offers `NewPasswordScreen`. After sign-in the app reads `users.role` (`fetchUserRole`) and `roleDestination()` decides the next step.
+There is no role picker and **no SMS**. `WelcomeScreen` -> `LoginScreen`: mobile number or email (`LoginIdentifier.parse` decides which) + password. For students the password is their **access code**. "Forgot password?" emails a one-time code (`OtpScreen`) and then offers `NewPasswordScreen`. After sign-in the app reads `users.role` and `roleDestination()` decides the next step.
 
-Accounts: students/parents self-register with a password (the database trigger `on_auth_user_created` creates their `users` row as `student`); admin and teacher accounts are created by the admin (`create_teacher_profile` with a password, mobile and/or email, and an access code; `admin_reset_user_password` for forgotten passwords). Supabase must have "Confirm email" and "Enable phone confirmations" **off** so password sign-up works without SMS/email verification — contact details are therefore unverified, and the admin approving every student is the gate.
+**Accounts are created by the admin only** (no self-registration; turn off "Allow new users to sign up" in Supabase):
+- Student: `create_student_account` (admin RPC) creates the login (phone and/or email, password = a generated 8-character access code), the `users` row, the active `student_profiles` row with the next STU id, the enrolment for the current year, the fee structure, and a readable copy of the code in `student_access_codes` (admin-read-only RLS) so the admin can show/share it. `regenerate_student_access_code` replaces a lost code.
+- Teacher: `create_teacher_profile` (password + access code). Admin: seeded; changes own password/code on the Security screen.
+- `admin_reset_user_password` for any forgotten password.
 
-`appRouterProvider.redirect` is the single gate (pure function `decideRedirect`): no session -> auth screens only; session without a known role -> Welcome (never the splash); student status gates (pending / rejected / banned); **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked; `/auth/new-password` is allowed for any signed-in role. `currentUserIdProvider` makes the user/role/status providers react to login and logout.
+**Trade-off:** the access code is stored readable for the admin (so it can be shown again) — it is protected by RLS, but it is not hashed-only like a normal password. Codes are 8 characters from a 32-symbol alphabet (about 40 bits), regenerated on request.
+
+`appRouterProvider.redirect` is the single gate (pure function `decideRedirect`): no session -> auth screens only; session without a known role -> Welcome (never the splash); students: no profile / rejected / banned -> signed out, pending (legacy) -> waiting screen, active -> app; **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked; `/auth/new-password` is allowed for any signed-in role. `currentUserIdProvider` makes the user/role/status providers react to login and logout.
 
 ### 3.2 Localization
 

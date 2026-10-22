@@ -3,28 +3,28 @@
 ## Navigation Overview
 
 ```
+Admin: Student Desk -> "Add Student" (form)  -> student + login + ACCESS CODE created
+                                              -> code shown (copy) and kept on the student's page
+Parent/student:
+
 App Launch
   └── SplashScreen
-        └── WelcomeScreen  (one door for everyone; EN / हिन्दी / मराठी switcher)
-              ├── "Login"                 ─┐
-              └── "New student? Register" ─┤
-                                           ▼
-   LoginScreen  /auth/login                       CreateAccountScreen  /auth/create-account
-   mobile number OR email + password              mobile OR email + password (+ confirm)
-   "Forgot password?" -> email code               -> session -> StudentRegistrationScreen
-        │                                                            -> PendingApprovalScreen
-        ├── email code -> OtpScreen -> NewPasswordScreen (optional) -> role destination
-        ▼
-   look up users.role
-        ├── admin   -> AdminLoginScreen   (password + access code) -> Admin dashboard
-        ├── teacher -> TeacherLoginScreen (access code)            -> Teacher dashboard
-        └── student -> new: registration form; pending: waiting screen;
-                       active: Student dashboard; rejected/banned: signed out
+        └── WelcomeScreen  (Login only; EN / हिन्दी / मराठी switcher)
+              └── "Login" -> LoginScreen  /auth/login
+                    mobile number OR email  +  ACCESS CODE (or password)
+                    "Forgot password?" -> emailed code -> OtpScreen -> NewPasswordScreen
+                    │
+                    ▼  look up users.role
+                    ├── admin   -> AdminLoginScreen   (password + access code) -> Admin dashboard
+                    ├── teacher -> TeacherLoginScreen (access code)            -> Teacher dashboard
+                    └── student -> active: Student dashboard
+                                   pending (legacy): waiting screen
+                                   no profile / rejected / banned: signed out
 ```
 
-No SMS is used anywhere. Nobody chooses a role: the account decides. The router
-holds an admin or teacher on their verification screen until the access code
-has been checked.
+There is no self-registration. Students exist only when the admin adds them
+(`create_student_account`); the student's access code is the password. Nobody
+chooses a role: the account decides.
 
 ---
 
@@ -34,8 +34,7 @@ has been checked.
 |---|---|---|
 | `/` | SplashScreen | Checks session, redirects |
 | `/role-select` | WelcomeScreen | Landing page: Login / New student, language switcher (route name kept for compatibility) |
-| `/auth/login` | LoginScreen | Single login for all roles: mobile or email + password; "Forgot password?" sends an email code |
-| `/auth/create-account` | CreateAccountScreen | New student/parent: mobile or email + password |
+| `/auth/login` | LoginScreen | Single login for all roles: mobile or email + access code/password; "Forgot password?" sends an email code |
 | `/auth/new-password` | NewPasswordScreen | Choose a new password after an email-code login |
 | `/admin/settings/security` | AdminSecurityScreen | Admin changes own password and/or access code (needs current ones) |
 | `/auth/otp` | OtpScreen | Enter the 6-digit code emailed to the person (email-code login only) |
@@ -444,3 +443,10 @@ AdminDashboard
 | `/admin/settings/academic-year` | PromotionScreen | CONFIRM -> password -> SMS OTP -> `promote_students` |
 | (pushed, not routed) | AttachmentViewerScreen | image/PDF viewer for homework & classwork attachments |
 | (dashboards) | Chat / Timetable / Announcements tiles, Logout | teacher + student; Backups + Academic Year tiles for admin |
+
+## Student onboarding screens (admin)
+
+| Route | Screen | Notes |
+|---|---|---|
+| `/admin/students/add` | AddStudentScreen | Admin adds a student + login; shows the generated access code afterwards |
+| `/admin/students/:id` | StudentDetailScreen | Now shows an "App login" card: login, access code (copy), "Generate a new code" |
