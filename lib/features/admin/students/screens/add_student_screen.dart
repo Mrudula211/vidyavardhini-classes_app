@@ -113,7 +113,9 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
                 ),
                 const SizedBox(height: 12),
                 AccessCodeCard(
-                  login: result['login'] as String?,
+                  logins: [
+                    if (result['login'] != null) result['login'] as String
+                  ],
                   accessCode: result['access_code'] as String?,
                 ),
                 const SizedBox(height: 8),
@@ -233,7 +235,8 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: _parentName,
-                decoration: _dec('Parent / guardian name *', Icons.family_restroom),
+                decoration:
+                    _dec('Parent / guardian name *', Icons.family_restroom),
                 validator: (v) => _required(v, 'Enter the parent name'),
               ),
               const SizedBox(height: 14),

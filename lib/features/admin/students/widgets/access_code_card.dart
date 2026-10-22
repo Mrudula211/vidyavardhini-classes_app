@@ -8,15 +8,14 @@ import '../../../../core/theme/app_colors.dart';
 class AccessCodeCard extends StatelessWidget {
   const AccessCodeCard({
     super.key,
-    required this.login,
+    required this.logins,
     required this.accessCode,
-    this.studentId,
     this.onRegenerate,
   });
 
-  final String? login;
+  /// Everything the student can log in with (mobile and/or email).
+  final List<String> logins;
   final String? accessCode;
-  final String? studentId;
 
   /// When set, a "New code" button is shown (for a lost code).
   final VoidCallback? onRegenerate;
@@ -53,11 +52,19 @@ class AccessCodeCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _Line(
-              label: 'Login (mobile or email)',
-              value: login ?? '-',
-              onCopy: login == null ? null : () => _copy(context, login!, 'Login'),
-            ),
+            if (logins.isEmpty)
+              const _Line(label: 'Login', value: 'Not available')
+            else
+              for (var i = 0; i < logins.length; i++) ...[
+                if (i > 0) const SizedBox(height: 8),
+                _Line(
+                  label: logins[i].contains('@')
+                      ? 'Login (email)'
+                      : 'Login (mobile number)',
+                  value: logins[i],
+                  onCopy: () => _copy(context, logins[i], 'Login'),
+                ),
+              ],
             const SizedBox(height: 8),
             _Line(
               label: 'Access code (use it as the password)',

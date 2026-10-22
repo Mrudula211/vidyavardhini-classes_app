@@ -76,7 +76,8 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                   child: SizedBox(
                     width: 24,
                     height: 24,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                        color: Colors.white, strokeWidth: 2),
                   ),
                 )
               : IconButton(
@@ -104,8 +105,9 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
-                              ref.read(studentSearchQueryProvider.notifier).state =
-                                  '';
+                              ref
+                                  .read(studentSearchQueryProvider.notifier)
+                                  .state = '';
                               ref.read(studentListPageProvider.notifier).state =
                                   0;
                             },
@@ -151,18 +153,22 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                         initialValue: selectedBoard,
                         decoration: const InputDecoration(
                           labelText: 'Board',
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         ),
                         items: const [
-                          DropdownMenuItem(value: 'all', child: Text('All Boards')),
+                          DropdownMenuItem(
+                              value: 'all', child: Text('All Boards')),
                           DropdownMenuItem(value: 'SSC', child: Text('SSC')),
                           DropdownMenuItem(value: 'CBSE', child: Text('CBSE')),
                         ],
                         onChanged: (val) {
                           if (val != null) {
-                            ref.read(studentFilterBoardProvider.notifier).state =
-                                val;
-                            ref.read(studentListPageProvider.notifier).state = 0;
+                            ref
+                                .read(studentFilterBoardProvider.notifier)
+                                .state = val;
+                            ref.read(studentListPageProvider.notifier).state =
+                                0;
                           }
                         },
                       ),
@@ -173,27 +179,40 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                         initialValue: selectedStandard,
                         decoration: const InputDecoration(
                           labelText: 'Standard',
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         ),
                         items: const [
-                          DropdownMenuItem(value: 'all', child: Text('All Standards')),
-                          DropdownMenuItem(value: '1st', child: Text('1st Std')),
-                          DropdownMenuItem(value: '2nd', child: Text('2nd Std')),
-                          DropdownMenuItem(value: '3rd', child: Text('3rd Std')),
-                          DropdownMenuItem(value: '4th', child: Text('4th Std')),
-                          DropdownMenuItem(value: '5th', child: Text('5th Std')),
-                          DropdownMenuItem(value: '6th', child: Text('6th Std')),
-                          DropdownMenuItem(value: '7th', child: Text('7th Std')),
-                          DropdownMenuItem(value: '8th', child: Text('8th Std')),
-                          DropdownMenuItem(value: '9th', child: Text('9th Std')),
-                          DropdownMenuItem(value: '10th', child: Text('10th Std')),
+                          DropdownMenuItem(
+                              value: 'all', child: Text('All Standards')),
+                          DropdownMenuItem(
+                              value: '1st', child: Text('1st Std')),
+                          DropdownMenuItem(
+                              value: '2nd', child: Text('2nd Std')),
+                          DropdownMenuItem(
+                              value: '3rd', child: Text('3rd Std')),
+                          DropdownMenuItem(
+                              value: '4th', child: Text('4th Std')),
+                          DropdownMenuItem(
+                              value: '5th', child: Text('5th Std')),
+                          DropdownMenuItem(
+                              value: '6th', child: Text('6th Std')),
+                          DropdownMenuItem(
+                              value: '7th', child: Text('7th Std')),
+                          DropdownMenuItem(
+                              value: '8th', child: Text('8th Std')),
+                          DropdownMenuItem(
+                              value: '9th', child: Text('9th Std')),
+                          DropdownMenuItem(
+                              value: '10th', child: Text('10th Std')),
                         ],
                         onChanged: (val) {
                           if (val != null) {
                             ref
                                 .read(studentFilterStandardProvider.notifier)
                                 .state = val;
-                            ref.read(studentListPageProvider.notifier).state = 0;
+                            ref.read(studentListPageProvider.notifier).state =
+                                0;
                           }
                         },
                       ),
@@ -221,8 +240,11 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.people_outline_rounded,
-                                    size: 48, color: AppColors.lightOutline,),
+                                const Icon(
+                                  Icons.people_outline_rounded,
+                                  size: 48,
+                                  color: AppColors.lightOutline,
+                                ),
                                 const SizedBox(height: 12),
                                 Text(
                                   'No students found.',
@@ -243,7 +265,8 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                   onRefresh: _refreshStudents,
                   child: ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: students.length,
                     itemBuilder: (context, index) {
                       final student = students[index];
@@ -253,7 +276,8 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                 );
               },
               loading: () => ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: 6,
                 itemBuilder: (context, index) => Container(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -270,8 +294,11 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon,),
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        size: 40,
+                        color: AppColors.maroon,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load students.\n$err',
@@ -383,7 +410,8 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
             Expanded(
               child: Text(
                 student.fullName,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
             Container(

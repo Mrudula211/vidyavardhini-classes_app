@@ -16,14 +16,16 @@ class StudentApprovalScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<StudentApprovalScreen> createState() => _StudentApprovalScreenState();
+  ConsumerState<StudentApprovalScreen> createState() =>
+      _StudentApprovalScreenState();
 }
 
 class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _studentIdController = TextEditingController();
-  final TextEditingController _monthlyFeeController = TextEditingController(text: '2000');
-  
+  final TextEditingController _monthlyFeeController =
+      TextEditingController(text: '2000');
+
   StudentModel? _student;
   bool _isLoading = true;
   bool _isSubmitting = false;
@@ -64,7 +66,8 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final monthlyFee = double.tryParse(_monthlyFeeController.text.trim()) ?? 0.0;
+      final monthlyFee =
+          double.tryParse(_monthlyFeeController.text.trim()) ?? 0.0;
       await ref.read(studentRepositoryProvider).approveStudent(
             studentId: widget.studentId,
             assignedStudentId: _studentIdController.text.trim(),
@@ -78,7 +81,8 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Student ${_student!.fullName} approved successfully!'),
+            content:
+                Text('Student ${_student!.fullName} approved successfully!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -199,14 +203,16 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
               // Header Card
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     children: [
                       CircleAvatar(
                         radius: 32,
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                        backgroundColor:
+                            AppColors.primary.withValues(alpha: 0.1),
                         child: Text(
                           student.fullName[0].toUpperCase(),
                           style: TextStyle(
@@ -235,7 +241,8 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                             ),
                             Text(
                               'School: ${student.schoolName}',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                              style: TextStyle(
+                                  color: Colors.grey.shade600, fontSize: 12),
                             ),
                           ],
                         ),
@@ -275,7 +282,8 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                   hintText: 'e.g. STU0001',
                   prefixIcon: Icon(Icons.badge),
                   border: OutlineInputBorder(),
-                  helperText: 'Auto-suggested permanent Student ID (never reused)',
+                  helperText:
+                      'Auto-suggested permanent Student ID (never reused)',
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -328,7 +336,8 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                         onPressed: _approveStudent,
                         child: const Text(
                           'APPROVE STUDENT',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                     ),
@@ -347,7 +356,8 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                         onPressed: _rejectStudent,
                         child: const Text(
                           'REJECT REGISTRATION',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                     ),

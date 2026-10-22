@@ -80,11 +80,17 @@ void main() {
     await t.pumpWidget(
       _host(
         const Scaffold(
-          body: AccessCodeCard(login: '+919876543210', accessCode: 'K7M2PQ9X'),
+          body: AccessCodeCard(
+            logins: ['+919876543210', 'a@b.com'],
+            accessCode: 'K7M2PQ9X',
+          ),
         ),
       ),
     );
     expect(find.text('+919876543210'), findsOneWidget);
+    expect(find.text('a@b.com'), findsOneWidget);
+    expect(find.text('Login (mobile number)'), findsOneWidget);
+    expect(find.text('Login (email)'), findsOneWidget);
     expect(find.text('K7M2PQ9X'), findsOneWidget);
     expect(find.text('Generate a new code'), findsNothing);
   });
@@ -96,7 +102,7 @@ void main() {
       _host(
         Scaffold(
           body: AccessCodeCard(
-            login: 'a@b.com',
+            logins: const ['a@b.com'],
             accessCode: null,
             onRegenerate: () => tapped = true,
           ),
