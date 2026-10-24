@@ -17,3 +17,6 @@
 ## 2026-08-29 - Adding Semantics to GestureDetectors
 **Learning:** Found that `GestureDetector` and `InkWell` used for primary actions (like photo upload and date picking) lack inherent accessibility labels in Flutter, making them opaque to screen readers.
 **Action:** Always wrap custom touch targets (`GestureDetector`, `InkWell`, etc.) that act as buttons with a `Semantics` widget. Set `button: true`, a clear `label`, and a descriptive `hint` to ensure they are properly announced by accessibility services.
+## 2024-05-14 - Interactive Widget Accessibility
+**Learning:** Custom tap targets used for major inputs (like `InkWell` and `GestureDetector` for Date Pickers or Profile Photos) in this Flutter app often lack semantic wrappers by default, causing them to be ignored or misidentified by screen readers.
+**Action:** Always wrap custom interactive widgets (`InkWell`, `GestureDetector`) used for inputs or navigation with a `Semantics` widget, providing `button: true`, a clear `label`, and a descriptive `hint`.
