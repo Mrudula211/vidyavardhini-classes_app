@@ -80,7 +80,9 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
 
     setState(() => _busy = true);
     try {
-      final result = await ref.read(studentRepositoryProvider).createStudent(
+      final result = await ref
+          .read(studentRepositoryProvider)
+          .createStudent(
             fullName: _name.text,
             gender: _gender,
             dob: _dob!,
@@ -184,14 +186,19 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
                 onChanged: (v) => setState(() => _gender = v ?? _gender),
               ),
               const SizedBox(height: 14),
-              InkWell(
-                onTap: _pickDob,
-                child: InputDecorator(
-                  decoration: _dec('Date of birth *', Icons.cake),
-                  child: Text(
-                    _dob == null
-                        ? 'Tap to choose'
-                        : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
+              Semantics(
+                button: true,
+                label: 'Date of birth',
+                hint: 'Double tap to select date of birth',
+                child: InkWell(
+                  onTap: _pickDob,
+                  child: InputDecorator(
+                    decoration: _dec('Date of birth *', Icons.cake),
+                    child: Text(
+                      _dob == null
+                          ? 'Tap to choose'
+                          : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
+                    ),
                   ),
                 ),
               ),
@@ -233,7 +240,10 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: _parentName,
-                decoration: _dec('Parent / guardian name *', Icons.family_restroom),
+                decoration: _dec(
+                  'Parent / guardian name *',
+                  Icons.family_restroom,
+                ),
                 validator: (v) => _required(v, 'Enter the parent name'),
               ),
               const SizedBox(height: 14),
