@@ -17,3 +17,7 @@
 ## 2026-08-29 - Adding Semantics to GestureDetectors
 **Learning:** Found that `GestureDetector` and `InkWell` used for primary actions (like photo upload and date picking) lack inherent accessibility labels in Flutter, making them opaque to screen readers.
 **Action:** Always wrap custom touch targets (`GestureDetector`, `InkWell`, etc.) that act as buttons with a `Semantics` widget. Set `button: true`, a clear `label`, and a descriptive `hint` to ensure they are properly announced by accessibility services.
+
+## 2026-10-26 - Adding Semantics to Interactive Form Elements
+**Learning:** Found an interactive `InkWell` widget wrapping an `InputDecorator` for date selection in a form that lacked semantic labeling. Screen readers would fail to identify this element as an interactive button for picking a date.
+**Action:** Always wrap interactive form elements like date pickers that rely on `InkWell` or `GestureDetector` inside a `Semantics` widget with `button: true`, a clear `label`, and a descriptive `hint` to guarantee full accessibility and improve the user experience for those using screen readers.
