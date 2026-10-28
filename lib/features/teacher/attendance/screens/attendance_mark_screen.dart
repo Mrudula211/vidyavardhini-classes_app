@@ -143,8 +143,25 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                 }
 
                 if (_localStudentList.isEmpty) {
-                  return const Center(
-                    child: Text('No active students found in this class.'),
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.people_outline,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No active students found in this class.',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }
 
