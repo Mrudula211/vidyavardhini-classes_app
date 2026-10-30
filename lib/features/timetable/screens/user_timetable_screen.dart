@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/timetable_providers.dart';
 import '../../../l10n/l10n_context.dart';
@@ -105,9 +106,23 @@ class UserTimetableScreen extends ConsumerWidget {
               data: (slots) {
                 if (slots.isEmpty) {
                   return Center(
-                    child: Text(
-                      context.l10n.noClassesToday,
-                      style: const TextStyle(color: Colors.grey),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.event_busy,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.l10n.noClassesToday,
+                          style: AppTypography.poppins(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }
