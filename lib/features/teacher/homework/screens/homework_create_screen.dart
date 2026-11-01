@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/attachment_picker_field.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/offline_banner.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../attendance/providers/attendance_providers.dart';
@@ -108,7 +109,19 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
               assignedClassesAsync.when(
                 data: (classes) {
                   if (classes.isEmpty) {
-                    return const Text('No classes assigned to you.', style: TextStyle(color: Colors.red));
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.class_outlined, size: 64, color: Colors.grey.shade400),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No classes assigned to you.',
+                            style: AppTypography.poppins(fontSize: 14, color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    );
                   }
                   return DropdownButtonFormField<String>(
                     initialValue: '${_selectedBoard}_$_selectedStandard',

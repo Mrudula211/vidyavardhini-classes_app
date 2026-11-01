@@ -17,3 +17,7 @@
 ## 2026-08-29 - Adding Semantics to GestureDetectors
 **Learning:** Found that `GestureDetector` and `InkWell` used for primary actions (like photo upload and date picking) lack inherent accessibility labels in Flutter, making them opaque to screen readers.
 **Action:** Always wrap custom touch targets (`GestureDetector`, `InkWell`, etc.) that act as buttons with a `Semantics` widget. Set `button: true`, a clear `label`, and a descriptive `hint` to ensure they are properly announced by accessibility services.
+
+## 2024-05-18 - Replacing plain text empty states
+**Learning:** Returning plain unstyled text for empty states makes lists or options appear broken or incomplete. Using visual elements like a centered Column, large subdued icon, and styled descriptive text creates a much better user experience.
+**Action:** When creating visual empty states for lists or missing items, prefer using a centered `Column` containing a relevant `Icon` (e.g., size 64, using a subdued color like `Colors.grey.shade400`) and styled descriptive text below it (using `Colors.grey.shade600` and `AppTypography.poppins`).
