@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/models/student_model.dart';
 import '../../../../shared/widgets/offline_banner.dart';
 import '../../../auth/providers/auth_providers.dart';
@@ -143,8 +144,18 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                 }
 
                 if (_localStudentList.isEmpty) {
-                  return const Center(
-                    child: Text('No active students found in this class.'),
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.group_off_outlined, size: 64, color: Colors.grey.shade400),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No active students found in this class.',
+                          style: AppTypography.poppins(fontSize: 14, color: Colors.grey.shade600),
+                        ),
+                      ],
+                    ),
                   );
                 }
 
