@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/empty_state.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/models/student_model.dart';
 import '../../../../shared/widgets/offline_banner.dart';
@@ -33,9 +35,7 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
         : const AsyncValue.data([]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mark Attendance'),
-      ),
+      appBar: AppBar(title: const Text('Mark Attendance')),
       body: Column(
         children: [
           // Class & Date Header
@@ -48,9 +48,9 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                 assignedClassesAsync.when(
                   data: (classes) {
                     if (classes.isEmpty) {
-                      return const Text(
-                        'No classes assigned to you.',
-                        style: TextStyle(color: Colors.red),
+                      return const EmptyStateWidget(
+                        icon: Icons.class_outlined,
+                        message: 'No classes assigned to you.',
                       );
                     }
                     return Row(
@@ -78,16 +78,19 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                               if (val != null) {
                                 final parts = val.split('_');
                                 ref
-                                    .read(
-                                      selectedAttendanceBoardProvider.notifier,
-                                    )
-                                    .state = parts[0];
+                                        .read(
+                                          selectedAttendanceBoardProvider
+                                              .notifier,
+                                        )
+                                        .state =
+                                    parts[0];
                                 ref
-                                    .read(
-                                      selectedAttendanceStandardProvider
-                                          .notifier,
-                                    )
-                                    .state = parts[1];
+                                        .read(
+                                          selectedAttendanceStandardProvider
+                                              .notifier,
+                                        )
+                                        .state =
+                                    parts[1];
                               }
                             },
                           ),
@@ -117,9 +120,11 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                           );
                           if (picked != null) {
                             ref
-                                    .read(selectedAttendanceDateProvider.notifier)
-                                    .state =
-                                picked.toIso8601String().split('T').first;
+                                .read(selectedAttendanceDateProvider.notifier)
+                                .state = picked
+                                .toIso8601String()
+                                .split('T')
+                                .first;
                           }
                         },
                       ),
@@ -143,8 +148,9 @@ class _AttendanceMarkScreenState extends ConsumerState<AttendanceMarkScreen> {
                 }
 
                 if (_localStudentList.isEmpty) {
-                  return const Center(
-                    child: Text('No active students found in this class.'),
+                  return const EmptyStateWidget(
+                    icon: Icons.group_off_outlined,
+                    message: 'No active students found in this class.',
                   );
                 }
 

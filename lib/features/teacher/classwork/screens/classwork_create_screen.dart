@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../shared/widgets/empty_state.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../shared/widgets/attachment_picker_field.dart';
@@ -13,14 +15,17 @@ class ClassworkCreateScreen extends ConsumerStatefulWidget {
   const ClassworkCreateScreen({super.key});
 
   @override
-  ConsumerState<ClassworkCreateScreen> createState() => _ClassworkCreateScreenState();
+  ConsumerState<ClassworkCreateScreen> createState() =>
+      _ClassworkCreateScreenState();
 }
 
 class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
-  final TextEditingController _subjectController = TextEditingController(text: 'Science');
+  final TextEditingController _subjectController = TextEditingController(
+    text: 'Science',
+  );
 
   String _selectedBoard = 'SSC';
   String _selectedStandard = '10th';
@@ -43,13 +48,17 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      await ref.read(contentRepositoryProvider).createClasswork(
+      await ref
+          .read(contentRepositoryProvider)
+          .createClasswork(
             teacherId: currentUser.id,
             board: _selectedBoard,
             standard: _selectedStandard,
             subject: _subjectController.text.trim(),
             title: _titleController.text.trim(),
-            description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : null,
+            description: _descController.text.trim().isNotEmpty
+                ? _descController.text.trim()
+                : null,
             attachments: _attachments,
           );
 
@@ -83,9 +92,7 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
         : const AsyncValue.data([]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Classwork Notes'),
-      ),
+      appBar: AppBar(title: const Text('Create Classwork Notes')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -96,7 +103,10 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
               assignedClassesAsync.when(
                 data: (classes) {
                   if (classes.isEmpty) {
-                    return const Text('No classes assigned to you.', style: TextStyle(color: Colors.red));
+                    return const EmptyStateWidget(
+                      icon: Icons.class_outlined,
+                      message: 'No classes assigned to you.',
+                    );
                   }
                   return DropdownButtonFormField<String>(
                     initialValue: '${_selectedBoard}_$_selectedStandard',
@@ -109,7 +119,9 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
                       final val = '${c['board']}_${c['standard']}';
                       return DropdownMenuItem(
                         value: val,
-                        child: Text('${c['board']} • Standard ${c['standard']}'),
+                        child: Text(
+                          '${c['board']} • Standard ${c['standard']}',
+                        ),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -136,7 +148,9 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
                   prefixIcon: Icon(Icons.book),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Subject is required' : null,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Subject is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
@@ -148,7 +162,9 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
                   prefixIcon: Icon(Icons.folder_special),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Title is required' : null,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Title is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
@@ -157,7 +173,8 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
                 maxLines: 6,
                 decoration: const InputDecoration(
                   labelText: 'Board Summary / Class Notes',
-                  hintText: 'e.g. Key definitions, formulas, and board summaries discussed in class today.',
+                  hintText:
+                      'e.g. Key definitions, formulas, and board summaries discussed in class today.',
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(),
                 ),
@@ -177,14 +194,19 @@ class _ClassworkCreateScreenState extends ConsumerState<ClassworkCreateScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: _isSubmitting ? null : _submitClasswork,
                   child: _isSubmitting
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'PUBLISH CLASSWORK NOTES',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                 ),
               ),
