@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../shared/widgets/empty_state.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../shared/widgets/attachment_picker_field.dart';
@@ -14,14 +16,17 @@ class HomeworkCreateScreen extends ConsumerStatefulWidget {
   const HomeworkCreateScreen({super.key});
 
   @override
-  ConsumerState<HomeworkCreateScreen> createState() => _HomeworkCreateScreenState();
+  ConsumerState<HomeworkCreateScreen> createState() =>
+      _HomeworkCreateScreenState();
 }
 
 class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
-  final TextEditingController _subjectController = TextEditingController(text: 'Mathematics');
+  final TextEditingController _subjectController = TextEditingController(
+    text: 'Mathematics',
+  );
   final TextEditingController _dueDateController = TextEditingController();
 
   String _selectedBoard = 'SSC';
@@ -54,13 +59,17 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      await ref.read(contentRepositoryProvider).createHomework(
+      await ref
+          .read(contentRepositoryProvider)
+          .createHomework(
             teacherId: currentUser.id,
             board: _selectedBoard,
             standard: _selectedStandard,
             subject: _subjectController.text.trim(),
             title: _titleController.text.trim(),
-            description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : null,
+            description: _descController.text.trim().isNotEmpty
+                ? _descController.text.trim()
+                : null,
             dueDate: _dueDateController.text.trim(),
             attachments: _attachments,
           );
@@ -95,9 +104,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
         : const AsyncValue.data([]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Homework'),
-      ),
+      appBar: AppBar(title: const Text('Create Homework')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -108,7 +115,10 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
               assignedClassesAsync.when(
                 data: (classes) {
                   if (classes.isEmpty) {
-                    return const Text('No classes assigned to you.', style: TextStyle(color: Colors.red));
+                    return const EmptyStateWidget(
+                      icon: Icons.class_outlined,
+                      message: 'No classes assigned to you.',
+                    );
                   }
                   return DropdownButtonFormField<String>(
                     initialValue: '${_selectedBoard}_$_selectedStandard',
@@ -121,7 +131,9 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                       final val = '${c['board']}_${c['standard']}';
                       return DropdownMenuItem(
                         value: val,
-                        child: Text('${c['board']} • Standard ${c['standard']}'),
+                        child: Text(
+                          '${c['board']} • Standard ${c['standard']}',
+                        ),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -148,7 +160,9 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                   prefixIcon: Icon(Icons.book),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Subject is required' : null,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Subject is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
@@ -160,7 +174,9 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                   prefixIcon: Icon(Icons.assignment),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.trim().isEmpty) ? 'Title is required' : null,
+                validator: (val) => (val == null || val.trim().isEmpty)
+                    ? 'Title is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
@@ -183,7 +199,10 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                       );
                       if (picked != null) {
                         setState(() {
-                          _dueDateController.text = picked.toIso8601String().split('T').first;
+                          _dueDateController.text = picked
+                              .toIso8601String()
+                              .split('T')
+                              .first;
                         });
                       }
                     },
@@ -197,7 +216,8 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                 maxLines: 5,
                 decoration: const InputDecoration(
                   labelText: 'Detailed Instructions / Description',
-                  hintText: 'e.g. Solve Questions 1 to 10 in your homework notebook.',
+                  hintText:
+                      'e.g. Solve Questions 1 to 10 in your homework notebook.',
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(),
                 ),
@@ -217,14 +237,19 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: _isSubmitting ? null : _submitHomework,
                   child: _isSubmitting
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'PUBLISH HOMEWORK',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                 ),
               ),
