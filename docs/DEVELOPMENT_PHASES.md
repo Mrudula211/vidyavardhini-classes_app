@@ -361,7 +361,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [ ] Build release APK + AAB
 - [ ] Test on 3+ Android devices (different screen sizes)
 - [ ] Upload to Play Store (internal testing track)
-- [x] App icon + splash screen (branded) — `flutter_launcher_icons` / `flutter_native_splash` configured in `pubspec.yaml`, Android assets generated from `images/logo-icon.png` (parchment light / dark-brown dark splash). Owner may supply a higher-resolution source (current is ~580px).
+- [x] App icon + splash screen (branded) — `flutter_launcher_icons` / `flutter_native_splash` configured in `pubspec.yaml`, Android assets generated from `images/logo-icon.png` (parchment light / dark-brown dark splash). Owner may supply a higher-resolution source (current is ~580px). **Icon fix (2026-11-17):** the launcher icon was cropped by Android's adaptive-icon mask; it is now built from the full badge (`images/logo.png`) inside the 62% safe zone (`images/app_icon_foreground.png`, flat `images/app_icon.png`, parchment background), and the app label reads "Vidyavardhini".
 - [ ] Play Store listing (screenshots, description)
 
 **Deliverable:** App live on Play Store.
