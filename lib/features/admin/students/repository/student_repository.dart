@@ -94,22 +94,29 @@ class StudentRepository {
         .eq('is_current', true)
         .maybeSingle();
 
-    final academicYearId = currentYearRes != null ? currentYearRes['id'] as String? : null;
+    final academicYearId =
+        currentYearRes != null ? currentYearRes['id'] as String? : null;
 
     if (academicYearId != null) {
-      await _client.from('fee_structure').upsert({
-        'student_id': studentId,
-        'academic_year_id': academicYearId,
-        'monthly_fee': monthlyFee,
-        'updated_at': now,
-      }, onConflict: 'student_id,academic_year_id',);
+      await _client.from('fee_structure').upsert(
+        {
+          'student_id': studentId,
+          'academic_year_id': academicYearId,
+          'monthly_fee': monthlyFee,
+          'updated_at': now,
+        },
+        onConflict: 'student_id,academic_year_id',
+      );
 
-      await _client.from('student_enrollments').upsert({
-        'student_id': studentId,
-        'academic_year_id': academicYearId,
-        'board': student.board,
-        'standard': student.standard,
-      }, onConflict: 'student_id,academic_year_id',);
+      await _client.from('student_enrollments').upsert(
+        {
+          'student_id': studentId,
+          'academic_year_id': academicYearId,
+          'board': student.board,
+          'standard': student.standard,
+        },
+        onConflict: 'student_id,academic_year_id',
+      );
     }
   }
 
@@ -133,31 +140,40 @@ class StudentRepository {
     String? clean(String? v) =>
         (v == null || v.trim().isEmpty) ? null : v.trim();
 
-    final res = await _client.rpc('create_student_account', params: {
-      'p_full_name': fullName.trim(),
-      'p_gender': gender,
-      'p_dob': dob.toIso8601String().split('T').first,
-      'p_parent_name': parentName.trim(),
-      'p_parent_phone': parentPhone.trim(),
-      'p_school_name': schoolName.trim(),
-      'p_board': board,
-      'p_standard': standard,
-      'p_monthly_fee': monthlyFee,
-      'p_login_phone': clean(loginPhone),
-      'p_login_email': clean(loginEmail),
-      'p_whatsapp_number': clean(whatsappNumber),
-    },);
+    final res = await _client.rpc(
+      'create_student_account',
+      params: {
+        'p_full_name': fullName.trim(),
+        'p_gender': gender,
+        'p_dob': dob.toIso8601String().split('T').first,
+        'p_parent_name': parentName.trim(),
+        'p_parent_phone': parentPhone.trim(),
+        'p_school_name': schoolName.trim(),
+        'p_board': board,
+        'p_standard': standard,
+        'p_monthly_fee': monthlyFee,
+        'p_login_phone': clean(loginPhone),
+        'p_login_email': clean(loginEmail),
+        'p_whatsapp_number': clean(whatsappNumber),
+      },
+    );
     return Map<String, dynamic>.from(res as Map);
   }
 
-  /// The mobile number the student logs in with (admin only).
-  Future<String?> fetchLoginPhone(String studentId) async {
-    final data = await _client
-        .from('users')
-        .select('phone')
-        .eq('id', studentId)
-        .maybeSingle();
-    return data?['phone'] as String?;
+  /// What the student can really log in with (mobile and/or email), read
+  /// from the login account itself (admin only).
+  Future<List<String>> fetchLoginMethods(String studentId) async {
+    final res = await _client.rpc(
+      'get_student_login_methods',
+      params: {'p_student_id': studentId},
+    );
+    final map = Map<String, dynamic>.from(res as Map);
+    return [
+      if ((map['phone'] as String?)?.isNotEmpty ?? false)
+        map['phone'] as String,
+      if ((map['email'] as String?)?.isNotEmpty ?? false)
+        map['email'] as String,
+    ];
   }
 
   /// The student's current access code (admin only; null if none stored).

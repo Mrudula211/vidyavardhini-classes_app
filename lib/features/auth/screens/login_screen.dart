@@ -182,7 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     obscureText: !_passwordVisible,
                     autofillHints: const [AutofillHints.password],
                     decoration: InputDecoration(
-                      labelText: l10n.password,
+                      labelText: l10n.passwordOrCode,
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: IconButton(
                         tooltip: _passwordVisible
@@ -226,14 +226,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () => context.go(Routes.createAccount),
-                    child: Text(l10n.welcomeRegister),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.noLoginHint,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.poppins(
+                    fontSize: 12,
+                    color: context.mutedTextColor,
+                    height: 1.5,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -248,8 +248,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
 /// Where a signed-in person goes next, decided by their account's role.
 /// Admin and teacher continue to their access-code step; students go straight
-/// to their dashboard (the router sends pending/new students to the right
-/// registration or approval screen).
+/// to their dashboard (the router sends pending students to the waiting
+/// screen).
 String roleDestination(String? role) {
   switch (role) {
     case 'admin':

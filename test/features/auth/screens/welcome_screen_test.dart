@@ -31,10 +31,6 @@ GoRouter _router() => GoRouter(
           path: Routes.login,
           builder: (_, __) => const Scaffold(body: Text('LOGIN PAGE')),
         ),
-        GoRoute(
-          path: Routes.createAccount,
-          builder: (_, __) => const Scaffold(body: Text('CREATE ACCOUNT PAGE')),
-        ),
       ],
     );
 
@@ -52,7 +48,8 @@ void main() {
   testWidgets('shows one Login door, no role picker', (t) async {
     await _pump(t);
     expect(find.text('Login'), findsOneWidget);
-    expect(find.text('New student? Register here'), findsOneWidget);
+    // Students are created by the admin, so there is no sign-up button.
+    expect(find.textContaining('Register'), findsNothing);
     // The old role cards are gone.
     expect(find.text('Admin'), findsNothing);
     expect(find.text('Teacher'), findsNothing);
@@ -76,20 +73,11 @@ void main() {
     expect(find.text('Login'), findsOneWidget);
   });
 
-  testWidgets('Login and Register go to the login and create-account screens',
-      (t) async {
+  testWidgets('Login opens the login screen', (t) async {
     await _pump(t);
     await t.tap(find.text('Login'));
     await t.pumpAndSettle();
     expect(find.text('LOGIN PAGE'), findsOneWidget);
-
-    final router = _router();
-    t.view.physicalSize = const Size(800, 1600);
-    await t.pumpWidget(ProviderScope(child: _Harness(router: router)));
-    await t.pumpAndSettle();
-    await t.tap(find.text('New student? Register here'));
-    await t.pumpAndSettle();
-    expect(find.text('CREATE ACCOUNT PAGE'), findsOneWidget);
   });
 
   test('roleDestination sends each role to the right next step', () {

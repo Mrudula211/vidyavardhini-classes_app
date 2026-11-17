@@ -39,7 +39,8 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> sendEmailCode(String email) async {
-    await _client.auth.signInWithOtp(email: email, shouldCreateUser: true);
+    // Accounts are created by the admin only; never create one here.
+    await _client.auth.signInWithOtp(email: email, shouldCreateUser: false);
   }
 
   @override
@@ -132,10 +133,13 @@ class SupabaseAuthRepository implements AuthRepository {
     required String currentPassword,
     required String newCode,
   }) async {
-    await _client.rpc('change_my_admin_access_code', params: {
-      'p_current_password': currentPassword,
-      'p_new_code': newCode,
-    },);
+    await _client.rpc(
+      'change_my_admin_access_code',
+      params: {
+        'p_current_password': currentPassword,
+        'p_new_code': newCode,
+      },
+    );
   }
 
   Future<bool> _verify(String function, Map<String, dynamic> params) async {

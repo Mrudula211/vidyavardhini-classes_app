@@ -122,7 +122,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     } else if (role == 'admin' || role == 'teacher') {
       context.go(roleDestination(role));
     } else {
-      context.go(Routes.studentRegister);
+      context.go(Routes.studentDashboard);
     }
   }
 
