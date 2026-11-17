@@ -204,7 +204,7 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -242,7 +242,7 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                             Text(
                               'School: ${student.schoolName}',
                               style: TextStyle(
-                                  color: Colors.grey.shade600, fontSize: 12),
+                                  color: Colors.grey.shade600, fontSize: 12,),
                             ),
                           ],
                         ),
@@ -337,7 +337,7 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                         child: const Text(
                           'APPROVE STUDENT',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                              fontWeight: FontWeight.bold, fontSize: 16,),
                         ),
                       ),
                     ),
@@ -357,7 +357,7 @@ class _StudentApprovalScreenState extends ConsumerState<StudentApprovalScreen> {
                         child: const Text(
                           'REJECT REGISTRATION',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                              fontWeight: FontWeight.bold, fontSize: 16,),
                         ),
                       ),
                     ),

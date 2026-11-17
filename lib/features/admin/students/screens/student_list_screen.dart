@@ -77,7 +77,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
+                        color: Colors.white, strokeWidth: 2,),
                   ),
                 )
               : IconButton(
@@ -158,7 +158,7 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                         ),
                         items: const [
                           DropdownMenuItem(
-                              value: 'all', child: Text('All Boards')),
+                              value: 'all', child: Text('All Boards'),),
                           DropdownMenuItem(value: 'SSC', child: Text('SSC')),
                           DropdownMenuItem(value: 'CBSE', child: Text('CBSE')),
                         ],
@@ -184,27 +184,27 @@ class _StudentListScreenState extends ConsumerState<StudentListScreen> {
                         ),
                         items: const [
                           DropdownMenuItem(
-                              value: 'all', child: Text('All Standards')),
+                              value: 'all', child: Text('All Standards'),),
                           DropdownMenuItem(
-                              value: '1st', child: Text('1st Std')),
+                              value: '1st', child: Text('1st Std'),),
                           DropdownMenuItem(
-                              value: '2nd', child: Text('2nd Std')),
+                              value: '2nd', child: Text('2nd Std'),),
                           DropdownMenuItem(
-                              value: '3rd', child: Text('3rd Std')),
+                              value: '3rd', child: Text('3rd Std'),),
                           DropdownMenuItem(
-                              value: '4th', child: Text('4th Std')),
+                              value: '4th', child: Text('4th Std'),),
                           DropdownMenuItem(
-                              value: '5th', child: Text('5th Std')),
+                              value: '5th', child: Text('5th Std'),),
                           DropdownMenuItem(
-                              value: '6th', child: Text('6th Std')),
+                              value: '6th', child: Text('6th Std'),),
                           DropdownMenuItem(
-                              value: '7th', child: Text('7th Std')),
+                              value: '7th', child: Text('7th Std'),),
                           DropdownMenuItem(
-                              value: '8th', child: Text('8th Std')),
+                              value: '8th', child: Text('8th Std'),),
                           DropdownMenuItem(
-                              value: '9th', child: Text('9th Std')),
+                              value: '9th', child: Text('9th Std'),),
                           DropdownMenuItem(
-                              value: '10th', child: Text('10th Std')),
+                              value: '10th', child: Text('10th Std'),),
                         ],
                         onChanged: (val) {
                           if (val != null) {

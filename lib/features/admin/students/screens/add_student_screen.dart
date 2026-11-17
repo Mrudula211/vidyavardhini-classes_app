@@ -114,7 +114,7 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
                 const SizedBox(height: 12),
                 AccessCodeCard(
                   logins: [
-                    if (result['login'] != null) result['login'] as String
+                    if (result['login'] != null) result['login'] as String,
                   ],
                   accessCode: result['access_code'] as String?,
                 ),

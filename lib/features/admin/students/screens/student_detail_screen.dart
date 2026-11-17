@@ -63,14 +63,14 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+              child: const Text('Cancel'),),
           ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Generate')),
+              child: const Text('Generate'),),
         ],
       ),
     );
-    if (confirm != true) return;
+    if (confirm != true || !mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     try {
       final code = await ref
@@ -78,10 +78,10 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
           .regenerateAccessCode(widget.studentId);
       if (mounted) setState(() => _accessCode = code);
       messenger.showSnackBar(
-          const SnackBar(content: Text('New access code created')));
+          const SnackBar(content: Text('New access code created')),);
     } catch (e) {
       messenger.showSnackBar(
-          SnackBar(content: Text('Could not create a new code: $e')));
+          SnackBar(content: Text('Could not create a new code: $e')),);
     }
   }
 
@@ -91,7 +91,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       builder: (ctx) => AlertDialog(
         title: const Text('Ban Student'),
         content: Text(
-            'Are you sure you want to ban ${_student?.fullName}? They will lose app access immediately.'),
+            'Are you sure you want to ban ${_student?.fullName}? They will lose app access immediately.',),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -159,7 +159,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+                  borderRadius: BorderRadius.circular(16),),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -174,28 +174,28 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
                         style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: context.headingColor),
+                            color: context.headingColor,),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       student.fullName,
                       style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                          fontSize: 20, fontWeight: FontWeight.bold,),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'ID: ${student.studentId ?? "Pending"}',
                       style: TextStyle(
                           color: context.mutedTextColor,
-                          fontWeight: FontWeight.w600),
+                          fontWeight: FontWeight.w600,),
                     ),
                     const SizedBox(height: 8),
                     Chip(
                       label: Text(
                         student.status.toUpperCase(),
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 12),
+                            fontWeight: FontWeight.bold, fontSize: 12,),
                       ),
                       backgroundColor: _getStatusColor(student.status)
                           .withValues(alpha: 0.2),
@@ -219,7 +219,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
             _buildSectionHeader('Academic Details'),
             _buildTile('Board', student.board, Icons.school),
             _buildTile(
-                'Standard', 'Standard ${student.standard}', Icons.class_),
+                'Standard', 'Standard ${student.standard}', Icons.class_,),
             _buildTile('School Name', student.schoolName, Icons.location_city),
             const SizedBox(height: 16),
 
@@ -238,7 +238,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
               const SizedBox(height: 16),
               _buildSectionHeader('Rejection Info'),
               _buildTile('Reason', student.rejectionReason!, Icons.error,
-                  iconColor: Colors.red),
+                  iconColor: Colors.red,),
             ],
           ],
         ),
@@ -270,14 +270,14 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
           style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: context.headingColor),
+              color: context.headingColor,),
         ),
       ),
     );
   }
 
   Widget _buildTile(String label, String value, IconData icon,
-      {Color? iconColor}) {
+      {Color? iconColor,}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 1,
@@ -285,12 +285,12 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       child: ListTile(
         leading: Icon(icon, color: iconColor ?? context.headingColor),
         title: Text(label,
-            style: TextStyle(fontSize: 12, color: context.mutedTextColor)),
+            style: TextStyle(fontSize: 12, color: context.mutedTextColor),),
         subtitle: Text(value,
             style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface)),
+                color: Theme.of(context).colorScheme.onSurface,),),
       ),
     );
   }
