@@ -90,30 +90,16 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
+/// The full badge, large and unclipped (it has its own border and ribbon).
 class _LogoBadge extends StatelessWidget {
   const _LogoBadge();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 148,
-      height: 148,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.parchment,
-        border: Border.all(color: AppColors.gold, width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: Image.asset('images/logo.png', fit: BoxFit.contain),
-      ),
+    return Semantics(
+      label: 'Vidyavardhini Classes logo',
+      image: true,
+      child: Image.asset('images/logo.png', width: 220, height: 220),
     );
   }
 }
