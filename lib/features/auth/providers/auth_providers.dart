@@ -37,5 +37,10 @@ final currentStudentStatusProvider = FutureProvider<String?>((ref) async {
   return ref.watch(authRepositoryProvider).fetchStudentStatus(user.id);
 });
 
+/// True while someone who forgot their password is signing in with an emailed
+/// code and choosing a new password. Lets the router keep them on the OTP and
+/// new-password screens instead of sending them to a dashboard first.
+final passwordRecoveryProvider = StateProvider<bool>((ref) => false);
+
 final adminAuthenticatedProvider = StateProvider<bool>((ref) => false);
 final teacherAuthenticatedProvider = StateProvider<bool>((ref) => false);

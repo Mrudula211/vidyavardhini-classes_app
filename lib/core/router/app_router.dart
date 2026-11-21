@@ -51,12 +51,26 @@ import '../../features/student/fees/screens/student_fees_screen.dart';
 import '../../features/student/homework/screens/student_homework_list_screen.dart';
 import '../../features/student/classwork/screens/student_classwork_list_screen.dart';
 
+/// Tells go_router to re-run its redirect rules without rebuilding the router.
+class _RouterRefresh extends ChangeNotifier {
+  void ping() => notifyListeners();
+}
+
+/// The router is built ONCE. Rebuilding it (as happened when the providers
+/// were watched here) resets the navigation stack to the splash screen on every
+/// token refresh and loses whatever form the user was filling in. Changes in
+/// login state only trigger a re-check of the redirect rules.
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
-  final userRole = ref.watch(currentUserRoleProvider);
-  final isAdminLoggedIn = ref.watch(adminAuthenticatedProvider);
-  final isTeacherLoggedIn = ref.watch(teacherAuthenticatedProvider);
-  final studentStatus = ref.watch(currentStudentStatusProvider);
+  final refresh = _RouterRefresh();
+  ref.onDispose(refresh.dispose);
+
+  void ping(Object? previous, Object? next) => refresh.ping();
+  ref.listen(authStateProvider, ping);
+  ref.listen(currentUserRoleProvider, ping);
+  ref.listen(currentStudentStatusProvider, ping);
+  ref.listen(adminAuthenticatedProvider, ping);
+  ref.listen(teacherAuthenticatedProvider, ping);
+  ref.listen(passwordRecoveryProvider, ping);
 
   // The access-code step is only valid for the session it was passed in.
   // Clear it on logout or when a different account signs in.
@@ -69,8 +83,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     initialLocation: Routes.splash,
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: kDebugMode,
+    refreshListenable: refresh,
     redirect: (context, state) async {
+      final authState = ref.read(authStateProvider);
+      final userRole = ref.read(currentUserRoleProvider);
+      final studentStatus = ref.read(currentStudentStatusProvider);
       final session = authState.valueOrNull;
       final decision = decideRedirect(
         uri: state.uri.toString(),
@@ -80,8 +98,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         role: userRole.valueOrNull,
         statusLoading: studentStatus.isLoading,
         status: studentStatus.valueOrNull,
-        adminVerified: isAdminLoggedIn,
-        teacherVerified: isTeacherLoggedIn,
+        adminVerified: ref.read(adminAuthenticatedProvider),
+        teacherVerified: ref.read(teacherAuthenticatedProvider),
+        recovering: ref.read(passwordRecoveryProvider),
       );
       if (kDebugMode) {
         debugPrint(
@@ -324,6 +343,7 @@ AuthRedirect decideRedirect({
   required String? status,
   required bool adminVerified,
   required bool teacherVerified,
+  bool recovering = false,
 }) {
   final isAuthRoute = uri.startsWith('/auth') ||
       uri == Routes.roleSelect ||
@@ -338,6 +358,11 @@ AuthRedirect decideRedirect({
   }
 
   if (roleLoading) return const AuthRedirect(Routes.splash);
+
+  // Forgot-password flow: stay on the code and new-password screens.
+  if (recovering && (uri == Routes.otp || uri == Routes.newPassword)) {
+    return const AuthRedirect(null);
+  }
 
   if (role == null) {
     // Signed in but no account row could be read: do not leave the person

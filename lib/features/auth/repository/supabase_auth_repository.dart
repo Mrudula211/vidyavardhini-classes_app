@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/services/cache_service.dart';
 import '../../../core/utils/login_identifier.dart';
 import 'auth_repository.dart';
 
@@ -23,17 +24,6 @@ class SupabaseAuthRepository implements AuthRepository {
             phone: id.phone,
             password: password,
           );
-    return response.session;
-  }
-
-  @override
-  Future<Session?> signUpWithPassword(
-    LoginIdentifier id,
-    String password,
-  ) async {
-    final response = id.isEmail
-        ? await _client.auth.signUp(email: id.email, password: password)
-        : await _client.auth.signUp(phone: id.phone, password: password);
     return response.session;
   }
 
@@ -65,6 +55,13 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> signOut() async {
     await _client.auth.signOut();
+    // Cached fees, attendance and announcements belong to the person who
+    // just left; do not show them to the next user of this phone.
+    try {
+      await CacheService.instance.clear();
+    } catch (_) {
+      // Cache not initialised (tests) or already empty.
+    }
   }
 
   @override
@@ -129,17 +126,20 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> changeAdminAccessCode({
+  Future<bool> changeAdminAccessCode({
     required String currentPassword,
+    required String currentCode,
     required String newCode,
   }) async {
-    await _client.rpc(
+    final res = await _client.rpc(
       'change_my_admin_access_code',
       params: {
         'p_current_password': currentPassword,
+        'p_current_code': currentCode,
         'p_new_code': newCode,
       },
     );
+    return res == true;
   }
 
   Future<bool> _verify(String function, Map<String, dynamic> params) async {
@@ -152,8 +152,9 @@ class SupabaseAuthRepository implements AuthRepository {
         throw Exception(e.message);
       }
       return false;
-    } catch (_) {
-      return false;
     }
+    // Anything else (offline, server error) is NOT a wrong code: it propagates
+    // so the caller can show a connection message instead of counting it as a
+    // failed attempt.
   }
 }

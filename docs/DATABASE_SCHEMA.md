@@ -1095,6 +1095,17 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 
 ---
 
+### 9.11 Review fixes (migration 018)
+
+- `private.teacher_access_codes(teacher_id, code_hash)` holds teacher access-code hashes; `teacher_profiles.access_code_hash` and `admin_profiles.password_hash` are now NULL. `verify_my_teacher_access_code` and `create_teacher_profile` use the private table.
+- `change_my_admin_access_code(current_password, current_code, new_code) RETURNS BOOLEAN` (false on wrong credentials so the failure count commits); `private.record_attempt` fixed.
+- `private.audit_row` strips `access_code_hash`, `password_hash`, `fcm_token`; existing audit rows scrubbed once.
+- Policies: attachment INSERTs require `file_url` under `<auth.uid()>/`; `chat_rooms: student create` requires an active teacher; triggers freeze chat room members and sent messages (only `is_read` may change); `messages` is read-only; teachers' `student_attendance` read/write and `homework`/`classwork` writes require a `teacher_assignments` match for the class and current year; `announcements: general read` is `TO authenticated` and honours `expires_at`; `geofence_settings: teacher read` dropped.
+- Trigger `student_profiles_keep_id` makes `student_id` immutable once set; `next_student_id()` / `next_teacher_id()` revoked from anon.
+- `public.is_admin()` also granted to `supabase_auth_admin`. Re-closes self-registration (drops `on_auth_user_created`, `users: insert own`, `student_profiles: own insert`, the 8-argument `create_teacher_profile`) — **run 018 last, and again after re-running any older migration.**
+
+---
+
 ## 10. Indexes Summary
 
 ```sql

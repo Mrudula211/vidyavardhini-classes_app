@@ -38,6 +38,10 @@ Updated 2026-10-22.
      exists (select 1 from pg_tables where tablename = 'student_access_codes')       as m016_codes,
      exists (select 1 from pg_proc where proname = 'get_student_login_methods')      as m017_logins;
    ```
+   Also check **018** (run it last; it re-closes self-registration):
+   ```sql
+   select exists (select 1 from pg_tables where schemaname = 'private' and tablename = 'teacher_access_codes') as m018_applied;
+   ```
 2. **Run any missing migration**, in numeric order, from `supabase/migrations/` (paste the whole file, click Run, accept the "potential issues" popup — it only replaces functions and old policies). Each file is safe to re-run.
 3. **Authentication -> Sign In / Providers:**
    - turn **OFF "Allow new users to sign up"** (nobody should be able to create an account on their own);
@@ -86,6 +90,10 @@ The code and database parts are ready. Until this is done: push notifications ar
 ---
 
 ## 5. Things to decide
+
+- [ ] **Server-side second step (recommended before launch).** Today anyone with an admin's password could call the database API directly and skip the access code, because only the app enforces that step. Fixing it means recording the verification on the server for each session and requiring it in `is_admin()` and the teacher policies. It affects every admin screen and I cannot test it without your live database, so I have not done it blind. Tell me to go ahead and I will prepare it as a separate migration with a rollback.
+- [ ] **Banned or deactivated people** keep database access until their login expires (the app signs them out, the server does not). Say if you want a server-side block.
+- [ ] **Fresh setup:** `004_seed_admin.sql` stops until its placeholder values are edited, and the `profile-photos` and `chat-files` storage buckets are not created by any migration. Only matters if you rebuild the database from scratch.
 
 - [ ] **Hindi and Marathi wording:** ask Mrs. Gharat or a staff member to read the student screens in both languages. Send me any wording that sounds unnatural (all text is in `lib/l10n/app_hi.arb` and `app_mr.arb`).
 - [ ] **Teachers adding students?** Today only the admin can (the database function is admin-only). Say the word if teachers should too.

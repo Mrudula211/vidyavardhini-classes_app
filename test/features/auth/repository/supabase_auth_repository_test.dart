@@ -279,27 +279,6 @@ void main() {
         throwsA(isA<AuthException>()),
       );
     });
-
-    test('sign-up returns the session when Supabase signs the person in',
-        () async {
-      fakeAuth.signUpSession = session;
-      final result = await repository.signUpWithPassword(
-        const LoginIdentifier.phone('+919876543210'),
-        'secret1',
-      );
-      expect(result, session);
-      expect(fakeAuth.lastSignUpPhone, '+919876543210');
-      expect(fakeAuth.lastSignUpEmail, isNull);
-    });
-
-    test('sign-up returns null when confirmation is still required', () async {
-      fakeAuth.signUpSession = null;
-      final result = await repository.signUpWithPassword(
-        const LoginIdentifier.email('a@b.com'),
-        'secret1',
-      );
-      expect(result, isNull);
-    });
   });
 
   group('email codes', () {

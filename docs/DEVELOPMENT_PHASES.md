@@ -436,6 +436,25 @@ Decision: no self-registration. The admin adds each student; the generated acces
 - [ ] Turn off "Allow new users to sign up" in Supabase (owner step).
 - [ ] The code is stored readable for the admin (RLS-protected); revisit if that is not acceptable.
 
+## Independent review fixes (2026-11-21)
+
+Three read-only ECC reviewers (Flutter, database, security) audited the code. Fixed:
+- [x] **Router rebuilt on every token refresh** (reset navigation, lost forms): now one GoRouter with a `refreshListenable`; redirect reads state with `ref.read`.
+- [x] **Forgot-password flow redirected away** before the new-password screen: `passwordRecoveryProvider` flag + `decideRedirect(recovering:)`; tests added.
+- [x] OTP screen: resend timer no longer restarts on locale change; double-submit guarded.
+- [x] `getNextStudentId` no longer falls back to a made-up `STU0001`; student-detail load/ban errors handled; access-code change warns on partial failure; promotion label must match the dates and locks after the code is sent; geofence timeout message; PostgREST search input sanitised; client `signUpWithPassword` removed; network errors no longer count as a wrong code; `debugLogDiagnostics` debug-only; offline cache cleared on sign-out; Android `allowBackup=false`.
+- [x] **Migration 018:** self-registration re-closed (older "re-runnable" files reopen it), rate limit that actually accumulates (failures were rolled back by the RAISE), admin access-code change also needs the current code, teacher access-code hashes moved to a private table (a teacher could read and crack their own 6-digit hash), admin `password_hash` emptied, audit log no longer records hashes (existing rows scrubbed), attachment paths must be inside the uploader's folder, chat rooms only with real teachers and frozen members, chat messages immutable except the read flag, teachers limited to assigned classes for attendance/homework/classwork, announcements no longer readable anonymously, student ids immutable, `is_admin()` granted to the auth role, missing indexes.
+- [x] Backup function: credential columns and tokens stripped, chat/timetable tables included; Edge Functions: constant-time secret compare, generic errors.
+
+**Not fixed — needs a decision (see OWNER_TODO section 5):**
+- [ ] **The admin/teacher second step is client-side only.** Anyone holding an admin's password (or its email code) can call the API directly and skip the access code. A proper fix records the verification server-side per session and makes `is_admin()`/teacher policies require it; that touches every admin policy and cannot be tested without the live database.
+- [ ] Banned/inactive accounts keep database access until their session ends (the router signs them out client-side only).
+- [ ] Teacher GPS check-in trusts the position the phone sends (spoofable without device attestation).
+- [ ] Academic-year isolation is not enforced in RLS for students/teachers reading older years.
+- [ ] Fee data: a `waived` fee is recomputed to `pending` on the next write; editing/deleting a payment does not re-sync `paid_amount`; a student added mid-month gets no fee for the current month.
+- [ ] Fresh-database setup: `004_seed_admin.sql` aborts until its placeholders are edited; buckets `profile-photos` and `chat-files` are not created by any migration; backups omit `auth.users`.
+- [ ] Admin/teacher working screens still contain hard-coded English strings; attachment viewer shows raw errors.
+
 ---
 
 ## Milestones

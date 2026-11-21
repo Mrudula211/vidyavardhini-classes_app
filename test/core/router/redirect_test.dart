@@ -12,6 +12,7 @@ AuthRedirect _decide({
   String? status,
   bool adminVerified = false,
   bool teacherVerified = false,
+  bool recovering = false,
 }) =>
     decideRedirect(
       uri: uri,
@@ -23,6 +24,7 @@ AuthRedirect _decide({
       status: status,
       adminVerified: adminVerified,
       teacherVerified: teacherVerified,
+      recovering: recovering,
     );
 
 void main() {
@@ -161,6 +163,44 @@ void main() {
 
     test('the email-code screen is a login-area page', () {
       expect(_decide(hasSession: false, uri: Routes.otp).location, isNull);
+    });
+  });
+
+  group('forgot-password recovery', () {
+    test('an admin who forgot the password is not bounced to the code step',
+        () {
+      for (final role in ['admin', 'teacher']) {
+        expect(
+          _decide(uri: Routes.otp, role: role, recovering: true).location,
+          isNull,
+          reason: role,
+        );
+        expect(
+          _decide(uri: Routes.newPassword, role: role, recovering: true)
+              .location,
+          isNull,
+          reason: role,
+        );
+      }
+    });
+
+    test('a student mid-recovery stays on the code screen', () {
+      expect(
+        _decide(
+          uri: Routes.otp,
+          role: 'student',
+          status: 'active',
+          recovering: true,
+        ).location,
+        isNull,
+      );
+    });
+
+    test('without the flag the old rules still apply', () {
+      expect(
+        _decide(uri: Routes.otp, role: 'admin').location,
+        Routes.adminLogin,
+      );
     });
   });
 }

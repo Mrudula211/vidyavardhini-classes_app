@@ -88,6 +88,7 @@ void main() {
     verifyNever(
       () => repo.changeAdminAccessCode(
         currentPassword: any(named: 'currentPassword'),
+        currentCode: any(named: 'currentCode'),
         newCode: any(named: 'newCode'),
       ),
     );

@@ -18,7 +18,10 @@ Deno.serve(async (req) => {
     .from("notifications")
     .select("id, user_id, title, body, type, data, users!inner(fcm_token, is_active)")
     .in("id", ids);
-  if (error) return json({ error: error.message }, 500);
+  if (error) {
+    console.error(error);
+    return json({ error: "query failed" }, 500);
+  }
 
   const targets = (rows ?? []).filter((r) => {
     const user = r.users as unknown as { fcm_token: string | null; is_active: boolean };
@@ -40,7 +43,7 @@ Deno.serve(async (req) => {
     results = await sendFcm(messages);
   } catch (e) {
     console.error(e);
-    return json({ error: String(e) }, 500);
+    return json({ error: "push failed" }, 500);
   }
 
   const sentIds = targets.filter((_, i) => results[i] === "sent").map((r) => r.id);

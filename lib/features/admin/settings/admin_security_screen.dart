@@ -71,14 +71,38 @@ class _AdminSecurityScreenState extends ConsumerState<AdminSecurityScreen> {
 
       // Change the access code first (it re-checks the current password on
       // the server), then the password, so the check above still holds.
+      var codeChanged = false;
       if (_changingCode) {
-        await repo.changeAdminAccessCode(
+        final changed = await repo.changeAdminAccessCode(
           currentPassword: _currentPassword.text,
+          currentCode: _currentCode.text.trim(),
           newCode: _newCode.text.trim(),
         );
+        if (!changed) {
+          setState(
+            () => _error =
+                'Your current password or access code is not correct.',
+          );
+          return;
+        }
+        codeChanged = true;
       }
       if (_changingPassword) {
-        await repo.setPassword(_newPassword.text);
+        try {
+          await repo.setPassword(_newPassword.text);
+        } catch (e) {
+          if (codeChanged && mounted) {
+            // The code is already replaced; make sure the admin knows, or the
+            // old code would be tried (and counted as a failure) next time.
+            setState(
+              () => _error = 'Your NEW ACCESS CODE was saved, but the password '
+                  'could not be changed ($e). Use the new access code with your '
+                  'old password.',
+            );
+            return;
+          }
+          rethrow;
+        }
       }
 
       if (!mounted) return;
@@ -142,8 +166,9 @@ class _AdminSecurityScreenState extends ConsumerState<AdminSecurityScreen> {
                     onPressed: () => setState(() => _visible = !_visible),
                   ),
                 ),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Enter your current password' : null,
+                validator: (v) => (v == null || v.isEmpty)
+                    ? 'Enter your current password'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(

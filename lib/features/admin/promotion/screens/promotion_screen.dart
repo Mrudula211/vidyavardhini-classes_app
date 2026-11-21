@@ -50,10 +50,22 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
     _label.text = '${_start!.year}-${_start!.year + 1}';
   }
 
+  /// The label must match the dates (e.g. 2027-2028 for a year that starts in
+  /// 2027 and ends in 2028) so a typo cannot create a mislabelled year.
+  String? get _dateProblem {
+    if (_start == null || _end == null)
+      return 'Choose the start and end dates.';
+    if (!_end!.isAfter(_start!))
+      return 'The end date must be after the start date.';
+    final expected = '${_start!.year}-${_end!.year}';
+    if (_label.text.trim() != expected) {
+      return 'The year name should be $expected to match the dates.';
+    }
+    return null;
+  }
+
   bool get _inputsValid =>
-      _label.text.trim().isNotEmpty &&
-      _start != null &&
-      _end != null &&
+      _dateProblem == null &&
       _confirm.text == 'CONFIRM' &&
       _password.text.isNotEmpty;
 
@@ -167,6 +179,7 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _label,
+                enabled: !_otpSent,
                 onChanged: (_) => setState(() {}),
                 decoration: const InputDecoration(
                   labelText: 'New academic year (e.g. 2027-2028)',
@@ -178,21 +191,34 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _busy ? null : () => _pickDate(true),
+                      onPressed:
+                          (_busy || _otpSent) ? null : () => _pickDate(true),
                       child: Text(
-                          'Start: ${_start == null ? '--' : fmt.format(_start!)}',),
+                        'Start: ${_start == null ? '--' : fmt.format(_start!)}',
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _busy ? null : () => _pickDate(false),
+                      onPressed:
+                          (_busy || _otpSent) ? null : () => _pickDate(false),
                       child: Text(
-                          'End: ${_end == null ? '--' : fmt.format(_end!)}',),
+                        'End: ${_end == null ? '--' : fmt.format(_end!)}',
+                      ),
                     ),
                   ),
                 ],
               ),
+              if (_dateProblem != null && !_otpSent)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    _dateProblem!,
+                    style:
+                        const TextStyle(color: AppColors.warning, fontSize: 12),
+                  ),
+                ),
               const SizedBox(height: 12),
               TextField(
                 controller: _confirm,

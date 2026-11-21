@@ -162,6 +162,10 @@ There is no role picker and **no SMS**. `WelcomeScreen` -> `LoginScreen`: mobile
 
 **Trade-off:** the access code is stored readable for the admin (so it can be shown again) — it is protected by RLS, but it is not hashed-only like a normal password. Codes are 8 characters from a 31-symbol alphabet (about 40 bits), regenerated on request.
 
+**Known limitation (not fixed):** the admin/teacher access-code step is enforced by the app and by caller-bound rate-limited RPCs, but not by RLS — someone holding only an admin's first-step credentials can call the API directly. See DEVELOPMENT_PHASES "Independent review fixes" for the proposed server-side fix.
+
+The router is built once (`refreshListenable`), never rebuilt on provider changes.
+
 `appRouterProvider.redirect` is the single gate (pure function `decideRedirect`): no session -> auth screens only; session without a known role -> Welcome (never the splash); students: no profile / rejected / banned -> signed out, pending (legacy) -> waiting screen, active -> app; **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked; `/auth/new-password` is allowed for any signed-in role. `currentUserIdProvider` makes the user/role/status providers react to login and logout.
 
 ### 3.2 Localization

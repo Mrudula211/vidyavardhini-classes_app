@@ -32,9 +32,15 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   late String _email;
   bool _forgot = false;
 
+  bool _initialised = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Runs again on every locale/theme change; only read the arguments and
+    // start the resend countdown once.
+    if (_initialised) return;
+    _initialised = true;
     final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
     _email = extra?['email'] as String? ?? '';
     _forgot = extra?['forgot'] as bool? ?? false;
@@ -82,10 +88,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   Future<void> _verifyOtp() async {
-    if (_otp.length != 6) return;
+    if (_otp.length != 6 || _isLoading) return;
     setState(() => _isLoading = true);
     try {
       final repo = ref.read(authRepositoryProvider);
+      // Tell the router this is a forgot-password sign-in BEFORE the session
+      // appears, so it does not redirect away from the next screen.
+      if (_forgot) ref.read(passwordRecoveryProvider.notifier).state = true;
       // Unknown numbers become pending students; admin and teacher accounts
       // already exist (created by the admin) and keep their own role.
       final session = await repo.verifyEmailCode(_email, _otp);
@@ -98,6 +107,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       if (!mounted) return;
       _navigateAfterOtp(role);
     } catch (e) {
+      ref.read(passwordRecoveryProvider.notifier).state = false;
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.otpInvalid)),

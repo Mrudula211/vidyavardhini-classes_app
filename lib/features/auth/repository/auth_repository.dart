@@ -6,11 +6,6 @@ abstract class AuthRepository {
   /// Mobile number or email + password.
   Future<Session?> signInWithPassword(LoginIdentifier id, String password);
 
-  /// Creates a new account (students/parents self-register). Returns a session
-  /// when Supabase signs the person in straight away; null when the project
-  /// still requires the contact to be confirmed first.
-  Future<Session?> signUpWithPassword(LoginIdentifier id, String password);
-
   /// Emails a one-time code (new accounts, forgotten passwords).
   Future<void> sendEmailCode(String email);
   Future<Session?> verifyEmailCode(String email, String code);
@@ -27,9 +22,11 @@ abstract class AuthRepository {
   Future<bool> verifyAdminCredentials(String accessCode, String password);
   Future<bool> verifyTeacherAccessCode(String accessCode);
 
-  /// Admin only: sets a new 6-digit access code (needs the current password).
-  Future<void> changeAdminAccessCode({
+  /// Admin only: sets a new 6-digit access code. Needs the current password
+  /// AND the current access code. Returns false when either is wrong.
+  Future<bool> changeAdminAccessCode({
     required String currentPassword,
+    required String currentCode,
     required String newCode,
   });
 }
