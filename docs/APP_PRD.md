@@ -37,7 +37,7 @@ Vidyavardhini Classes is a coaching institute running SSC and CBSE batches for s
 
 The owner of the coaching class. Complete control over the system.
 
-**Login Flow:** Login → mobile number or email + password → Admin Access Code → Dashboard. Same single login as everyone; the account's role decides the destination. No SMS OTP.
+**Login Flow:** Login → mobile number or email + password → Dashboard. Same single login as everyone; the account's role decides the destination. No access code and no SMS OTP for the admin. The admin stays logged in until they log out.
 
 **Capabilities:**
 - Approve / reject / ban students
@@ -103,7 +103,7 @@ Enrolled learners.
 - Token refresh handled by Supabase SDK
 
 ### 4.2 Access Codes
-- **Admin Access Code:** 6-digit code set during first setup, stored hashed
+- **Admin:** logs in with a password only (no access code); changes it from the Security screen
 - **Teacher Access Code:** Unique per teacher, assigned by admin, stored hashed
 - Codes are required as a second factor after OTP
 

@@ -15,8 +15,8 @@ App Launch
                     "Forgot password?" -> emailed code -> OtpScreen -> NewPasswordScreen
                     │
                     ▼  look up users.role
-                    ├── admin   -> AdminLoginScreen   (password + access code) -> Admin dashboard
-                    ├── teacher -> TeacherLoginScreen (access code)            -> Teacher dashboard
+                    ├── admin   -> Admin dashboard (no second step)
+                    ├── teacher -> TeacherLoginScreen (access code, remembered)  -> Teacher dashboard
                     └── student -> active: Student dashboard
                                    pending (legacy): waiting screen
                                    no profile / rejected / banned: signed out
@@ -36,9 +36,8 @@ chooses a role: the account decides.
 | `/role-select` | WelcomeScreen | Landing page: Login / New student, language switcher (route name kept for compatibility) |
 | `/auth/login` | LoginScreen | Single login for all roles: mobile or email + access code/password; "Forgot password?" sends an email code |
 | `/auth/new-password` | NewPasswordScreen | Choose a new password after an email-code login |
-| `/admin/settings/security` | AdminSecurityScreen | Admin changes own password and/or access code (needs current ones) |
+| `/admin/settings/security` | AdminSecurityScreen | Admin changes own password (needs the current one) |
 | `/auth/otp` | OtpScreen | Enter the 6-digit code emailed to the person (email-code login only) |
-| `/auth/admin-login` | AdminLoginScreen | Access code + password |
 | `/auth/teacher-login` | TeacherLoginScreen | Access code only |
 | `/auth/student-register` | StudentRegistrationScreen | Full registration form |
 | `/auth/student-set-password` | StudentPasswordScreen | First login after approval (set password); router-enforced for active students without email |

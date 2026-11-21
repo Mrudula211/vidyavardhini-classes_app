@@ -253,7 +253,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 String roleDestination(String? role) {
   switch (role) {
     case 'admin':
-      return Routes.adminLogin;
+      return Routes.adminDashboard;
     case 'teacher':
       return Routes.teacherLogin;
     default:

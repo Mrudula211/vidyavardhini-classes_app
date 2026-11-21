@@ -455,6 +455,13 @@ Three read-only ECC reviewers (Flutter, database, security) audited the code. Fi
 - [ ] Fresh-database setup: `004_seed_admin.sql` aborts until its placeholders are edited; buckets `profile-photos` and `chat-files` are not created by any migration; backups omit `auth.users`.
 - [ ] Admin/teacher working screens still contain hard-coded English strings; attachment viewer shows raw errors.
 
+## Owner feedback: stay logged in, admin password only (2026-11-21, from Updates.txt)
+
+- [x] **Stay logged in.** Supabase already saved the session; what reset on every restart was the in-memory "second step" flag, so the app asked again. Teacher step now remembered per account (`SessionStore`); logout or an account switch clears it.
+- [x] **Admin: password only.** The admin login page that asked for the password and access code again after the login screen is removed (`AdminLoginScreen`, `/auth/admin-login`, `verifyAdminCredentials`, `changeAdminAccessCode`). Router: no admin gate. Security screen is now "Change Password" (confirms the current password first). 94 tests pass.
+- [x] **Found while checking (not in Updates.txt):** if the role lookup failed (offline or a flaky connection) a logged-in person was sent to the Welcome screen as if logged out. The last known role and status are now cached and used when the lookup fails.
+- Database: migration 011/018 functions `verify_my_admin_credentials` and `change_my_admin_access_code` are no longer called by the app (harmless; can be dropped later). The admin's access-code hash column remains unused.
+
 ---
 
 ## Milestones

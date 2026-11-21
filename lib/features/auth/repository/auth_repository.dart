@@ -19,14 +19,8 @@ abstract class AuthRepository {
   User? get currentUser;
   Future<String?> fetchUserRole(String userId);
   Future<String?> fetchStudentStatus(String userId);
-  Future<bool> verifyAdminCredentials(String accessCode, String password);
   Future<bool> verifyTeacherAccessCode(String accessCode);
 
-  /// Admin only: sets a new 6-digit access code. Needs the current password
-  /// AND the current access code. Returns false when either is wrong.
-  Future<bool> changeAdminAccessCode({
-    required String currentPassword,
-    required String currentCode,
-    required String newCode,
-  });
+  /// True when [password] is the signed-in person's current password.
+  Future<bool> confirmCurrentPassword(String password);
 }

@@ -5,13 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/routes.dart';
+import '../services/session_store.dart';
 import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/welcome_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/new_password_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
-import '../../features/auth/screens/admin_login_screen.dart';
 import '../../features/auth/screens/teacher_login_screen.dart';
 import '../../features/auth/screens/pending_approval_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
@@ -68,7 +68,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.listen(authStateProvider, ping);
   ref.listen(currentUserRoleProvider, ping);
   ref.listen(currentStudentStatusProvider, ping);
-  ref.listen(adminAuthenticatedProvider, ping);
   ref.listen(teacherAuthenticatedProvider, ping);
   ref.listen(passwordRecoveryProvider, ping);
 
@@ -76,8 +75,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   // Clear it on logout or when a different account signs in.
   ref.listen<String?>(currentUserIdProvider, (previous, next) {
     if (next == null || (previous != null && previous != next)) {
-      ref.read(adminAuthenticatedProvider.notifier).state = false;
       ref.read(teacherAuthenticatedProvider.notifier).state = false;
+      SessionStore.clearTeacherVerified();
     }
   });
 
@@ -98,7 +97,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         role: userRole.valueOrNull,
         statusLoading: studentStatus.isLoading,
         status: studentStatus.valueOrNull,
-        adminVerified: ref.read(adminAuthenticatedProvider),
         teacherVerified: ref.read(teacherAuthenticatedProvider),
         recovering: ref.read(passwordRecoveryProvider),
       );
@@ -137,10 +135,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.otp,
         builder: (context, state) => const OtpScreen(),
-      ),
-      GoRoute(
-        path: Routes.adminLogin,
-        builder: (context, state) => const AdminLoginScreen(),
       ),
       GoRoute(
         path: Routes.teacherLogin,
@@ -341,7 +335,6 @@ AuthRedirect decideRedirect({
   required String? role,
   required bool statusLoading,
   required String? status,
-  required bool adminVerified,
   required bool teacherVerified,
   bool recovering = false,
 }) {
@@ -391,9 +384,6 @@ AuthRedirect decideRedirect({
 
   // Admin and teacher sign in once more with their access code. Until that
   // is done, the only place they may be is that step.
-  if (role == 'admin' && !adminVerified) {
-    return AuthRedirect(uri == Routes.adminLogin ? null : Routes.adminLogin);
-  }
   if (role == 'teacher' && !teacherVerified) {
     return AuthRedirect(
       uri == Routes.teacherLogin ? null : Routes.teacherLogin,
@@ -411,8 +401,7 @@ AuthRedirect decideRedirect({
   }
 
   // Signed-in people never need the login screens again.
-  if (isAuthRoute &&
-      uri != Routes.pendingApproval) {
+  if (isAuthRoute && uri != Routes.pendingApproval) {
     return AuthRedirect(_getDashboardRoute(role));
   }
 

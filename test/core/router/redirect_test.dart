@@ -10,7 +10,6 @@ AuthRedirect _decide({
   String? role,
   bool statusLoading = false,
   String? status,
-  bool adminVerified = false,
   bool teacherVerified = false,
   bool recovering = false,
 }) =>
@@ -22,7 +21,6 @@ AuthRedirect _decide({
       role: role,
       statusLoading: statusLoading,
       status: status,
-      adminVerified: adminVerified,
       teacherVerified: teacherVerified,
       recovering: recovering,
     );
@@ -107,35 +105,47 @@ void main() {
     });
   });
 
-  group('admin and teacher second step', () {
-    test('held on their access-code screen until verified', () {
+  group('admin goes straight in; teacher has one extra step', () {
+    test('a logged-in admin needs no second step', () {
       expect(
         _decide(uri: Routes.adminDashboard, role: 'admin').location,
-        Routes.adminLogin,
-      );
-      expect(
-        _decide(uri: Routes.adminLogin, role: 'admin').location,
         isNull,
       );
+      expect(
+        _decide(uri: Routes.splash, role: 'admin').location,
+        Routes.adminDashboard,
+      );
+      expect(
+        _decide(uri: Routes.login, role: 'admin').location,
+        Routes.adminDashboard,
+      );
+    });
+
+    test('a teacher is held on the access-code screen until verified', () {
       expect(
         _decide(uri: Routes.teacherDashboard, role: 'teacher').location,
         Routes.teacherLogin,
       );
+      expect(
+        _decide(uri: Routes.teacherLogin, role: 'teacher').location,
+        isNull,
+      );
     });
 
-    test('verified admin reaches the dashboard and leaves login screens', () {
+    test('a verified teacher reaches the dashboard and leaves login screens',
+        () {
       expect(
         _decide(
-          uri: Routes.adminDashboard,
-          role: 'admin',
-          adminVerified: true,
+          uri: Routes.teacherDashboard,
+          role: 'teacher',
+          teacherVerified: true,
         ).location,
         isNull,
       );
       expect(
-        _decide(uri: Routes.adminLogin, role: 'admin', adminVerified: true)
+        _decide(uri: Routes.login, role: 'teacher', teacherVerified: true)
             .location,
-        Routes.adminDashboard,
+        Routes.teacherDashboard,
       );
     });
 
@@ -196,10 +206,14 @@ void main() {
       );
     });
 
-    test('without the flag the old rules still apply', () {
+    test('without the flag the normal rules apply', () {
       expect(
         _decide(uri: Routes.otp, role: 'admin').location,
-        Routes.adminLogin,
+        Routes.adminDashboard,
+      );
+      expect(
+        _decide(uri: Routes.otp, role: 'teacher').location,
+        Routes.teacherLogin,
       );
     });
   });

@@ -13,7 +13,7 @@ Updated 2026-10-22.
 ## 1. Where things stand
 
 **Confirmed working on your phone**
-- [x] Admin login (email/mobile + password + access code) and the admin dashboard.
+- [x] Admin login and the admin dashboard (now password only, no access code).
 - [x] Admin credentials replaced (the exposed ones are no longer valid).
 - [x] Student approval, student ID, student dashboard login, dark-mode text, Hindi/Marathi chips.
 - [x] Migrations up to 014 applied (RLS safety net, hardening, recursion fix, password logins).
@@ -55,7 +55,7 @@ Updated 2026-10-22.
 
 Use made-up names and numbers. Tell me what happens, with a screenshot of anything wrong.
 
-1. **Admin:** Login -> email/mobile + password -> access code -> dashboard.
+1. **Admin:** Login -> email/mobile + password -> dashboard (no second page). Close the app completely and reopen it: you should land on the dashboard without logging in again. Do the same as student and teacher.
 2. **Add a student:** Student Desk -> add-person icon (top right) -> fill the form (a login mobile number you will remember, e.g. `9000000001`) -> ADD STUDENT. Copy the access code from the dialog.
 3. **Student login:** log out -> Login -> the student's mobile number + the access code -> Student dashboard. Open Homework, Classwork, My fee status, Timetable: they should show empty messages, not errors.
 4. **Lost code:** as admin open the student -> "Generate a new code" -> log in again with the new one (the old one must fail).
@@ -63,7 +63,7 @@ Use made-up names and numbers. Tell me what happens, with a screenshot of anythi
 6. **Teacher:** as admin choose Teacher Desk -> add a teacher (name, mobile and/or email, a login password, an access code). Log in as that teacher with mobile/email + password, then the access code.
 7. **Homework with files:** as the teacher create homework with a PDF and a photo; as the student open both. A student of a different class must not see it.
 8. **Teacher GPS attendance:** as admin set the geofence (Geofence Settings -> use current location); as the teacher open My Attendance inside and outside the radius.
-9. **Security screen:** as admin open Security -> change the password and/or access code -> log out and in with the new ones.
+9. **Change password:** as admin open Security -> enter the current password and a new one -> log out and in with the new password.
 10. **Offline:** turn on airplane mode: the offline banner shows and changes are blocked.
 
 ---
@@ -91,7 +91,7 @@ The code and database parts are ready. Until this is done: push notifications ar
 
 ## 5. Things to decide
 
-- [ ] **Server-side second step (recommended before launch).** Today anyone with an admin's password could call the database API directly and skip the access code, because only the app enforces that step. Fixing it means recording the verification on the server for each session and requiring it in `is_admin()` and the teacher policies. It affects every admin screen and I cannot test it without your live database, so I have not done it blind. Tell me to go ahead and I will prepare it as a separate migration with a rollback.
+- [ ] **Server-side second step for teachers.** The admin no longer has a second step. For teachers, anyone with a teacher's password could call the database API directly and skip the access code, because only the app enforces that step. (Optional: you may also decide to drop the teacher access code altogether, as for the admin.) Fixing it means recording the verification on the server for each session and requiring it in `is_admin()` and the teacher policies. It affects every admin screen and I cannot test it without your live database, so I have not done it blind. Tell me to go ahead and I will prepare it as a separate migration with a rollback.
 - [ ] **Banned or deactivated people** keep database access until their login expires (the app signs them out, the server does not). Say if you want a server-side block.
 - [ ] **Fresh setup:** `004_seed_admin.sql` stops until its placeholder values are edited, and the `profile-photos` and `chat-files` storage buckets are not created by any migration. Only matters if you rebuild the database from scratch.
 

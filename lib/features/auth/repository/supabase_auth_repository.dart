@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/services/cache_service.dart';
+import '../../../core/services/session_store.dart';
 import '../../../core/utils/login_identifier.dart';
 import 'auth_repository.dart';
 
@@ -54,7 +55,9 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
+    final userId = _client.auth.currentUser?.id;
     await _client.auth.signOut();
+    if (userId != null) await SessionStore.forget(userId);
     // Cached fees, attendance and announcements belong to the person who
     // just left; do not show them to the next user of this phone.
     try {
@@ -103,19 +106,6 @@ class SupabaseAuthRepository implements AuthRepository {
     return null;
   }
 
-  /// Verified server-side against the signed-in admin's own record
-  /// (`verify_my_admin_credentials`); requires a real Supabase session.
-  @override
-  Future<bool> verifyAdminCredentials(
-    String accessCode,
-    String password,
-  ) async {
-    return _verify('verify_my_admin_credentials', {
-      'p_access_code': accessCode,
-      'p_password': password,
-    });
-  }
-
   /// Verified against the signed-in teacher's own code
   /// (`verify_my_teacher_access_code`); requires a real Supabase session.
   @override
@@ -126,20 +116,26 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<bool> changeAdminAccessCode({
-    required String currentPassword,
-    required String currentCode,
-    required String newCode,
-  }) async {
-    final res = await _client.rpc(
-      'change_my_admin_access_code',
-      params: {
-        'p_current_password': currentPassword,
-        'p_current_code': currentCode,
-        'p_new_code': newCode,
-      },
-    );
-    return res == true;
+  Future<bool> confirmCurrentPassword(String password) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+    try {
+      final email = user.email;
+      final phone = user.phone;
+      if (email != null && email.isNotEmpty) {
+        await _client.auth.signInWithPassword(email: email, password: password);
+      } else if (phone != null && phone.isNotEmpty) {
+        await _client.auth.signInWithPassword(
+          phone: phone.startsWith('+') ? phone : '+$phone',
+          password: password,
+        );
+      } else {
+        return false;
+      }
+      return true;
+    } on AuthException {
+      return false;
+    }
   }
 
   Future<bool> _verify(String function, Map<String, dynamic> params) async {

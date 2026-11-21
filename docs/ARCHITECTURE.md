@@ -157,12 +157,14 @@ There is no role picker and **no SMS**. `WelcomeScreen` -> `LoginScreen`: mobile
 
 **Accounts are created by the admin only** (no self-registration; turn off "Allow new users to sign up" in Supabase):
 - Student: `create_student_account` (admin RPC) creates the login (phone and/or email, password = a generated 8-character access code), the `users` row, the active `student_profiles` row with the next STU id, the enrolment for the current year, the fee structure, and a readable copy of the code in `student_access_codes` (admin-read-only RLS) so the admin can show/share it. `regenerate_student_access_code` replaces a lost code.
-- Teacher: `create_teacher_profile` (password + access code). Admin: seeded; changes own password/code on the Security screen.
+- Teacher: `create_teacher_profile` (password + access code, hash kept in `private.teacher_access_codes`). Admin: seeded; logs in with the password only and changes it on the Security screen.
 - `admin_reset_user_password` for any forgotten password.
 
 **Trade-off:** the access code is stored readable for the admin (so it can be shown again) — it is protected by RLS, but it is not hashed-only like a normal password. Codes are 8 characters from a 31-symbol alphabet (about 40 bits), regenerated on request.
 
-**Known limitation (not fixed):** the admin/teacher access-code step is enforced by the app and by caller-bound rate-limited RPCs, but not by RLS — someone holding only an admin's first-step credentials can call the API directly. See DEVELOPMENT_PHASES "Independent review fixes" for the proposed server-side fix.
+**Staying logged in:** Supabase persists the session on the device, so people stay logged in across restarts until they log out. The app also remembers (`SessionStore`, Hive box `settings`) the teacher's access-code step for the same account and the last known role/status, so a restart or a patchy connection never makes a logged-in person look logged out. Logout clears all of it.
+
+**Known limitation (not fixed):** the teacher access-code step is enforced by the app and by caller-bound rate-limited RPCs, but not by RLS — a teacher holding only their password can call the API directly. The admin has no second step. See DEVELOPMENT_PHASES "Independent review fixes".
 
 The router is built once (`refreshListenable`), never rebuilt on provider changes.
 

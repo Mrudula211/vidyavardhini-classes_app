@@ -23,74 +23,75 @@ Future<void> _fill(WidgetTester t, String label, String text) async {
   await t.enterText(find.widgetWithText(TextFormField, label), text);
 }
 
+Future<void> _save(WidgetTester t) async {
+  await t.ensureVisible(find.text('SAVE'));
+  await t.tap(find.text('SAVE'));
+  await t.pumpAndSettle();
+}
+
 void main() {
   late _MockAuthRepository repo;
 
   setUp(() => repo = _MockAuthRepository());
 
-  testWidgets('asks for the current password and access code', (t) async {
+  testWidgets('asks for the current and the new password', (t) async {
     await t.pumpWidget(_host(repo));
-    await t.ensureVisible(find.text('SAVE'));
-    await t.tap(find.text('SAVE'));
-    await t.pump();
+    await _save(t);
     expect(find.text('Enter your current password'), findsOneWidget);
-    expect(find.text('Enter your current 6-digit access code'), findsOneWidget);
-    verifyNever(() => repo.verifyAdminCredentials(any(), any()));
+    expect(find.text('Enter a new password'), findsOneWidget);
+    verifyNever(() => repo.confirmCurrentPassword(any()));
   });
 
-  testWidgets('requires a new password or a new access code', (t) async {
+  testWidgets('has no access-code fields any more', (t) async {
     await t.pumpWidget(_host(repo));
-    await _fill(t, 'Current password', 'old-password');
-    await _fill(t, 'Current access code', '123456');
-    await t.ensureVisible(find.text('SAVE'));
-    await t.tap(find.text('SAVE'));
-    await t.pump();
-    expect(
-      find.text('Enter a new password and/or a new access code.'),
-      findsOneWidget,
-    );
-    verifyNever(() => repo.verifyAdminCredentials(any(), any()));
+    expect(find.textContaining('access code'), findsNothing);
   });
 
-  testWidgets('rejects a short password and a non-6-digit code', (t) async {
+  testWidgets('rejects a short or unchanged new password', (t) async {
     await t.pumpWidget(_host(repo));
     await _fill(t, 'Current password', 'old-password');
-    await _fill(t, 'Current access code', '123456');
     await _fill(t, 'New password', 'short');
-    await _fill(t, 'New access code (6 digits)', '12');
-    await t.ensureVisible(find.text('SAVE'));
-    await t.tap(find.text('SAVE'));
-    await t.pump();
+    await _save(t);
     expect(find.text('Use at least 8 characters'), findsOneWidget);
-    expect(
-      find.text('The access code must be exactly 6 digits'),
-      findsOneWidget,
-    );
+
+    await _fill(t, 'New password', 'old-password');
+    await _save(t);
+    expect(find.text('The new password must be different'), findsOneWidget);
   });
 
-  testWidgets('wrong current credentials change nothing', (t) async {
-    when(() => repo.verifyAdminCredentials(any(), any()))
+  testWidgets('rejects a confirmation that does not match', (t) async {
+    await t.pumpWidget(_host(repo));
+    await _fill(t, 'Current password', 'old-password');
+    await _fill(t, 'New password', 'a-new-password');
+    await _fill(t, 'Confirm new password', 'something-else');
+    await _save(t);
+    expect(find.text('Passwords do not match'), findsOneWidget);
+    verifyNever(() => repo.confirmCurrentPassword(any()));
+  });
+
+  testWidgets('a wrong current password changes nothing', (t) async {
+    when(() => repo.confirmCurrentPassword(any()))
         .thenAnswer((_) async => false);
     await t.pumpWidget(_host(repo));
-    await _fill(t, 'Current password', 'old-password');
-    await _fill(t, 'Current access code', '123456');
+    await _fill(t, 'Current password', 'wrong-password');
     await _fill(t, 'New password', 'a-new-password');
     await _fill(t, 'Confirm new password', 'a-new-password');
-    await t.ensureVisible(find.text('SAVE'));
-    await t.tap(find.text('SAVE'));
-    await t.pumpAndSettle();
+    await _save(t);
 
-    expect(
-      find.text('Your current password or access code is not correct.'),
-      findsOneWidget,
-    );
+    expect(find.text('Your current password is not correct.'), findsOneWidget);
     verifyNever(() => repo.setPassword(any()));
-    verifyNever(
-      () => repo.changeAdminAccessCode(
-        currentPassword: any(named: 'currentPassword'),
-        currentCode: any(named: 'currentCode'),
-        newCode: any(named: 'newCode'),
-      ),
-    );
+  });
+
+  testWidgets('the right current password saves the new one', (t) async {
+    when(() => repo.confirmCurrentPassword('old-password'))
+        .thenAnswer((_) async => true);
+    when(() => repo.setPassword(any())).thenAnswer((_) async {});
+    await t.pumpWidget(_host(repo));
+    await _fill(t, 'Current password', 'old-password');
+    await _fill(t, 'New password', 'a-new-password');
+    await _fill(t, 'Confirm new password', 'a-new-password');
+    await _save(t);
+
+    verify(() => repo.setPassword('a-new-password')).called(1);
   });
 }

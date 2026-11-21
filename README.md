@@ -13,7 +13,8 @@ There is **no SMS and no self-registration**.
 
 - **Admin** adds every student in the app (Student Desk → add person). The app creates the login and a generated **access code**, which is the student's password. The parent logs in with their mobile number or email and the access code.
 - **Teachers** are added by the admin with a mobile number and/or email, a password and an access code.
-- Admin and teachers enter their access code once more after logging in.
+- The admin logs in with a password only. Teachers enter their access code once after logging in (remembered until they log out).
+- Everyone stays logged in across app restarts until they log out.
 - A lost student code is replaced by the admin on the student's page.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) §3 for the details and trade-offs.

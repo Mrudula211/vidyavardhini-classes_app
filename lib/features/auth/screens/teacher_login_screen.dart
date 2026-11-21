@@ -9,6 +9,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_logo_header.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../l10n/l10n_context.dart';
+import '../../../core/services/session_store.dart';
 
 class TeacherLoginScreen extends ConsumerStatefulWidget {
   const TeacherLoginScreen({super.key});
@@ -51,6 +52,8 @@ class _TeacherLoginScreenState extends ConsumerState<TeacherLoginScreen> {
       if (!isValid) {
         throw Exception('Invalid access code');
       }
+      final uid = ref.read(currentUserIdProvider);
+      if (uid != null) await SessionStore.saveTeacherVerified(uid);
       ref.read(teacherAuthenticatedProvider.notifier).state = true;
       if (!mounted) return;
       context.go(Routes.teacherDashboard);
