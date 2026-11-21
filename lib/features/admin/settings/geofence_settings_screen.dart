@@ -118,7 +118,7 @@ class _GeofenceSettingsScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Geofence settings updated successfully!'),
-              backgroundColor: Colors.green),
+              backgroundColor: Colors.green,),
         );
       }
     } catch (e) {
@@ -159,7 +159,7 @@ class _GeofenceSettingsScreenState
                   child: Row(
                     children: [
                       Icon(Icons.location_on,
-                          color: AppColors.primary, size: 32),
+                          color: AppColors.primary, size: 32,),
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -210,7 +210,7 @@ class _GeofenceSettingsScreenState
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2))
+                        child: CircularProgressIndicator(strokeWidth: 2),)
                     : const Icon(Icons.gps_fixed),
                 label: const Text('Use Current Device Location'),
               ),
@@ -240,7 +240,7 @@ class _GeofenceSettingsScreenState
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(8),),
                   ),
                   onPressed: _isSaving ? null : _saveGeofence,
                   child: _isSaving
@@ -248,7 +248,7 @@ class _GeofenceSettingsScreenState
                       : const Text(
                           'SAVE GEOFENCE SETTINGS',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                              fontWeight: FontWeight.bold, fontSize: 16,),
                         ),
                 ),
               ),

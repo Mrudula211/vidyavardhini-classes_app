@@ -120,7 +120,7 @@ class _StudentDetailScreenState extends ConsumerState<StudentDetailScreen> {
       ),
     );
 
-    if (confirm == true) {
+    if (confirm == true && mounted) {
       final messenger = ScaffoldMessenger.of(context);
       try {
         await ref.read(studentRepositoryProvider).banStudent(widget.studentId);

@@ -53,10 +53,12 @@ class _PromotionScreenState extends ConsumerState<PromotionScreen> {
   /// The label must match the dates (e.g. 2027-2028 for a year that starts in
   /// 2027 and ends in 2028) so a typo cannot create a mislabelled year.
   String? get _dateProblem {
-    if (_start == null || _end == null)
+    if (_start == null || _end == null) {
       return 'Choose the start and end dates.';
-    if (!_end!.isAfter(_start!))
+    }
+    if (!_end!.isAfter(_start!)) {
       return 'The end date must be after the start date.';
+    }
     final expected = '${_start!.year}-${_end!.year}';
     if (_label.text.trim() != expected) {
       return 'The year name should be $expected to match the dates.';
