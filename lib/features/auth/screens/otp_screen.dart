@@ -98,10 +98,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       // Unknown numbers become pending students; admin and teacher accounts
       // already exist (created by the admin) and keep their own role.
       final session = await repo.verifyEmailCode(_email, _otp);
-      // The role/status providers fetched as soon as the session appeared —
-      // before a new student's account row existed. Refresh them.
-      ref.invalidate(currentUserRoleProvider);
-      ref.invalidate(currentStudentStatusProvider);
+      // Do not invalidate the role/status providers here: they already
+      // recompute when the signed-in user changes, and invalidating while that
+      // refresh is running left them loading forever (stuck on the splash).
       final role =
           session == null ? null : await repo.fetchUserRole(session.user.id);
       if (!mounted) return;

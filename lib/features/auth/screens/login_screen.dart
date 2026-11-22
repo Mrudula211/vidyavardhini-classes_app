@@ -75,8 +75,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _passwordController.text,
       );
       if (session == null) throw Exception('no session');
-      ref.invalidate(currentUserRoleProvider);
-      ref.invalidate(currentStudentStatusProvider);
+      // Do not invalidate the role/status providers here: they already
+      // recompute when the signed-in user changes, and invalidating while that
+      // refresh is running left them loading forever (stuck on the splash).
       final role = await repo.fetchUserRole(session.user.id);
       if (!mounted) return;
       context.go(roleDestination(role));

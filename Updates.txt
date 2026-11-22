@@ -1,3 +1,4 @@
 [DONE 2026-11-21] 1. Once logged in as any user entity i must stay logged in even if i exit the so that it doesnt become hectic for me to login every time
 [DONE 2026-11-21] 2. For admin login just keep the password and not access code as everytime i try to login in it ask me for password and then on next page it ask for pasword and access code again
 [DONE 2026-11-21] 3. the logo in the application looks too small and the border looks too big refer to "G:\Projects\vidyavardhini-classes_app\Extras\Screenshot_20261121_170425_Launcher.jpg" the logo must fit the complete application and be clearly visible 
+[DONE 2026-11-22] 4. after puuting login mobile number and password for admin, it keep loading on home page (the page with logo and tagline) but doesnt take me to actual dashboard
