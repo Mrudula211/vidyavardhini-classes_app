@@ -107,10 +107,6 @@ flutter_native_splash:
   web: false
   color: "#F5EFE0"
   image: images/logo.png
-  color_dark: "#1A1208"
-  image_dark: images/logo.png
   android_12:
     color: "#F5EFE0"
     image: images/app_icon_foreground.png
-    color_dark: "#1A1208"
-    image_dark: images/app_icon_foreground.png

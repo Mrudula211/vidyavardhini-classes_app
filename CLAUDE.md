@@ -64,7 +64,7 @@ Never say "set up your Supabase project" without listing exactly how. Never say 
 | PDF Viewer | syncfusion_flutter_pdfviewer |
 | Local Cache | Hive |
 | Routing | go_router |
-| UI Design | Material Design 3, dark mode |
+| UI Design | Material Design 3, one light (parchment) theme for every role |
 | Font | Poppins (body), Cinzel (headings), Mukta (Hindi/Marathi) |
 
 ---
@@ -104,7 +104,7 @@ lib/
 │   │   ├── supabase_keys.dart   # URL/anon key (from .env)
 │   │   └── routes.dart          # All route path strings
 │   ├── theme/
-│   │   ├── app_theme.dart       # Light + dark ThemeData
+│   │   ├── app_theme.dart       # The single light ThemeData
 │   │   ├── app_colors.dart      # Brand color constants
 │   │   └── app_typography.dart  # TextTheme
 │   ├── utils/
@@ -310,8 +310,6 @@ const parchment  = Color(0xFFF5EFE0);
 const gold       = Color(0xFFC68A2D);
 const maroon     = Color(0xFF7B2D26);
 const brown      = Color(0xFF4A2C1A);
-const darkBg     = Color(0xFF1A1208);   // dark mode background
-const darkSurface = Color(0xFF2C1F10);  // dark mode surface
 ```
 
 ---

@@ -19,7 +19,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Add all dependencies to `pubspec.yaml`
 - [x] Configure `go_router` with placeholder routes (`lib/core/router/app_router.dart`)
 - [x] Set up Riverpod `ProviderScope` in `main.dart`
-- [x] Set up Material 3 theme (light + dark) with brand colours
+- [x] Set up Material 3 theme (light only since 2026-11-22) with brand colours
 - [x] Configure Supabase client initialisation
 - [ ] Set up build flavors (dev / prod)
 - [x] Apply database migration 001 in Supabase SQL Editor
@@ -462,6 +462,7 @@ Three read-only ECC reviewers (Flutter, database, security) audited the code. Fi
 - [x] **Found while checking (not in Updates.txt):** if the role lookup failed (offline or a flaky connection) a logged-in person was sent to the Welcome screen as if logged out. The last known role and status are now cached and used when the lookup fails.
 - [x] **Logo too small / border too big (Updates.txt item 3).** Cause: Android wrapped the launcher icon in a 16% inset. Set `adaptive_icon_foreground_inset: 0`, enlarged the icon badge, native splash now uses the full `images/logo.png`, and the Welcome screen shows the unclipped 220px badge (no circular crop or gold ring). Items in Updates.txt are marked `[DONE date]` when finished.
 - [x] **Login hung on the splash (Updates.txt item 4).** Cause: `login_screen` and `otp_screen` called `ref.invalidate` on the role/status providers right after sign-in. The providers were already refreshing because the user had changed, and the extra invalidate left them loading forever, so the router never left the splash. Removed the invalidates; `test/core/router/login_flow_test.dart` checks the role settles after sign-in.
+- [x] **One light theme for everyone (owner request 2026-11-22).** `MaterialApp` uses only `AppTheme.light` with `ThemeMode.light`, so admin, teacher and student see the same parchment look and the phone's dark mode no longer changes it. Removed `AppTheme.dark`, the dark text-colour branches and the dark native-splash images.
 - Database: migration 011/018 functions `verify_my_admin_credentials` and `change_my_admin_access_code` are no longer called by the app (harmless; can be dropped later). The admin's access-code hash column remains unused.
 
 ---
@@ -490,7 +491,7 @@ A phase is complete when:
 2. No crash or unhandled exception for happy path
 3. RLS policies verified for all roles (wrong role = access denied)
 4. Push notification fires for relevant events
-5. Dark mode renders correctly
+5. Light theme renders correctly for all three roles (the app is light-only)
 6. Audit log entry created for any sensitive write
 
 ---
