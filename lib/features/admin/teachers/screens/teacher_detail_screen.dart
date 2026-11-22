@@ -483,7 +483,12 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                                child: Text(a['board'] ?? 'S', style: TextStyle(fontWeight: FontWeight.bold, color: context.headingColor)),
+                                child: FittedBox(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Text(a['board'] ?? 'S', style: TextStyle(fontWeight: FontWeight.bold, color: context.headingColor)),
+                                  ),
+                                ),
                               ),
                               title: Text('${a['board']} • Standard ${a['standard']}', style: const TextStyle(fontWeight: FontWeight.bold)),
                               subtitle: Text('Subject: ${a['subject']}'),

@@ -116,6 +116,12 @@ class AppTheme {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
+        tabBarTheme: TabBarThemeData(
+          labelColor: AppColors.goldLight,
+          unselectedLabelColor: AppColors.parchment.withValues(alpha: 0.75),
+          indicatorColor: AppColors.goldLight,
+          dividerColor: Colors.transparent,
+        ),
         chipTheme: ChipThemeData(
           backgroundColor: AppColors.lightSurfaceVariant,
           selectedColor: AppColors.maroon,

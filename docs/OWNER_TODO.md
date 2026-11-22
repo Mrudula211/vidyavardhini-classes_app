@@ -42,6 +42,10 @@ Updated 2026-10-22.
    ```sql
    select exists (select 1 from pg_tables where schemaname = 'private' and tablename = 'teacher_access_codes') as m018_applied;
    ```
+   And **019** (announcements; without it publishing an announcement fails with "Could not find the 'target_type' column"):
+   ```sql
+   select exists (select 1 from information_schema.columns where table_name = 'announcements' and column_name = 'target_type') as m019_applied;
+   ```
 2. **Run any missing migration**, in numeric order, from `supabase/migrations/` (paste the whole file, click Run, accept the "potential issues" popup — it only replaces functions and old policies). Each file is safe to re-run.
 3. **Authentication -> Sign In / Providers:**
    - turn **OFF "Allow new users to sign up"** (nobody should be able to create an account on their own);

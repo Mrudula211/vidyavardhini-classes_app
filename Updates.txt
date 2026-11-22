@@ -3,4 +3,4 @@
 [DONE 2026-11-21] 3. the logo in the application looks too small and the border looks too big refer to "G:\Projects\vidyavardhini-classes_app\Extras\Screenshot_20261121_170425_Launcher.jpg" the logo must fit the complete application and be clearly visible 
 [DONE 2026-11-22] 4. after puuting login mobile number and password for admin, it keep loading on home page (the page with logo and tagline) but doesnt take me to actual dashboard
 [DONE 2026-11-22] 5. keep a unified theme across all the users, use light theme (request typed in chat)
-
+[DONE 2026-11-22] 6. (screenshots) announcement publish error 'target_type' column; Teacher Profile tab label invisible and 'CBSE' avatar wrapped. Needs migration 019 run in Supabase.

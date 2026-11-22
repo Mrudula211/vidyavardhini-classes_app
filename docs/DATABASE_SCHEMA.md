@@ -1104,6 +1104,12 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 - Trigger `student_profiles_keep_id` makes `student_id` immutable once set; `next_student_id()` / `next_teacher_id()` revoked from anon.
 - `public.is_admin()` also granted to `supabase_auth_admin`. Re-closes self-registration (drops `on_auth_user_created`, `users: insert own`, `student_profiles: own insert`, the 8-argument `create_teacher_profile`) — **run 018 last, and again after re-running any older migration.**
 
+### 9.12 Announcement targets (migration 019)
+
+- `announcements.target_type text NOT NULL DEFAULT 'all'` with check `all | students | teachers | specific_class` (the app always sent it; the column did not exist). A `specific_class` row must have `target_board` and `target_standard`.
+- `announcements.priority` is now `text` with check `general | urgent | emergency` (was enum `normal | high | urgent`; old values mapped normal->general, high->urgent).
+- Read policy `announcements: general read` now follows the audience: `all` for every signed-in user, `teachers` for teachers, `students` for students, `specific_class` for students whose board and standard match. The admin keeps the write-all policy. The old `type` column is unused.
+
 ---
 
 ## 10. Indexes Summary
