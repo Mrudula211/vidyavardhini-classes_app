@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/routes.dart';
 import '../../features/auth/providers/auth_providers.dart';
@@ -11,8 +10,6 @@ import '../../features/auth/screens/welcome_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/new_password_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
-import '../../features/auth/screens/admin_login_screen.dart';
-import '../../features/auth/screens/teacher_login_screen.dart';
 import '../../features/auth/screens/pending_approval_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
 import '../../features/admin/students/screens/student_list_screen.dart';
@@ -51,26 +48,33 @@ import '../../features/student/fees/screens/student_fees_screen.dart';
 import '../../features/student/homework/screens/student_homework_list_screen.dart';
 import '../../features/student/classwork/screens/student_classwork_list_screen.dart';
 
-final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
-  final userRole = ref.watch(currentUserRoleProvider);
-  final isAdminLoggedIn = ref.watch(adminAuthenticatedProvider);
-  final isTeacherLoggedIn = ref.watch(teacherAuthenticatedProvider);
-  final studentStatus = ref.watch(currentStudentStatusProvider);
+/// Tells go_router to re-run its redirect rules without rebuilding the router.
+class _RouterRefresh extends ChangeNotifier {
+  void ping() => notifyListeners();
+}
 
-  // The access-code step is only valid for the session it was passed in.
-  // Clear it on logout or when a different account signs in.
-  ref.listen<String?>(currentUserIdProvider, (previous, next) {
-    if (next == null || (previous != null && previous != next)) {
-      ref.read(adminAuthenticatedProvider.notifier).state = false;
-      ref.read(teacherAuthenticatedProvider.notifier).state = false;
-    }
-  });
+/// The router is built ONCE. Rebuilding it (as happened when the providers
+/// were watched here) resets the navigation stack to the splash screen on every
+/// token refresh and loses whatever form the user was filling in. Changes in
+/// login state only trigger a re-check of the redirect rules.
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final refresh = _RouterRefresh();
+  ref.onDispose(refresh.dispose);
+
+  void ping(Object? previous, Object? next) => refresh.ping();
+  ref.listen(authStateProvider, ping);
+  ref.listen(currentUserRoleProvider, ping);
+  ref.listen(currentStudentStatusProvider, ping);
+  ref.listen(passwordRecoveryProvider, ping);
 
   return GoRouter(
     initialLocation: Routes.splash,
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: kDebugMode,
+    refreshListenable: refresh,
     redirect: (context, state) async {
+      final authState = ref.read(authStateProvider);
+      final userRole = ref.read(currentUserRoleProvider);
+      final studentStatus = ref.read(currentStudentStatusProvider);
       final session = authState.valueOrNull;
       final decision = decideRedirect(
         uri: state.uri.toString(),
@@ -80,8 +84,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         role: userRole.valueOrNull,
         statusLoading: studentStatus.isLoading,
         status: studentStatus.valueOrNull,
-        adminVerified: isAdminLoggedIn,
-        teacherVerified: isTeacherLoggedIn,
+        recovering: ref.read(passwordRecoveryProvider),
       );
       if (kDebugMode) {
         debugPrint(
@@ -93,7 +96,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         );
       }
       if (decision.signOut) {
-        await Supabase.instance.client.auth.signOut();
+        // Through the repository so the local cache and remembered role/status
+        // are cleared as well.
+        await ref.read(authRepositoryProvider).signOut();
       }
       return decision.location;
     },
@@ -118,14 +123,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.otp,
         builder: (context, state) => const OtpScreen(),
-      ),
-      GoRoute(
-        path: Routes.adminLogin,
-        builder: (context, state) => const AdminLoginScreen(),
-      ),
-      GoRoute(
-        path: Routes.teacherLogin,
-        builder: (context, state) => const TeacherLoginScreen(),
       ),
       GoRoute(
         path: Routes.pendingApproval,
@@ -312,7 +309,6 @@ class AuthRedirect {
 ///  * session but unknown role -> never park on the splash, go to Welcome;
 ///  * students: new -> registration, pending -> waiting screen,
 ///    rejected/banned -> signed out, approved without email -> set password;
-///  * admin/teacher must pass their access-code step before anything else;
 ///  * role-prefixed routes are only for that role.
 AuthRedirect decideRedirect({
   required String uri,
@@ -322,8 +318,7 @@ AuthRedirect decideRedirect({
   required String? role,
   required bool statusLoading,
   required String? status,
-  required bool adminVerified,
-  required bool teacherVerified,
+  bool recovering = false,
 }) {
   final isAuthRoute = uri.startsWith('/auth') ||
       uri == Routes.roleSelect ||
@@ -338,6 +333,11 @@ AuthRedirect decideRedirect({
   }
 
   if (roleLoading) return const AuthRedirect(Routes.splash);
+
+  // Forgot-password flow: stay on the code and new-password screens.
+  if (recovering && (uri == Routes.otp || uri == Routes.newPassword)) {
+    return const AuthRedirect(null);
+  }
 
   if (role == null) {
     // Signed in but no account row could be read: do not leave the person
@@ -364,17 +364,6 @@ AuthRedirect decideRedirect({
   // may choose a new one before anything else.
   if (uri == Routes.newPassword) return const AuthRedirect(null);
 
-  // Admin and teacher sign in once more with their access code. Until that
-  // is done, the only place they may be is that step.
-  if (role == 'admin' && !adminVerified) {
-    return AuthRedirect(uri == Routes.adminLogin ? null : Routes.adminLogin);
-  }
-  if (role == 'teacher' && !teacherVerified) {
-    return AuthRedirect(
-      uri == Routes.teacherLogin ? null : Routes.teacherLogin,
-    );
-  }
-
   if (uri.startsWith('/admin') && role != 'admin') {
     return AuthRedirect(_getDashboardRoute(role));
   }
@@ -386,8 +375,7 @@ AuthRedirect decideRedirect({
   }
 
   // Signed-in people never need the login screens again.
-  if (isAuthRoute &&
-      uri != Routes.pendingApproval) {
+  if (isAuthRoute && uri != Routes.pendingApproval) {
     return AuthRedirect(_getDashboardRoute(role));
   }
 

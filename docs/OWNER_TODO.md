@@ -10,10 +10,24 @@ Updated 2026-10-22.
 
 ---
 
+## 7. Security follow-ups (from the 2026-11-24 audit)
+
+You need to do the following manually:
+
+1. **Run migration 020** (`supabase/migrations/020_security_hardening_2.sql`) in the Supabase SQL Editor, after 019.
+2. **Restrict the Firebase API key:** Google Cloud Console -> APIs & Services -> Credentials -> open the Android key of your Firebase project -> Application restrictions: Android apps -> add package `com.vidyavardhini.classes` and your app's SHA-1 -> Save. (The key is in old git history, so restricting it matters while the repo is not private.)
+3. **Check the storage buckets:** Supabase -> Storage -> `profile-photos` and `chat-files` -> make sure each shows **Private**. If either is Public, edit it and turn Public off.
+4. **Tighten sign-in limits:** Supabase -> Authentication -> Rate Limits -> lower the sign-in attempts per hour; Authentication -> Attack Protection -> enable CAPTCHA if offered. Teachers log in with a 6-digit code, so this matters.
+5. **Before the Play Store:** create the release keystore and `android/key.properties` (see `android/key.properties.example`). Without it the release build is signed with the debug key.
+
+Still open and not yet coded (ask me to do these next): server-side block for banned/inactive users, academic-year isolation in read policies, teacher read limits on enrollments/absence reasons, notification spam limit, fee trigger on update/delete, encrypted local cache.
+
+---
+
 ## 1. Where things stand
 
 **Confirmed working on your phone**
-- [x] Admin login (email/mobile + password + access code) and the admin dashboard.
+- [x] Admin login and the admin dashboard (now password only, no access code).
 - [x] Admin credentials replaced (the exposed ones are no longer valid).
 - [x] Student approval, student ID, student dashboard login, dark-mode text, Hindi/Marathi chips.
 - [x] Migrations up to 014 applied (RLS safety net, hardening, recursion fix, password logins).
@@ -38,6 +52,14 @@ Updated 2026-10-22.
      exists (select 1 from pg_tables where tablename = 'student_access_codes')       as m016_codes,
      exists (select 1 from pg_proc where proname = 'get_student_login_methods')      as m017_logins;
    ```
+   Also check **018** (run it last; it re-closes self-registration):
+   ```sql
+   select exists (select 1 from pg_tables where schemaname = 'private' and tablename = 'teacher_access_codes') as m018_applied;
+   ```
+   And **019** (announcements; without it publishing an announcement fails with "Could not find the 'target_type' column"):
+   ```sql
+   select exists (select 1 from information_schema.columns where table_name = 'announcements' and column_name = 'target_type') as m019_applied;
+   ```
 2. **Run any missing migration**, in numeric order, from `supabase/migrations/` (paste the whole file, click Run, accept the "potential issues" popup — it only replaces functions and old policies). Each file is safe to re-run.
 3. **Authentication -> Sign In / Providers:**
    - turn **OFF "Allow new users to sign up"** (nobody should be able to create an account on their own);
@@ -51,15 +73,15 @@ Updated 2026-10-22.
 
 Use made-up names and numbers. Tell me what happens, with a screenshot of anything wrong.
 
-1. **Admin:** Login -> email/mobile + password -> access code -> dashboard.
+1. **Admin:** Login -> email/mobile + password -> dashboard (no second page). Close the app completely and reopen it: you should land on the dashboard without logging in again. Do the same as student and teacher.
 2. **Add a student:** Student Desk -> add-person icon (top right) -> fill the form (a login mobile number you will remember, e.g. `9000000001`) -> ADD STUDENT. Copy the access code from the dialog.
 3. **Student login:** log out -> Login -> the student's mobile number + the access code -> Student dashboard. Open Homework, Classwork, My fee status, Timetable: they should show empty messages, not errors.
 4. **Lost code:** as admin open the student -> "Generate a new code" -> log in again with the new one (the old one must fail).
 5. **Language:** on the Login screen tap हिन्दी, then मराठी; log in and check the dashboard follows.
-6. **Teacher:** as admin choose Teacher Desk -> add a teacher (name, mobile and/or email, a login password, an access code). Log in as that teacher with mobile/email + password, then the access code.
+6. **Teacher:** as admin choose Teacher Desk -> add a teacher (name, mobile and/or email, a 6-digit access code). Log in as that teacher with mobile/email + the access code (no second page). For a teacher created earlier: open their profile -> Reset login access code, then use the new code.
 7. **Homework with files:** as the teacher create homework with a PDF and a photo; as the student open both. A student of a different class must not see it.
 8. **Teacher GPS attendance:** as admin set the geofence (Geofence Settings -> use current location); as the teacher open My Attendance inside and outside the radius.
-9. **Security screen:** as admin open Security -> change the password and/or access code -> log out and in with the new ones.
+9. **Change password:** as admin open Security -> enter the current password and a new one -> log out and in with the new password.
 10. **Offline:** turn on airplane mode: the offline banner shows and changes are blocked.
 
 ---
@@ -86,6 +108,10 @@ The code and database parts are ready. Until this is done: push notifications ar
 ---
 
 ## 5. Things to decide
+
+- [x] ~~Server-side second step for teachers~~ - no longer applies: teachers log in with the access code only (2026-11-24).
+- [ ] **Banned or deactivated people** keep database access until their login expires (the app signs them out, the server does not). Say if you want a server-side block.
+- [ ] **Fresh setup:** `004_seed_admin.sql` stops until its placeholder values are edited, and the `profile-photos` and `chat-files` storage buckets are not created by any migration. Only matters if you rebuild the database from scratch.
 
 - [ ] **Hindi and Marathi wording:** ask Mrs. Gharat or a staff member to read the student screens in both languages. Send me any wording that sounds unnatural (all text is in `lib/l10n/app_hi.arb` and `app_mr.arb`).
 - [ ] **Teachers adding students?** Today only the admin can (the database function is admin-only). Say the word if teachers should too.

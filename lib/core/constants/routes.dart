@@ -7,8 +7,6 @@ class Routes {
   static const String login = '/auth/login';
   static const String newPassword = '/auth/new-password';
   static const String otp = '/auth/otp';
-  static const String adminLogin = '/auth/admin-login';
-  static const String teacherLogin = '/auth/teacher-login';
   static const String pendingApproval = '/auth/pending';
 
   // Admin shell

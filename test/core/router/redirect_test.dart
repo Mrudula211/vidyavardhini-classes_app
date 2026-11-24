@@ -10,8 +10,7 @@ AuthRedirect _decide({
   String? role,
   bool statusLoading = false,
   String? status,
-  bool adminVerified = false,
-  bool teacherVerified = false,
+  bool recovering = false,
 }) =>
     decideRedirect(
       uri: uri,
@@ -21,8 +20,7 @@ AuthRedirect _decide({
       role: role,
       statusLoading: statusLoading,
       status: status,
-      adminVerified: adminVerified,
-      teacherVerified: teacherVerified,
+      recovering: recovering,
     );
 
 void main() {
@@ -105,52 +103,43 @@ void main() {
     });
   });
 
-  group('admin and teacher second step', () {
-    test('held on their access-code screen until verified', () {
+  group('admin goes straight in; teacher has one extra step', () {
+    test('a logged-in admin needs no second step', () {
       expect(
         _decide(uri: Routes.adminDashboard, role: 'admin').location,
-        Routes.adminLogin,
-      );
-      expect(
-        _decide(uri: Routes.adminLogin, role: 'admin').location,
         isNull,
       );
       expect(
-        _decide(uri: Routes.teacherDashboard, role: 'teacher').location,
-        Routes.teacherLogin,
-      );
-    });
-
-    test('verified admin reaches the dashboard and leaves login screens', () {
-      expect(
-        _decide(
-          uri: Routes.adminDashboard,
-          role: 'admin',
-          adminVerified: true,
-        ).location,
-        isNull,
+        _decide(uri: Routes.splash, role: 'admin').location,
+        Routes.adminDashboard,
       );
       expect(
-        _decide(uri: Routes.adminLogin, role: 'admin', adminVerified: true)
-            .location,
+        _decide(uri: Routes.login, role: 'admin').location,
         Routes.adminDashboard,
       );
     });
 
-    test('a teacher cannot open admin routes even when verified', () {
+    test('a teacher goes straight to the dashboard (no second step)', () {
       expect(
-        _decide(
-          uri: Routes.adminFees,
-          role: 'teacher',
-          teacherVerified: true,
-        ).location,
+        _decide(uri: Routes.teacherDashboard, role: 'teacher').location,
+        isNull,
+      );
+      expect(
+        _decide(uri: Routes.login, role: 'teacher').location,
+        Routes.teacherDashboard,
+      );
+    });
+
+    test('a teacher cannot open admin routes', () {
+      expect(
+        _decide(uri: Routes.adminFees, role: 'teacher').location,
         Routes.teacherDashboard,
       );
     });
   });
 
   group('forgotten-password flow', () {
-    test('the new-password screen is reachable before the access-code step',
+    test('the new-password screen is reachable before the dashboard',
         () {
       expect(_decide(uri: Routes.newPassword, role: 'admin').location, isNull);
       expect(
@@ -161,6 +150,48 @@ void main() {
 
     test('the email-code screen is a login-area page', () {
       expect(_decide(hasSession: false, uri: Routes.otp).location, isNull);
+    });
+  });
+
+  group('forgot-password recovery', () {
+    test('an admin who forgot the password is not bounced to the code step',
+        () {
+      for (final role in ['admin', 'teacher']) {
+        expect(
+          _decide(uri: Routes.otp, role: role, recovering: true).location,
+          isNull,
+          reason: role,
+        );
+        expect(
+          _decide(uri: Routes.newPassword, role: role, recovering: true)
+              .location,
+          isNull,
+          reason: role,
+        );
+      }
+    });
+
+    test('a student mid-recovery stays on the code screen', () {
+      expect(
+        _decide(
+          uri: Routes.otp,
+          role: 'student',
+          status: 'active',
+          recovering: true,
+        ).location,
+        isNull,
+      );
+    });
+
+    test('without the flag the normal rules apply', () {
+      expect(
+        _decide(uri: Routes.otp, role: 'admin').location,
+        Routes.adminDashboard,
+      );
+      expect(
+        _decide(uri: Routes.otp, role: 'teacher').location,
+        Routes.teacherDashboard,
+      );
     });
   });
 }

@@ -32,7 +32,13 @@ class StudentRepository {
     }
 
     if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-      final q = '%${searchQuery.trim()}%';
+      // Commas, parentheses and quotes would be read as extra filter
+      // clauses by PostgREST's or() syntax; % and _ are wildcards.
+      final safe = searchQuery
+          .trim()
+          .replaceAll(RegExp(r'[,()"\\%_*]'), ' ')
+          .trim();
+      final q = '%$safe%';
       query = query.or(
         'full_name.ilike.$q,parent_phone.ilike.$q,student_id.ilike.$q',
       );
@@ -60,14 +66,14 @@ class StudentRepository {
     return StudentModel.fromJson(data);
   }
 
+  /// Student IDs are permanent and never reused, so a failure here must NOT
+  /// fall back to a made-up ID: the error propagates and nothing is approved.
   Future<String> getNextStudentId() async {
-    try {
-      final response = await _client.rpc('next_student_id');
-      if (response != null) {
-        return response.toString();
-      }
-    } catch (_) {}
-    return 'STU0001';
+    final response = await _client.rpc('next_student_id');
+    if (response == null) {
+      throw Exception('Could not get the next student ID');
+    }
+    return response.toString();
   }
 
   Future<void> approveStudent({

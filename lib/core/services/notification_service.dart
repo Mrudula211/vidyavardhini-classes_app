@@ -38,7 +38,7 @@ class NotificationService {
       FirebaseMessaging.onMessage.listen((message) {
         final title = message.notification?.title ?? message.data['title'];
         final body = message.notification?.body ?? message.data['body'];
-        debugPrint('Foreground FCM: $title — $body');
+        if (kDebugMode) debugPrint('Foreground FCM: $title — $body');
       });
 
       FirebaseMessaging.onMessageOpenedApp.listen((message) {

@@ -63,7 +63,10 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                   child: SizedBox(
                     width: 24,
                     height: 24,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
                   ),
                 )
               : IconButton(
@@ -85,11 +88,12 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                            tooltip: 'Clear search',
+                        tooltip: 'Clear search',
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          ref.read(teacherSearchQueryProvider.notifier).state = '';
+                          ref.read(teacherSearchQueryProvider.notifier).state =
+                              '';
                         },
                       )
                     : null,
@@ -120,8 +124,11 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.school_outlined,
-                                    size: 48, color: AppColors.lightOutline,),
+                                const Icon(
+                                  Icons.school_outlined,
+                                  size: 48,
+                                  color: AppColors.lightOutline,
+                                ),
                                 const SizedBox(height: 12),
                                 Text(
                                   'No teachers found.',
@@ -142,7 +149,8 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                   onRefresh: _refreshTeachers,
                   child: ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: teachers.length,
                     itemBuilder: (context, index) {
                       final teacher = teachers[index];
@@ -152,7 +160,8 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                 );
               },
               loading: () => ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: 6,
                 itemBuilder: (context, index) => Container(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -169,8 +178,11 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.error_outline_rounded,
-                          size: 40, color: AppColors.maroon,),
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        size: 40,
+                        color: AppColors.maroon,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'Could not load teachers.\n$err',
@@ -213,7 +225,9 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
           foregroundColor: AppColors.primary,
           radius: 26,
           child: Text(
-            teacher.fullName.isNotEmpty ? teacher.fullName[0].toUpperCase() : 'T',
+            teacher.fullName.isNotEmpty
+                ? teacher.fullName[0].toUpperCase()
+                : 'T',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
         ),
@@ -222,15 +236,19 @@ class _TeacherListScreenState extends ConsumerState<TeacherListScreen> {
             Expanded(
               child: Text(
                 teacher.fullName,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: (teacher.isActive ? Colors.green : Colors.grey).withValues(alpha: 0.1),
+                color: (teacher.isActive ? Colors.green : Colors.grey)
+                    .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: teacher.isActive ? Colors.green : Colors.grey),
+                border: Border.all(
+                  color: teacher.isActive ? Colors.green : Colors.grey,
+                ),
               ),
               child: Text(
                 teacher.isActive ? 'ACTIVE' : 'INACTIVE',

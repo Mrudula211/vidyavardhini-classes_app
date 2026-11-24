@@ -75,8 +75,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _passwordController.text,
       );
       if (session == null) throw Exception('no session');
-      ref.invalidate(currentUserRoleProvider);
-      ref.invalidate(currentStudentStatusProvider);
+      // Do not invalidate the role/status providers here: they already
+      // recompute when the signed-in user changes, and invalidating while that
+      // refresh is running left them loading forever (stuck on the splash).
       final role = await repo.fetchUserRole(session.user.id);
       if (!mounted) return;
       context.go(roleDestination(role));
@@ -247,15 +248,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 }
 
 /// Where a signed-in person goes next, decided by their account's role.
-/// Admin and teacher continue to their access-code step; students go straight
-/// to their dashboard (the router sends pending students to the waiting
-/// screen).
+/// Everyone goes straight to their dashboard (the router sends pending
+/// students to the waiting screen).
 String roleDestination(String? role) {
   switch (role) {
     case 'admin':
-      return Routes.adminLogin;
+      return Routes.adminDashboard;
     case 'teacher':
-      return Routes.teacherLogin;
+      return Routes.teacherDashboard;
     default:
       return Routes.studentDashboard;
   }
