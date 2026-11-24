@@ -4,3 +4,4 @@
 [DONE 2026-11-22] 4. after puuting login mobile number and password for admin, it keep loading on home page (the page with logo and tagline) but doesnt take me to actual dashboard
 [DONE 2026-11-22] 5. keep a unified theme across all the users, use light theme (request typed in chat)
 [DONE 2026-11-22] 6. (screenshots) announcement publish error 'target_type' column; Teacher Profile tab label invisible and 'CBSE' avatar wrapped. Needs migration 019 run in Supabase.
+[DONE 2026-11-24] 7. lets just keep the 6digit access code and not passwod for teacher login (typed in chat). Existing teachers: admin opens the teacher's profile -> Reset login access code.

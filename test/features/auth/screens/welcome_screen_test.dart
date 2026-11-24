@@ -82,7 +82,7 @@ void main() {
 
   test('roleDestination sends each role to the right next step', () {
     expect(roleDestination('admin'), Routes.adminDashboard);
-    expect(roleDestination('teacher'), Routes.teacherLogin);
+    expect(roleDestination('teacher'), Routes.teacherDashboard);
     expect(roleDestination('student'), Routes.studentDashboard);
     expect(roleDestination(null), Routes.studentDashboard);
   });

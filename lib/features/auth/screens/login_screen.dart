@@ -248,15 +248,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 }
 
 /// Where a signed-in person goes next, decided by their account's role.
-/// Admin and teacher continue to their access-code step; students go straight
-/// to their dashboard (the router sends pending students to the waiting
-/// screen).
+/// Everyone goes straight to their dashboard (the router sends pending
+/// students to the waiting screen).
 String roleDestination(String? role) {
   switch (role) {
     case 'admin':
       return Routes.adminDashboard;
     case 'teacher':
-      return Routes.teacherLogin;
+      return Routes.teacherDashboard;
     default:
       return Routes.studentDashboard;
   }

@@ -62,9 +62,3 @@ final currentStudentStatusProvider = FutureProvider<String?>((ref) async {
 /// new-password screens instead of sending them to a dashboard first.
 final passwordRecoveryProvider = StateProvider<bool>((ref) => false);
 
-/// The teacher's access-code step, remembered across app restarts for the
-/// same account (cleared on logout or when a different account signs in).
-final teacherAuthenticatedProvider = StateProvider<bool>((ref) {
-  final uid = ref.read(currentUserIdProvider);
-  return uid != null && SessionStore.isTeacherVerified(uid);
-});

@@ -5,14 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/routes.dart';
-import '../services/session_store.dart';
 import '../../features/auth/providers/auth_providers.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/welcome_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/new_password_screen.dart';
 import '../../features/auth/screens/otp_screen.dart';
-import '../../features/auth/screens/teacher_login_screen.dart';
 import '../../features/auth/screens/pending_approval_screen.dart';
 import '../../features/admin/screens/admin_dashboard_screen.dart';
 import '../../features/admin/students/screens/student_list_screen.dart';
@@ -68,17 +66,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.listen(authStateProvider, ping);
   ref.listen(currentUserRoleProvider, ping);
   ref.listen(currentStudentStatusProvider, ping);
-  ref.listen(teacherAuthenticatedProvider, ping);
   ref.listen(passwordRecoveryProvider, ping);
-
-  // The access-code step is only valid for the session it was passed in.
-  // Clear it on logout or when a different account signs in.
-  ref.listen<String?>(currentUserIdProvider, (previous, next) {
-    if (next == null || (previous != null && previous != next)) {
-      ref.read(teacherAuthenticatedProvider.notifier).state = false;
-      SessionStore.clearTeacherVerified();
-    }
-  });
 
   return GoRouter(
     initialLocation: Routes.splash,
@@ -97,7 +85,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         role: userRole.valueOrNull,
         statusLoading: studentStatus.isLoading,
         status: studentStatus.valueOrNull,
-        teacherVerified: ref.read(teacherAuthenticatedProvider),
         recovering: ref.read(passwordRecoveryProvider),
       );
       if (kDebugMode) {
@@ -135,10 +122,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.otp,
         builder: (context, state) => const OtpScreen(),
-      ),
-      GoRoute(
-        path: Routes.teacherLogin,
-        builder: (context, state) => const TeacherLoginScreen(),
       ),
       GoRoute(
         path: Routes.pendingApproval,
@@ -325,7 +308,6 @@ class AuthRedirect {
 ///  * session but unknown role -> never park on the splash, go to Welcome;
 ///  * students: new -> registration, pending -> waiting screen,
 ///    rejected/banned -> signed out, approved without email -> set password;
-///  * admin/teacher must pass their access-code step before anything else;
 ///  * role-prefixed routes are only for that role.
 AuthRedirect decideRedirect({
   required String uri,
@@ -335,7 +317,6 @@ AuthRedirect decideRedirect({
   required String? role,
   required bool statusLoading,
   required String? status,
-  required bool teacherVerified,
   bool recovering = false,
 }) {
   final isAuthRoute = uri.startsWith('/auth') ||
@@ -381,14 +362,6 @@ AuthRedirect decideRedirect({
   // Someone who just logged in with an emailed code (forgot their password)
   // may choose a new one before anything else.
   if (uri == Routes.newPassword) return const AuthRedirect(null);
-
-  // Admin and teacher sign in once more with their access code. Until that
-  // is done, the only place they may be is that step.
-  if (role == 'teacher' && !teacherVerified) {
-    return AuthRedirect(
-      uri == Routes.teacherLogin ? null : Routes.teacherLogin,
-    );
-  }
 
   if (uri.startsWith('/admin') && role != 'admin') {
     return AuthRedirect(_getDashboardRoute(role));

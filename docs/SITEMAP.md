@@ -16,7 +16,7 @@ App Launch
                     │
                     ▼  look up users.role
                     ├── admin   -> Admin dashboard (no second step)
-                    ├── teacher -> TeacherLoginScreen (access code, remembered)  -> Teacher dashboard
+                    ├── teacher -> Teacher dashboard (no second step)
                     └── student -> active: Student dashboard
                                    pending (legacy): waiting screen
                                    no profile / rejected / banned: signed out
@@ -38,7 +38,6 @@ chooses a role: the account decides.
 | `/auth/new-password` | NewPasswordScreen | Choose a new password after an email-code login |
 | `/admin/settings/security` | AdminSecurityScreen | Admin changes own password (needs the current one) |
 | `/auth/otp` | OtpScreen | Enter the 6-digit code emailed to the person (email-code login only) |
-| `/auth/teacher-login` | TeacherLoginScreen | Access code only |
 | `/auth/student-register` | StudentRegistrationScreen | Full registration form |
 | `/auth/student-set-password` | StudentPasswordScreen | First login after approval (set password); router-enforced for active students without email |
 | `/auth/pending` | PendingApprovalScreen | Shown until admin approves |

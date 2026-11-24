@@ -10,7 +10,6 @@ AuthRedirect _decide({
   String? role,
   bool statusLoading = false,
   String? status,
-  bool teacherVerified = false,
   bool recovering = false,
 }) =>
     decideRedirect(
@@ -21,7 +20,6 @@ AuthRedirect _decide({
       role: role,
       statusLoading: statusLoading,
       status: status,
-      teacherVerified: teacherVerified,
       recovering: recovering,
     );
 
@@ -121,48 +119,27 @@ void main() {
       );
     });
 
-    test('a teacher is held on the access-code screen until verified', () {
+    test('a teacher goes straight to the dashboard (no second step)', () {
       expect(
         _decide(uri: Routes.teacherDashboard, role: 'teacher').location,
-        Routes.teacherLogin,
-      );
-      expect(
-        _decide(uri: Routes.teacherLogin, role: 'teacher').location,
-        isNull,
-      );
-    });
-
-    test('a verified teacher reaches the dashboard and leaves login screens',
-        () {
-      expect(
-        _decide(
-          uri: Routes.teacherDashboard,
-          role: 'teacher',
-          teacherVerified: true,
-        ).location,
         isNull,
       );
       expect(
-        _decide(uri: Routes.login, role: 'teacher', teacherVerified: true)
-            .location,
+        _decide(uri: Routes.login, role: 'teacher').location,
         Routes.teacherDashboard,
       );
     });
 
-    test('a teacher cannot open admin routes even when verified', () {
+    test('a teacher cannot open admin routes', () {
       expect(
-        _decide(
-          uri: Routes.adminFees,
-          role: 'teacher',
-          teacherVerified: true,
-        ).location,
+        _decide(uri: Routes.adminFees, role: 'teacher').location,
         Routes.teacherDashboard,
       );
     });
   });
 
   group('forgotten-password flow', () {
-    test('the new-password screen is reachable before the access-code step',
+    test('the new-password screen is reachable before the dashboard',
         () {
       expect(_decide(uri: Routes.newPassword, role: 'admin').location, isNull);
       expect(
@@ -213,7 +190,7 @@ void main() {
       );
       expect(
         _decide(uri: Routes.otp, role: 'teacher').location,
-        Routes.teacherLogin,
+        Routes.teacherDashboard,
       );
     });
   });

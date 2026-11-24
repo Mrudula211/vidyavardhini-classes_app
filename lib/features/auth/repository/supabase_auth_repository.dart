@@ -106,15 +106,6 @@ class SupabaseAuthRepository implements AuthRepository {
     return null;
   }
 
-  /// Verified against the signed-in teacher's own code
-  /// (`verify_my_teacher_access_code`); requires a real Supabase session.
-  @override
-  Future<bool> verifyTeacherAccessCode(String accessCode) async {
-    return _verify('verify_my_teacher_access_code', {
-      'p_access_code': accessCode,
-    });
-  }
-
   @override
   Future<bool> confirmCurrentPassword(String password) async {
     final user = _client.auth.currentUser;
@@ -138,19 +129,4 @@ class SupabaseAuthRepository implements AuthRepository {
     }
   }
 
-  Future<bool> _verify(String function, Map<String, dynamic> params) async {
-    try {
-      final response = await _client.rpc(function, params: params);
-      return response == true;
-    } on PostgrestException catch (e) {
-      // Surface the lockout message instead of a generic "invalid code".
-      if (e.message.contains('Too many failed attempts')) {
-        throw Exception(e.message);
-      }
-      return false;
-    }
-    // Anything else (offline, server error) is NOT a wrong code: it propagates
-    // so the caller can show a connection message instead of counting it as a
-    // failed attempt.
-  }
 }

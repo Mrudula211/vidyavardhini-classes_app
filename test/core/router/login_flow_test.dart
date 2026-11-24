@@ -43,8 +43,6 @@ class _FakeRepo implements AuthRepository {
   @override
   Future<void> signOut() async {}
   @override
-  Future<bool> verifyTeacherAccessCode(String accessCode) async => true;
-  @override
   Future<bool> confirmCurrentPassword(String password) async => true;
 }
 

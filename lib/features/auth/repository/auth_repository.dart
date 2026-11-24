@@ -19,7 +19,6 @@ abstract class AuthRepository {
   User? get currentUser;
   Future<String?> fetchUserRole(String userId);
   Future<String?> fetchStudentStatus(String userId);
-  Future<bool> verifyTeacherAccessCode(String accessCode);
 
   /// True when [password] is the signed-in person's current password.
   Future<bool> confirmCurrentPassword(String password);

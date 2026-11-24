@@ -64,7 +64,7 @@ Use made-up names and numbers. Tell me what happens, with a screenshot of anythi
 3. **Student login:** log out -> Login -> the student's mobile number + the access code -> Student dashboard. Open Homework, Classwork, My fee status, Timetable: they should show empty messages, not errors.
 4. **Lost code:** as admin open the student -> "Generate a new code" -> log in again with the new one (the old one must fail).
 5. **Language:** on the Login screen tap हिन्दी, then मराठी; log in and check the dashboard follows.
-6. **Teacher:** as admin choose Teacher Desk -> add a teacher (name, mobile and/or email, a login password, an access code). Log in as that teacher with mobile/email + password, then the access code.
+6. **Teacher:** as admin choose Teacher Desk -> add a teacher (name, mobile and/or email, a 6-digit access code). Log in as that teacher with mobile/email + the access code (no second page). For a teacher created earlier: open their profile -> Reset login access code, then use the new code.
 7. **Homework with files:** as the teacher create homework with a PDF and a photo; as the student open both. A student of a different class must not see it.
 8. **Teacher GPS attendance:** as admin set the geofence (Geofence Settings -> use current location); as the teacher open My Attendance inside and outside the radius.
 9. **Change password:** as admin open Security -> enter the current password and a new one -> log out and in with the new password.
@@ -95,7 +95,7 @@ The code and database parts are ready. Until this is done: push notifications ar
 
 ## 5. Things to decide
 
-- [ ] **Server-side second step for teachers.** The admin no longer has a second step. For teachers, anyone with a teacher's password could call the database API directly and skip the access code, because only the app enforces that step. (Optional: you may also decide to drop the teacher access code altogether, as for the admin.) Fixing it means recording the verification on the server for each session and requiring it in `is_admin()` and the teacher policies. It affects every admin screen and I cannot test it without your live database, so I have not done it blind. Tell me to go ahead and I will prepare it as a separate migration with a rollback.
+- [x] ~~Server-side second step for teachers~~ - no longer applies: teachers log in with the access code only (2026-11-24).
 - [ ] **Banned or deactivated people** keep database access until their login expires (the app signs them out, the server does not). Say if you want a server-side block.
 - [ ] **Fresh setup:** `004_seed_admin.sql` stops until its placeholder values are edited, and the `profile-photos` and `chat-files` storage buckets are not created by any migration. Only matters if you rebuild the database from scratch.
 

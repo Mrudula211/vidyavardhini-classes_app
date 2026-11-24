@@ -183,8 +183,8 @@ lib/
 
 - All tables have Row Level Security (RLS) **enabled**.
 - Use Supabase **service role** only in Edge Functions (never in Flutter).
-- Auth is mobile number or email + password. **No SMS.** A student's password is a generated access code (`student_access_codes`, admin-read-only). Teachers also pass an access-code step (remembered across restarts); the admin logs in with the password only. Accounts are created only by admin RPCs (`create_student_account`, `create_teacher_profile`); "Allow new users to sign up" stays off.
-- Teacher access codes are stored **hashed** in `private.teacher_access_codes`. Student access codes are stored readable for the admin (`student_access_codes`, admin-read-only RLS).
+- Auth is mobile number or email + password. **No SMS.** A student's password is a generated access code (`student_access_codes`, admin-read-only). A teacher's password is a 6-digit access code chosen by the admin (one step, no separate password); the admin logs in with the password only. Accounts are created only by admin RPCs (`create_student_account`, `create_teacher_profile`); "Allow new users to sign up" stays off.
+- A teacher's access code is their Supabase password (stored hashed by Supabase Auth only; the admin sets or resets it with `create_teacher_profile` / `admin_reset_user_password`). Student access codes are stored readable for the admin (`student_access_codes`, admin-read-only RLS).
 - Use Supabase Realtime for chat (`messages` table).
 - Storage buckets: `profile-photos`, `homework-attachments`, `classwork-attachments`, `chat-files`.
 

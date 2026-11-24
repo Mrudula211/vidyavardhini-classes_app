@@ -30,7 +30,6 @@ class TeacherDashboardScreen extends ConsumerWidget {
             icon: Icon(Icons.logout_rounded, color: context.headingColor),
             onPressed: () async {
               await ref.read(authRepositoryProvider).signOut();
-              ref.read(teacherAuthenticatedProvider.notifier).state = false;
               if (context.mounted) context.go(Routes.roleSelect);
             },
           ),

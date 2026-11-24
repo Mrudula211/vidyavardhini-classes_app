@@ -21,7 +21,6 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
   final TextEditingController _salaryController =
       TextEditingController(text: '20000');
   final TextEditingController _accessCodeController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
 
   String _gender = 'male';
   bool _isSubmitting = false;
@@ -38,7 +37,6 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
     _phoneController.dispose();
     _emailController.dispose();
     _salaryController.dispose();
-    _passwordController.dispose();
     _accessCodeController.dispose();
     super.dispose();
   }
@@ -65,7 +63,6 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
         gender: _gender,
         monthlySalary: double.tryParse(_salaryController.text.trim()) ?? 0.0,
         accessCode: _accessCodeController.text.trim(),
-        password: _passwordController.text,
       );
 
       final assignedId = res['teacher_id'] as String? ?? 'TCHXXXX';
@@ -83,24 +80,28 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
               children: [
                 Text('Teacher Name: ${_fullNameController.text.trim()}'),
                 const SizedBox(height: 8),
-                Text('Assigned ID: $assignedId',
-                    style: const TextStyle(fontWeight: FontWeight.bold),),
+                Text(
+                  'Assigned ID: $assignedId',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
                 Text(
-                    'Login: ${_emailController.text.trim().isNotEmpty ? _emailController.text.trim() : _phoneController.text.trim()}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),),
+                  'Login: ${_emailController.text.trim().isNotEmpty ? _emailController.text.trim() : _phoneController.text.trim()}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
-                Text('Password: ${_passwordController.text}',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: context.headingColor,),),
-                const SizedBox(height: 4),
-                Text('Access Code: ${_accessCodeController.text.trim()}',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: context.headingColor,),),
+                Text(
+                  'Access Code (their password): ${_accessCodeController.text.trim()}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: context.headingColor,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 const Text(
-                    'Share the login, password and access code with the teacher. They log in with their mobile number or email and the password, then enter the access code.',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),),
+                  'Share the login and the 6-digit access code with the teacher. They log in with their mobile number or email and this access code. There is no separate password.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
               ],
             ),
             actions: [
@@ -181,18 +182,6 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Login Password * (min 6 characters)',
-                  prefixIcon: Icon(Icons.key),
-                  border: OutlineInputBorder(),
-                ),
-                validator: (val) => (val == null || val.length < 6)
-                    ? 'Password must be at least 6 characters'
-                    : null,
-              ),
-              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _gender,
                 decoration: const InputDecoration(
@@ -238,7 +227,7 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                       keyboardType: TextInputType.number,
                       maxLength: 6,
                       decoration: const InputDecoration(
-                        labelText: 'Teacher Access Code (6-digit PIN) *',
+                        labelText: 'Login Access Code (6 digits) *',
                         prefixIcon: Icon(Icons.lock),
                         border: OutlineInputBorder(),
                         counterText: '',
@@ -278,7 +267,8 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     onPressed: _submitTeacher,
                     child: const Text(

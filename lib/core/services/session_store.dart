@@ -7,7 +7,6 @@ class SessionStore {
   SessionStore._();
 
   static const _boxName = 'settings';
-  static const _teacherKey = 'teacher_verified_uid';
 
   static Box<String>? get _box {
     try {
@@ -31,12 +30,6 @@ class SessionStore {
     } catch (_) {}
   }
 
-  // Teacher access-code step: remembered for the same account until logout.
-  static bool isTeacherVerified(String userId) => _read(_teacherKey) == userId;
-  static Future<void> saveTeacherVerified(String userId) =>
-      _write(_teacherKey, userId);
-  static Future<void> clearTeacherVerified() => _delete(_teacherKey);
-
   // Last known role / student status, used when the network lookup fails.
   static String? cachedRole(String userId) => _read('role:$userId');
   static Future<void> cacheRole(String userId, String role) =>
@@ -49,6 +42,5 @@ class SessionStore {
   static Future<void> forget(String userId) async {
     await _delete('role:$userId');
     await _delete('status:$userId');
-    await _delete(_teacherKey);
   }
 }
