@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/teacher_code.dart';
 import '../../../../shared/models/teacher_model.dart';
 import '../providers/teacher_providers.dart';
 
@@ -209,7 +208,7 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
   /// teacher's login password, so this also replaces a forgotten password.
   Future<void> _resetAccessCode(TeacherModel teacher) async {
     final controller = TextEditingController(
-      text: (100000 + Random.secure().nextInt(900000)).toString(),
+      text: TeacherCode.generate(),
     );
     final code = await showDialog<String>(
       context: context,
@@ -242,8 +241,13 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
           ),
           ElevatedButton(
             onPressed: () {
-              if (controller.text.trim().length == 6) {
+              final problem = TeacherCode.validate(controller.text);
+              if (problem == null) {
                 Navigator.pop(ctx, controller.text.trim());
+              } else {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  SnackBar(content: Text(problem)),
+                );
               }
             },
             child: const Text('Save'),

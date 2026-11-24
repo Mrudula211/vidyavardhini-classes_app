@@ -10,6 +10,20 @@ Updated 2026-10-22.
 
 ---
 
+## 7. Security follow-ups (from the 2026-11-24 audit)
+
+You need to do the following manually:
+
+1. **Run migration 020** (`supabase/migrations/020_security_hardening_2.sql`) in the Supabase SQL Editor, after 019.
+2. **Restrict the Firebase API key:** Google Cloud Console -> APIs & Services -> Credentials -> open the Android key of your Firebase project -> Application restrictions: Android apps -> add package `com.vidyavardhini.classes` and your app's SHA-1 -> Save. (The key is in old git history, so restricting it matters while the repo is not private.)
+3. **Check the storage buckets:** Supabase -> Storage -> `profile-photos` and `chat-files` -> make sure each shows **Private**. If either is Public, edit it and turn Public off.
+4. **Tighten sign-in limits:** Supabase -> Authentication -> Rate Limits -> lower the sign-in attempts per hour; Authentication -> Attack Protection -> enable CAPTCHA if offered. Teachers log in with a 6-digit code, so this matters.
+5. **Before the Play Store:** create the release keystore and `android/key.properties` (see `android/key.properties.example`). Without it the release build is signed with the debug key.
+
+Still open and not yet coded (ask me to do these next): server-side block for banned/inactive users, academic-year isolation in read policies, teacher read limits on enrollments/absence reasons, notification spam limit, fee trigger on update/delete, encrypted local cache.
+
+---
+
 ## 1. Where things stand
 
 **Confirmed working on your phone**

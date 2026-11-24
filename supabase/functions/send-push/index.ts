@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   if (!isAuthorized(req)) return json({ error: "unauthorized" }, 401);
 
   const { notification_ids: ids } = await req.json().catch(() => ({}));
-  if (!Array.isArray(ids) || ids.length === 0) {
+  if (!Array.isArray(ids) || ids.length === 0 || ids.length > 500) {
     return json({ error: "notification_ids required" }, 400);
   }
 

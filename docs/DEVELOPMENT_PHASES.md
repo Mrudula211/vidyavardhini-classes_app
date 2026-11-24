@@ -469,6 +469,18 @@ Three read-only ECC reviewers (Flutter, database, security) audited the code. Fi
 
 ---
 
+## Security audit (2026-11-24, ECC security-reviewer + database-reviewer + own checks)
+
+No Critical findings. Secrets: nothing sensitive is tracked; `supabase_keys.dart`, `google-services.json`, keystore files are git-ignored; release builds are minified.
+
+**Fixed now:** migration 020 (ID sequences locked, audit_logs privileges, sessions revoked on reset, legacy functions removed); teacher access codes must be 6 digits and not guessable (`TeacherCode`, tests); router-forced sign-out now clears the local cache; FCM text only logged in debug; `usesCleartextTraffic="false"`; `send-push` caps `notification_ids` at 500.
+
+**Open, ranked (owner steps in docs/OWNER_TODO.md section 7):**
+- High: banned/inactive users keep database access through direct API calls (the ban is enforced by the app only); teacher 6-digit password relies on Supabase rate limits (owner choice); Firebase API key sits in old git history (restrict it in Google Cloud); `profile-photos` and `chat-files` buckets have no migration (verify they are private).
+- Medium: academic-year isolation missing from several student/teacher read policies; any teacher can read all enrollments and write absence reasons for any student; notifications self-insert allows spam; fee trigger only on INSERT; geofence RPC returns distance and trusts client GPS; Hive caches unencrypted; release build falls back to debug signing without `key.properties`; student access codes stored readable (by design).
+
+---
+
 ## Milestones
 
 | Milestone | Phases | Target |

@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/routes.dart';
 import '../../features/auth/providers/auth_providers.dart';
@@ -97,7 +96,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         );
       }
       if (decision.signOut) {
-        await Supabase.instance.client.auth.signOut();
+        // Through the repository so the local cache and remembered role/status
+        // are cleared as well.
+        await ref.read(authRepositoryProvider).signOut();
       }
       return decision.location;
     },

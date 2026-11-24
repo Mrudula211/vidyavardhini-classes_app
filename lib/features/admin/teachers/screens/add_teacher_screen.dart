@@ -1,5 +1,5 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/teacher_code.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -42,8 +42,7 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
   }
 
   void _generateAccessCode() {
-    final random = Random();
-    final pin = (100000 + random.nextInt(900000)).toString();
+    final pin = TeacherCode.generate();
     setState(() {
       _accessCodeController.text = pin;
     });
@@ -232,12 +231,7 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
-                      validator: (val) {
-                        if (val == null || val.trim().length != 6) {
-                          return 'Enter a 6-digit access code';
-                        }
-                        return null;
-                      },
+                      validator: TeacherCode.validate,
                     ),
                   ),
                   const SizedBox(width: 8),

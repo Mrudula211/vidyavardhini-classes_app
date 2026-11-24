@@ -1104,6 +1104,13 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 - Trigger `student_profiles_keep_id` makes `student_id` immutable once set; `next_student_id()` / `next_teacher_id()` revoked from anon.
 - `public.is_admin()` also granted to `supabase_auth_admin`. Re-closes self-registration (drops `on_auth_user_created`, `users: insert own`, `student_profiles: own insert`, the 8-argument `create_teacher_profile`) — **run 018 last, and again after re-running any older migration.**
 
+### 9.14 Security hardening 2 (migration 020)
+
+- `next_student_id()` / `next_teacher_id()` revoked from `authenticated` and `anon` (the SECURITY DEFINER create functions still call them).
+- `UPDATE, DELETE, TRUNCATE` on `audit_logs` revoked from `anon` and `authenticated`.
+- `admin_reset_user_password` also removes the person's `auth.refresh_tokens` and `auth.sessions` rows (so a reset ends old logins).
+- Legacy `verify_admin_credentials(text,text)` and `verify_teacher_access_code(text)` removed.
+
 ### 9.13 Teacher login by access code (no migration)
 
 - The app now calls `create_teacher_profile` with `p_password` = the 6-digit access code, so the access code is the teacher's Supabase password. `private.teacher_access_codes` and `verify_my_teacher_access_code` remain but are unused. Existing teachers get a code through `admin_reset_user_password(teacher_id, code)` (Reset login access code on the teacher's profile).
