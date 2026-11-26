@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/utils/teacher_code.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -119,7 +120,14 @@ class _AddTeacherScreenState extends ConsumerState<AddTeacherScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create teacher: $e')),
+          SnackBar(
+            content: Text(
+              e is PostgrestException
+                  ? '${e.message}. Use a different mobile number or email, '
+                      'or leave the mobile empty and use only the email.'
+                  : 'Could not create the teacher: $e',
+            ),
+          ),
         );
       }
     } finally {

@@ -217,15 +217,25 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                     itemCount: logs.length,
                     itemBuilder: (context, index) {
                       final log = logs[index];
-                      final status = log['status']?.toString() ?? 'pending';
                       final createdAt = DateTime.tryParse(
                         log['created_at']?.toString() ?? '',
                       );
+                      final rawStatus = log['status']?.toString() ?? 'pending';
+                      // A backup finishes within a minute. One still
+                      // "pending" after 15 minutes never ran (e.g. before
+                      // the backup function was deployed).
+                      final stuck = rawStatus == 'pending' &&
+                          createdAt != null &&
+                          DateTime.now().difference(createdAt.toLocal()) >
+                              const Duration(minutes: 15);
+                      final status = stuck ? 'failed' : rawStatus;
                       final completedAt = DateTime.tryParse(
                         log['completed_at']?.toString() ?? '',
                       );
                       final sizeBytes = log['size_bytes'] as int?;
-                      final errorMsg = log['error_msg']?.toString();
+                      final errorMsg = stuck
+                          ? 'Did not run. Trigger a new backup if needed.'
+                          : log['error_msg']?.toString();
                       final statusColor = _statusColor(status);
 
                       return Card(
