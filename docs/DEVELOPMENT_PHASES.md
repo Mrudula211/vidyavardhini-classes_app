@@ -465,6 +465,7 @@ Three read-only ECC reviewers (Flutter, database, security) audited the code. Fi
 - [x] **One light theme for everyone (owner request 2026-11-22).** `MaterialApp` uses only `AppTheme.light` with `ThemeMode.light`, so admin, teacher and student see the same parchment look and the phone's dark mode no longer changes it. Removed `AppTheme.dark`, the dark text-colour branches and the dark native-splash images.
 - [x] **Found from owner screenshots (2026-11-22):** (a) publishing an announcement failed because the table had no `target_type` column and a different priority enum than the app: migration `019_announcement_targets.sql` (owner must run it); (b) Teacher Profile tab label was invisible on the maroon app bar: added a `tabBarTheme`; (c) the class avatar wrapped "CBSE" onto two lines: now scaled to fit.
 - [x] **Teacher login: 6-digit access code only (owner request 2026-11-24).** The code is the teacher's password; the second `TeacherLoginScreen`, the `/auth/teacher-login` route, the router gate, `verifyTeacherAccessCode` and the remembered-step storage are removed. Add Teacher has no password field; the teacher profile has **Reset login access code** (existing teachers need it once).
+- [x] **Fee paid for two months showed -₹2000 pending (owner screenshot 2026-11-26).** A payment was booked only on the opened month, and the app also added it to `paid_amount` after the trigger had (double count risk). Now `record_fee_payment` (migration 022) spreads it over unpaid months, oldest first; the sheet shows which months it covered; Revenue never shows a negative pending. Migration 022 repairs existing records.
 - Database: migration 011/018 functions `verify_my_admin_credentials` and `change_my_admin_access_code` are no longer called by the app (harmless; can be dropped later). The admin's access-code hash column remains unused.
 
 ---
@@ -473,11 +474,11 @@ Three read-only ECC reviewers (Flutter, database, security) audited the code. Fi
 
 No Critical findings. Secrets: nothing sensitive is tracked; `supabase_keys.dart`, `google-services.json`, keystore files are git-ignored; release builds are minified.
 
-**Fixed now:** migration 020 (ID sequences locked, audit_logs privileges, sessions revoked on reset, legacy functions removed); teacher access codes must be 6 digits and not guessable (`TeacherCode`, tests); router-forced sign-out now clears the local cache; FCM text only logged in debug; `usesCleartextTraffic="false"`; `send-push` caps `notification_ids` at 500.
+**Fixed now:** migration 020 (ID sequences locked, audit_logs privileges, sessions revoked on reset, legacy functions removed); migration 021 (server-side block for banned/inactive users via `is_active_user()`, fee sync trigger on UPDATE/DELETE, notification spam prevention by restricting INSERT, teacher scope limits on enrollments and absence reasons); teacher access codes must be 6 digits and not guessable (`TeacherCode`, tests); router-forced sign-out now clears the local cache; FCM text only logged in debug; `usesCleartextTraffic="false"`; `send-push` caps `notification_ids` at 500; extracted reusable `AppValidators` and `AppFormatters` with dedicated unit test suites; fee calculation and `PrimaryButton` widget test suites.
 
 **Open, ranked (owner steps in docs/OWNER_TODO.md section 7):**
-- High: banned/inactive users keep database access through direct API calls (the ban is enforced by the app only); teacher 6-digit password relies on Supabase rate limits (owner choice); Firebase API key sits in old git history (restrict it in Google Cloud); `profile-photos` and `chat-files` buckets have no migration (verify they are private).
-- Medium: academic-year isolation missing from several student/teacher read policies; any teacher can read all enrollments and write absence reasons for any student; notifications self-insert allows spam; fee trigger only on INSERT; geofence RPC returns distance and trusts client GPS; Hive caches unencrypted; release build falls back to debug signing without `key.properties`; student access codes stored readable (by design).
+- High: Firebase API key sits in old git history (restrict it in Google Cloud); `profile-photos` and `chat-files` buckets have no migration (verify they are private in Supabase Dashboard); apply migrations 020 and 021 in Supabase SQL editor.
+- Medium: geofence RPC returns distance and trusts client GPS; release build falls back to debug signing without `key.properties`; student access codes stored readable (by design).
 
 ---
 
