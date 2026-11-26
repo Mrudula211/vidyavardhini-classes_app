@@ -46,7 +46,8 @@ class FeeRepository {
     if (searchQuery != null && searchQuery.trim().isNotEmpty) {
       final q = '%${searchQuery.trim()}%';
       query = query.or(
-          'student_profiles.full_name.ilike.$q,student_profiles.student_id.ilike.$q',);
+        'student_profiles.full_name.ilike.$q,student_profiles.student_id.ilike.$q',
+      );
     }
 
     final data = await query.order('created_at', ascending: false);
@@ -55,41 +56,38 @@ class FeeRepository {
         .toList();
   }
 
-  Future<void> recordFeePayment({
+  /// Records a payment through `record_fee_payment` (admin only). The
+  /// database spreads the amount over the student's unpaid months, oldest
+  /// first, so one payment can cover several months; it refuses more than the
+  /// student owes. Returns the months covered as `(month, year, amount)`.
+  Future<List<({int month, int year, double amount})>> recordFeePayment({
     required String monthlyFeeId,
     required double amount,
     required String paymentMethod,
     required String paymentDate,
     String? referenceNumber,
     String? notes,
-    required String collectedBy,
   }) async {
-    // 1. Insert fee_payments record
-    await _client.from('fee_payments').insert({
-      'monthly_fee_id': monthlyFeeId,
-      'amount': amount,
-      'payment_method': paymentMethod,
-      'payment_date': paymentDate,
-      'reference_number': referenceNumber,
-      'notes': notes,
-      'collected_by': collectedBy,
-    });
-
-    // 2. Update paid_amount in monthly_fees
-    final monthlyFeeRes = await _client
-        .from('monthly_fees')
-        .select('paid_amount')
-        .eq('id', monthlyFeeId)
-        .single();
-
-    final currentPaid =
-        (monthlyFeeRes['paid_amount'] as num?)?.toDouble() ?? 0.0;
-    final newPaid = currentPaid + amount;
-
-    await _client.from('monthly_fees').update({
-      'paid_amount': newPaid,
-      'updated_at': DateTime.now().toIso8601String(),
-    }).eq('id', monthlyFeeId);
+    final res = await _client.rpc(
+      'record_fee_payment',
+      params: {
+        'p_monthly_fee_id': monthlyFeeId,
+        'p_amount': amount,
+        'p_method': paymentMethod,
+        'p_payment_date': paymentDate,
+        'p_reference': referenceNumber,
+        'p_notes': notes,
+      },
+    );
+    final allocated = (res is Map ? res['allocated'] : null) as List? ?? [];
+    return [
+      for (final m in allocated)
+        (
+          month: (m['month'] as num).toInt(),
+          year: (m['year'] as num).toInt(),
+          amount: (m['amount'] as num).toDouble(),
+        ),
+    ];
   }
 
   Future<List<MonthlyFeeModel>> fetchStudentFeeHistory({

@@ -29,8 +29,12 @@ class LanguageSwitcher extends ConsumerWidget {
               selected: lang.code == selected,
               showCheckmark: false,
               selectedColor: AppColors.gold,
-              backgroundColor:
-                  onDark ? AppColors.parchment.withValues(alpha: 0.1) : null,
+              backgroundColor: onDark
+                  ? AppColors.brown.withValues(alpha: 0.55)
+                  : AppColors.parchment,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              pressElevation: 0,
               side: BorderSide(
                 color: lang.code == selected
                     ? AppColors.gold

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../fees/providers/fee_providers.dart' show selectedFeeYearProvider;
+import '../../../fees/providers/fee_providers.dart'
+    show selectedFeeYearProvider;
 import '../repository/revenue_repository.dart';
 
 final revenueRepositoryProvider = Provider<RevenueRepository>((ref) {
@@ -9,8 +10,7 @@ final revenueRepositoryProvider = Provider<RevenueRepository>((ref) {
 
 /// Yearly revenue analytics (totals + monthly breakdown) for the year
 /// currently selected in [selectedFeeYearProvider].
-final yearlyRevenueProvider =
-    FutureProvider<Map<String, dynamic>>((ref) async {
+final yearlyRevenueProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repo = ref.watch(revenueRepositoryProvider);
   final year = ref.watch(selectedFeeYearProvider);
   return repo.fetchYearlyRevenue(year: year);
