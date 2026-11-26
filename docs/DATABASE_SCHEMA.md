@@ -1104,6 +1104,11 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 - Trigger `student_profiles_keep_id` makes `student_id` immutable once set; `next_student_id()` / `next_teacher_id()` revoked from anon.
 - `public.is_admin()` also granted to `supabase_auth_admin`. Re-closes self-registration (drops `on_auth_user_created`, `users: insert own`, `student_profiles: own insert`, the 8-argument `create_teacher_profile`) — **run 018 last, and again after re-running any older migration.**
 
+### 9.15 Fee payments across months (migration 022)
+
+- `record_fee_payment(monthly_fee_id, amount, method, payment_date, reference, notes) RETURNS JSONB` - admin only. Spreads the amount over the student's unpaid months, oldest first (one `fee_payments` row per month, note "part of a ₹X payment"), refuses more than the total due, returns `{allocated: [{month, year, amount}]}`. `paid_amount` is set to the sum of the payment rows.
+- One-time repair: recomputes every `paid_amount` from `fee_payments` (undoes double counting by the old app code) and moves existing over-payments to the same student's unpaid months (note "moved from M/YYYY").
+
 ### 9.14 Security hardening 2 (migration 020)
 
 - `next_student_id()` / `next_teacher_id()` revoked from `authenticated` and `anon` (the SECURITY DEFINER create functions still call them).
