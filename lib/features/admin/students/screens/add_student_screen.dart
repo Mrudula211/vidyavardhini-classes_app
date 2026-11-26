@@ -189,7 +189,7 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
               Semantics(
                 button: true,
                 label: 'Date of birth',
-                hint: 'Select a date',
+                hint: 'Tap to select the student\'s date of birth',
                 child: InkWell(
                   onTap: _pickDob,
                   child: InputDecorator(
