@@ -352,7 +352,7 @@ System auto-calculates status:
 - 0 < Paid < Expected → **Partially Paid**
 - Paid ≥ Expected → **Paid**
 
-Partial payments are additive (multiple payments per month supported).
+Partial payments are additive (multiple payments per month supported). One payment can also cover several months: the amount is applied to the student's unpaid months, oldest first, and may not exceed the total due.
 
 ### 12.4 Student Fee View
 

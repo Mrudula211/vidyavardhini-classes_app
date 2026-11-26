@@ -1104,6 +1104,20 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 - Trigger `student_profiles_keep_id` makes `student_id` immutable once set; `next_student_id()` / `next_teacher_id()` revoked from anon.
 - `public.is_admin()` also granted to `supabase_auth_admin`. Re-closes self-registration (drops `on_auth_user_created`, `users: insert own`, `student_profiles: own insert`, the 8-argument `create_teacher_profile`) — **run 018 last, and again after re-running any older migration.**
 
+### 9.16 Security hardening 3 (migration 021)
+
+- `public.is_active_user()` (SECURITY DEFINER, authenticated only): `users.is_active`, student status not in `banned | rejected | inactive | archived`, teacher profile active.
+- RESTRICTIVE policy `"live users only"` on every public table with RLS (except `users`, `student_profiles`, `teacher_profiles`, which the app needs to read the person's own status) and on `storage.objects`: `is_admin() OR is_active_user()`. A banned or deactivated person gets nothing from the API even with a valid session.
+- `sync_monthly_fee_on_payment` now runs AFTER INSERT OR UPDATE OR DELETE on `fee_payments`.
+- `notifications`: users may only read, mark read and delete their own; inserts only via the existing `notifications: admin insert` policy and server functions.
+- `student_enrollments: teacher read` limited to the teacher's assigned classes in the current year; `absence_reasons` teacher insert limited to assigned classes.
+- `student_attendance: student read` replaces `own read` and limits students to the current academic year.
+
+### 9.15 Fee payments across months (migration 022)
+
+- `record_fee_payment(monthly_fee_id, amount, method, payment_date, reference, notes) RETURNS JSONB` - admin only. Spreads the amount over the student's unpaid months, oldest first (one `fee_payments` row per month, note "part of a ₹X payment"), refuses more than the total due, returns `{allocated: [{month, year, amount}]}`. `paid_amount` is set to the sum of the payment rows.
+- One-time repair: recomputes every `paid_amount` from `fee_payments` (undoes double counting by the old app code) and moves existing over-payments to the same student's unpaid months (note "moved from M/YYYY").
+
 ### 9.14 Security hardening 2 (migration 020)
 
 - `next_student_id()` / `next_teacher_id()` revoked from `authenticated` and `anon` (the SECURITY DEFINER create functions still call them).
