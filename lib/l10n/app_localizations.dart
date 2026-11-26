@@ -181,7 +181,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeHint.
   ///
   /// In en, this message translates to:
-  /// **'Log in with your mobile number or email and your password.'**
+  /// **'Log in with the mobile number or email and the access code given by the institute.'**
   String get welcomeHint;
 
   /// No description provided for @loginTitle.
@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Enter your mobile number or email and your password.'**
+  /// **'Enter your mobile number or email and your access code (or password).'**
   String get loginSubtitle;
 
   /// No description provided for @registerSubtitle.
@@ -1341,6 +1341,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We will use this email only to contact you about your account.'**
   String get contactEmailNote;
+
+  /// No description provided for @passwordOrCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Access code or password'**
+  String get passwordOrCode;
+
+  /// No description provided for @noLoginHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not have a login yet? Ask the institute. They will give you a mobile number or email and an access code.'**
+  String get noLoginHint;
 }
 
 class _AppLocalizationsDelegate

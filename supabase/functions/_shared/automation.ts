@@ -8,7 +8,19 @@ import { createClient, SupabaseClient } from "jsr:@supabase/supabase-js@2";
 export function isAuthorized(req: Request): boolean {
   const expected = Deno.env.get("AUTOMATION_SECRET");
   const given = req.headers.get("x-automation-secret");
-  return !!expected && given === expected;
+  if (!expected || !given) return false;
+  return timingSafeEqual(given, expected);
+}
+
+/** Compares without leaking, through timing, how many leading characters match. */
+function timingSafeEqual(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const x = enc.encode(a);
+  const y = enc.encode(b);
+  let diff = x.length ^ y.length;
+  const n = Math.max(x.length, y.length);
+  for (let i = 0; i < n; i++) diff |= (x[i] ?? 0) ^ (y[i] ?? 0);
+  return diff === 0;
 }
 
 export function serviceClient(): SupabaseClient {

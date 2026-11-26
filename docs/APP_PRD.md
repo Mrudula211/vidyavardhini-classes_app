@@ -37,7 +37,7 @@ Vidyavardhini Classes is a coaching institute running SSC and CBSE batches for s
 
 The owner of the coaching class. Complete control over the system.
 
-**Login Flow:** Login → mobile number or email + password → Admin Access Code → Dashboard. Same single login as everyone; the account's role decides the destination. No SMS OTP.
+**Login Flow:** Login → mobile number or email + password → Dashboard. Same single login as everyone; the account's role decides the destination. No access code and no SMS OTP for the admin. The admin stays logged in until they log out.
 
 **Capabilities:**
 - Approve / reject / ban students
@@ -56,7 +56,7 @@ The owner of the coaching class. Complete control over the system.
 
 Instructors assigned to specific classes.
 
-**Login Flow:** Login → mobile number or email + the password the admin set → Teacher Access Code → Dashboard (same single login screen).
+**Login Flow:** Login → mobile number or email + the 6-digit access code the admin set (it is the password) → Dashboard (same single login screen; no second step).
 
 **Capabilities:**
 - Mark student attendance for assigned classes
@@ -76,8 +76,8 @@ Instructors assigned to specific classes.
 
 Enrolled learners.
 
-**Registration Flow:** Create account (mobile or email + password) → Registration Form → Pending Approval  
-**Post-Approval Login:** Login → mobile number or email + password → Dashboard. Forgot password: email code, then choose a new one (phone-only accounts: the admin resets it).
+**Onboarding:** the admin adds the student in the app (name, class, parent contact, fee, login mobile/email). The app generates an access code, shown on the student's page. There is no self-registration.  
+**Login:** Login → mobile number or email + the access code → Dashboard. Lost code: the admin generates a new one on the student's page. (Email accounts can also use "Forgot password?" with an emailed code.)
 
 **Languages:** English, Hindi (हिन्दी) and Marathi (मराठी), switchable on the first screen and remembered. Parent/student-facing screens are fully translated.
 
@@ -103,8 +103,8 @@ Enrolled learners.
 - Token refresh handled by Supabase SDK
 
 ### 4.2 Access Codes
-- **Admin Access Code:** 6-digit code set during first setup, stored hashed
-- **Teacher Access Code:** Unique per teacher, assigned by admin, stored hashed
+- **Admin:** logs in with a password only (no access code); changes it from the Security screen
+- **Teacher Access Code:** 6 digits, assigned (or reset) by the admin; it is the teacher's login password
 - Codes are required as a second factor after OTP
 
 ### 4.3 Student Password
@@ -352,7 +352,7 @@ System auto-calculates status:
 - 0 < Paid < Expected → **Partially Paid**
 - Paid ≥ Expected → **Paid**
 
-Partial payments are additive (multiple payments per month supported).
+Partial payments are additive (multiple payments per month supported). One payment can also cover several months: the amount is applied to the student's unpaid months, oldest first, and may not exceed the total due.
 
 ### 12.4 Student Fee View
 

@@ -6,12 +6,15 @@ final feeRepositoryProvider = Provider<FeeRepository>((ref) {
   return FeeRepository();
 });
 
-final selectedFeeMonthProvider = StateProvider<int>((ref) => DateTime.now().month);
-final selectedFeeYearProvider = StateProvider<int>((ref) => DateTime.now().year);
+final selectedFeeMonthProvider =
+    StateProvider<int>((ref) => DateTime.now().month);
+final selectedFeeYearProvider =
+    StateProvider<int>((ref) => DateTime.now().year);
 final selectedFeeStatusFilterProvider = StateProvider<String>((ref) => 'all');
 final feeSearchQueryProvider = StateProvider<String>((ref) => '');
 
-final adminFeeOverviewProvider = FutureProvider<List<MonthlyFeeModel>>((ref) async {
+final adminFeeOverviewProvider =
+    FutureProvider<List<MonthlyFeeModel>>((ref) async {
   final repo = ref.watch(feeRepositoryProvider);
   final month = ref.watch(selectedFeeMonthProvider);
   final year = ref.watch(selectedFeeYearProvider);
@@ -26,12 +29,16 @@ final adminFeeOverviewProvider = FutureProvider<List<MonthlyFeeModel>>((ref) asy
   );
 });
 
-final studentFeeHistoryProvider = FutureProvider.family<List<MonthlyFeeModel>, String>((ref, studentId) async {
+final studentFeeHistoryProvider =
+    FutureProvider.family<List<MonthlyFeeModel>, String>(
+        (ref, studentId) async {
   final repo = ref.watch(feeRepositoryProvider);
   return repo.fetchStudentFeeHistory(studentId: studentId);
 });
 
-final monthlyFeePaymentsProvider = FutureProvider.family<List<FeePaymentModel>, String>((ref, monthlyFeeId) async {
+final monthlyFeePaymentsProvider =
+    FutureProvider.family<List<FeePaymentModel>, String>(
+        (ref, monthlyFeeId) async {
   final repo = ref.watch(feeRepositoryProvider);
   return repo.fetchFeePayments(monthlyFeeId);
 });

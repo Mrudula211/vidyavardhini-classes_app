@@ -20,10 +20,10 @@
   "welcomeTagline": "Nurturing Minds, Shaping Futures",
   "welcomeLogin": "Login",
   "welcomeRegister": "New student? Register here",
-  "welcomeHint": "Log in with your mobile number or email and your password.",
+  "welcomeHint": "Log in with the mobile number or email and the access code given by the institute.",
   "loginTitle": "Welcome back",
   "registerTitle": "New student registration",
-  "loginSubtitle": "Enter your mobile number or email and your password.",
+  "loginSubtitle": "Enter your mobile number or email and your access code (or password).",
   "registerSubtitle": "Enter your mobile number to begin. We will send you a 6-digit code.",
   "mobileNumber": "Mobile number",
   "sendCode": "Send code",
@@ -336,5 +336,7 @@
   "savePassword": "Save password",
   "passwordSaved": "Password saved.",
   "passwordSaveFailed": "Could not save the password. Please try again.",
-  "contactEmailNote": "We will use this email only to contact you about your account."
+  "contactEmailNote": "We will use this email only to contact you about your account.",
+  "passwordOrCode": "Access code or password",
+  "noLoginHint": "Do not have a login yet? Ask the institute. They will give you a mobile number or email and an access code."
 }
