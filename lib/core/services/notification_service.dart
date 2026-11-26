@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -17,13 +18,63 @@ class NotificationService {
 
   final SupabaseClient _client;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _local =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+
+  /// One high-importance channel: notifications pop up with sound. The same
+  /// id is set as Firebase's default channel (AndroidManifest) and in the
+  /// send-push function, so closed-app pushes use it too.
+  static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
+    'vidyavardhini_default',
+    'Vidyavardhini Classes',
+    description: 'Announcements, fees, homework and chat',
+    importance: Importance.high,
+  );
+
+  Future<void> _initLocal() async {
+    await _local.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      ),
+    );
+    final android = _local.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    await android?.createNotificationChannel(_channel);
+    // Android 13+: ask for permission to post notifications.
+    await android?.requestNotificationsPermission();
+  }
+
+  /// Android does not show FCM messages that arrive while the app is open,
+  /// so show them in the status bar ourselves.
+  Future<void> _showForeground(RemoteMessage message) async {
+    final title =
+        message.notification?.title ?? message.data['title'] as String?;
+    final body = message.notification?.body ?? message.data['body'] as String?;
+    if (title == null && body == null) return;
+    await _local.show(
+      id: message.hashCode & 0x7fffffff,
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channel.id,
+          _channel.name,
+          channelDescription: _channel.description,
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+  }
 
   Future<void> initialize() async {
     if (_initialized) return;
     _initialized = true;
 
     try {
+      await _initLocal();
       await _messaging.requestPermission(
         alert: true,
         badge: true,
@@ -36,9 +87,10 @@ class NotificationService {
 
       // Foreground messages — OS does not auto-display these on Android.
       FirebaseMessaging.onMessage.listen((message) {
-        final title = message.notification?.title ?? message.data['title'];
-        final body = message.notification?.body ?? message.data['body'];
-        if (kDebugMode) debugPrint('Foreground FCM: $title — $body');
+        if (kDebugMode) {
+          debugPrint('Foreground FCM: ${message.notification?.title}');
+        }
+        _showForeground(message);
       });
 
       FirebaseMessaging.onMessageOpenedApp.listen((message) {

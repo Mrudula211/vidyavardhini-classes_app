@@ -101,7 +101,10 @@ export async function sendFcm(messages: FcmMessage[]): Promise<FcmResult[]> {
           token: m.token,
           notification: { title: m.title, body: m.body },
           data: m.data ?? {},
-          android: { priority: "HIGH" },
+          android: {
+            priority: "HIGH",
+            notification: { channel_id: "vidyavardhini_default", sound: "default" },
+          },
         },
       }),
     });

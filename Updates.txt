@@ -12,3 +12,4 @@
 [DONE 2026-11-26] 12. Fees: ₹4000/₹6000 for a ₹2000 student now pays missed months since joining first, then upcoming months in advance (migration 023). October's ₹2000 was never recorded (only one ₹2000 entry existed; the ₹4000 was the old double-count bug) - record it once.
 [DONE 2026-11-26] 13. Student (and teacher) dashboard notification/announcement/logout icons were invisible (maroon on maroon) - now light.
 [DONE 2026-11-26] 14. Teacher login failed because the Teacher ID (TCH0008) was typed as the code. The app now says so; admin must give a 6-digit code via Teacher profile -> Reset login access code.
+[DONE 2026-11-26] 15. No notifications in the phone's top bar: the app now shows them (also while open). Delivery also needs the send-push function deployed in Supabase - see docs/OWNER_TODO.md section 4.

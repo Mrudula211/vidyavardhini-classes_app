@@ -475,3 +475,5 @@ Pure-SQL pg_cron jobs (UTC; IST = UTC+5:30):
 - Messages: partitioned by `room_id`; archive old rooms after academic year end
 - All list queries paginated (page size: 25–50)
 - Indexes on: `student_id`, `academic_year_id`, `date`, `status`, `board+standard`
+
+**Push display:** FCM messages that arrive while the app is open are shown in the status bar by `flutter_local_notifications` (`NotificationService`); all pushes use the high-importance Android channel `vidyavardhini_default` (set in AndroidManifest and in `send-push`). Delivery itself needs the `send-push` Edge Function deployed (docs/OWNER_TODO.md section 4).
