@@ -81,10 +81,12 @@ flutter:
   uses-material-design: true
 
   assets:
-    - images/
+    # Only the logo is shown in the app; the other files in images/ are
+    # sources for the launcher icon and splash and are not bundled.
     - images/logo.png
-    - assets/fonts/Cinzel-Regular.ttf
-    - assets/fonts/Cinzel-Bold.ttf
+    # Bundled fonts: google_fonts finds Poppins/Mukta here, so nothing is
+    # downloaded at runtime (no font swap on first launch, works offline).
+    - assets/fonts/
 
   fonts:
     - family: Cinzel

@@ -14,3 +14,4 @@
 [DONE 2026-11-26] 14. Teacher login failed because the Teacher ID (TCH0008) was typed as the code. The app now says so; admin must give a 6-digit code via Teacher profile -> Reset login access code.
 [DONE 2026-11-26] 15. No notifications in the phone's top bar: the app now shows them (also while open). Delivery also needs the send-push function deployed in Supabase - see docs/OWNER_TODO.md section 4.
 [DONE 2026-11-26] 16. Teacher TCH0008 still could not log in after a code reset: her account was made by an older app version. Migration 024 repairs all such logins; then reset her code once more.
+[DONE 2026-11-26] 17. App not smooth on emulator / other phones: fixed blank, slow first start (notification setup no longer blocks the first screen), fonts are now built in (no download, no flicker, work offline), APK trimmed. Tested on an Android 14 emulator.

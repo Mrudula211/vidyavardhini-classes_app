@@ -97,10 +97,6 @@ class NotificationService {
         debugPrint('FCM opened app: ${message.messageId}');
       });
 
-      final token = await _messaging.getToken();
-      if (token != null) {
-        await _saveToken(token);
-      }
       _messaging.onTokenRefresh.listen(_saveToken);
 
       // Token save at cold start often runs before login — re-save when the
@@ -112,6 +108,14 @@ class NotificationService {
           await _saveToken(refreshed);
         }
       });
+
+      // Never wait forever for a token (no network, no Play services).
+      final token = await _messaging
+          .getToken()
+          .timeout(const Duration(seconds: 15), onTimeout: () => null);
+      if (token != null) {
+        await _saveToken(token);
+      }
     } catch (e) {
       debugPrint('NotificationService initialization skipped: $e');
     }

@@ -477,3 +477,5 @@ Pure-SQL pg_cron jobs (UTC; IST = UTC+5:30):
 - Indexes on: `student_id`, `academic_year_id`, `date`, `status`, `board+standard`
 
 **Push display:** FCM messages that arrive while the app is open are shown in the status bar by `flutter_local_notifications` (`NotificationService`); all pushes use the high-importance Android channel `vidyavardhini_default` (set in AndroidManifest and in `send-push`). Delivery itself needs the `send-push` Edge Function deployed (docs/OWNER_TODO.md section 4).
+
+**Startup and fonts:** `main()` draws the first frame before setting up notifications (`NotificationService.initialize()` runs in a post-frame callback; the FCM token request times out after 15 s). All fonts (Cinzel, Poppins, Mukta) are bundled in `assets/fonts/` and `GoogleFonts.config.allowRuntimeFetching = false`, so nothing is downloaded at runtime.

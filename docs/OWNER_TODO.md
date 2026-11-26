@@ -88,7 +88,7 @@ Use made-up names and numbers. Tell me what happens, with a screenshot of anythi
 
 The code and database parts are ready. Until this is done: push notifications are not delivered and the Backup button does nothing. (The monthly-fee and reminder jobs are already scheduled in the database.)
 
-1. Install the CLI (`npm install -g supabase` or `scoop install supabase`), then `supabase login` and, in the project folder, `supabase link --project-ref rcocjtblpbbslrivqpmm`.
+1. No install needed: run the CLI with `npx supabase ...` (Node.js is already installed). `npm install -g supabase` is **not supported** by Supabase. On Windows, first allow npm's scripts once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (answer `Y`). Then `npx supabase login` and, in the project folder, `npx supabase link --project-ref rcocjtblpbbslrivqpmm`. In every command below, write `npx supabase` instead of `supabase`.
 2. The two Vault secrets (`project_url`, `automation_secret`) already exist. Use the **same secret value** below.
 3. Firebase Console -> Project settings -> Service accounts -> **Generate new private key** (a `.json` file; never commit it).
 4. Set the function secrets:
