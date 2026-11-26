@@ -1104,6 +1104,10 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 - Trigger `student_profiles_keep_id` makes `student_id` immutable once set; `next_student_id()` / `next_teacher_id()` revoked from anon.
 - `public.is_admin()` also granted to `supabase_auth_admin`. Re-closes self-registration (drops `on_auth_user_created`, `users: insert own`, `student_profiles: own insert`, the 8-argument `create_teacher_profile`) — **run 018 last, and again after re-running any older migration.**
 
+### 9.17 Fee advance and missing months (migration 023)
+
+- `record_fee_payment` replaced: (1) creates any missing `monthly_fees` row from the later of the student's `created_at` and the academic-year start up to the current month (amount from `fee_structure`); (2) pays unpaid months oldest first; (3) any remainder creates the next months and pays them in advance (note "advance"), never past `academic_years.end_date`. The monthly generator's `ON CONFLICT DO NOTHING` keeps advance rows. Returns `{allocated: [{month, year, amount, advance}]}`.
+
 ### 9.16 Security hardening 3 (migration 021)
 
 - `public.is_active_user()` (SECURITY DEFINER, authenticated only): `users.is_active`, student status not in `banned | rejected | inactive | archived`, teacher profile active.

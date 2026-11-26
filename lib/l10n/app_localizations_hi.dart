@@ -92,6 +92,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get enterPassword => 'अपना पासवर्ड डालें';
 
   @override
+  String get loginIdNotCode =>
+      'यह एक आईडी (जैसे TCH0008) लगती है, आपका एक्सेस कोड नहीं। शिक्षक: संस्थान द्वारा दिया गया 6 अंकों का कोड डालें।';
+
+  @override
   String get loginFailedCredentials =>
       'ईमेल या पासवर्ड गलत है। कृपया फिर कोशिश करें।';
 

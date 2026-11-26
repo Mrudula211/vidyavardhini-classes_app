@@ -83,10 +83,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context.go(roleDestination(role));
     } catch (e) {
       if (!mounted) return;
+      final wrong = e.toString().contains('Invalid login credentials');
+      // People often type their Teacher/Student ID instead of the code.
+      final typedAnId = RegExp(r'^(TCH|STU)\d+$', caseSensitive: false)
+          .hasMatch(_passwordController.text.trim());
       _showError(
-        e.toString().contains('Invalid login credentials')
-            ? l10n.loginFailedCredentials
-            : l10n.loginFailedGeneric,
+        wrong && typedAnId
+            ? l10n.loginIdNotCode
+            : wrong
+                ? l10n.loginFailedCredentials
+                : l10n.loginFailedGeneric,
       );
     }
   }

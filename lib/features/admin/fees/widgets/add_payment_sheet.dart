@@ -220,7 +220,7 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                 decoration: const InputDecoration(
                   labelText: 'Payment Amount (₹) *',
                   helperText:
-                      'More than this month? It is applied to the oldest unpaid months first.',
+                      'Pays unpaid months first (oldest first); anything extra pays the coming months in advance.',
                   helperMaxLines: 2,
                   prefixIcon: Icon(Icons.currency_rupee),
                   border: OutlineInputBorder(),

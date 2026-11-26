@@ -32,6 +32,7 @@
   "loginButton": "Login",
   "enterEmail": "Enter your email address",
   "enterPassword": "Enter your password",
+  "loginIdNotCode": "That looks like an ID (for example TCH0008), not your access code. Teachers: enter the 6-digit code the institute gave you.",
   "loginFailedCredentials": "Incorrect email or password. Please try again.",
   "loginFailedGeneric": "Could not log in. Please check your details and try again.",
   "showPassword": "Show password",

@@ -250,6 +250,12 @@ abstract class AppLocalizations {
   /// **'Enter your password'**
   String get enterPassword;
 
+  /// No description provided for @loginIdNotCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That looks like an ID (for example TCH0008), not your access code. Teachers: enter the 6-digit code the institute gave you.'**
+  String get loginIdNotCode;
+
   /// No description provided for @loginFailedCredentials.
   ///
   /// In en, this message translates to:

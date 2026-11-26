@@ -91,6 +91,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterPassword => 'Enter your password';
 
   @override
+  String get loginIdNotCode =>
+      'That looks like an ID (for example TCH0008), not your access code. Teachers: enter the 6-digit code the institute gave you.';
+
+  @override
   String get loginFailedCredentials =>
       'Incorrect email or password. Please try again.';
 
