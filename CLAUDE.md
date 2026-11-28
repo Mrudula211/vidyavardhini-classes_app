@@ -64,7 +64,7 @@ Never say "set up your Supabase project" without listing exactly how. Never say 
 | PDF Viewer | syncfusion_flutter_pdfviewer |
 | Local Cache | Hive |
 | Routing | go_router |
-| UI Design | Material Design 3, dark mode |
+| UI Design | Material Design 3, one light (parchment) theme for every role |
 | Font | Poppins (body), Cinzel (headings), Mukta (Hindi/Marathi) |
 
 ---
@@ -81,14 +81,14 @@ Never say "set up your Supabase project" without listing exactly how. Never say 
 
 1. **Student IDs** (STU0001…) are permanent and never reused — enforce at DB level with a sequence and a trigger.
 2. **Admin is unique** — only one admin account exists in the system.
-3. **Students need admin approval** before any access. Status flow: `pending → active | rejected | banned`.
+3. **Students are created by the admin only** (`create_student_account`; no self-registration). They start `active`; `rejected | banned` (and legacy `pending`) are still enforced by the router.
 4. **Fees are admin-only write** — teachers and students are read-only.
 5. **Audit logs are immutable** — no UPDATE or DELETE on `audit_logs`.
 6. **Academic year data is isolated** — students/teachers see current year only; only admin can access historical years.
 7. **Teacher attendance via GPS geofence** — admin sets lat/lng/radius; entering the geofence auto-marks present.
 8. **Automatic monthly fees** — a database trigger/cron generates `monthly_fees` records on the 1st of every month for all active students.
 9. **Fee reminder push** — sent on the 10th of every month to students with pending/partial fees.
-10. **Promotion requires OTP + CONFIRM text + admin password** — triple confirmation guard.
+10. **Promotion requires an emailed one-time code + CONFIRM text + admin password** — triple confirmation guard, enforced in the `promote_students` database function.
 
 ---
 
@@ -104,7 +104,7 @@ lib/
 │   │   ├── supabase_keys.dart   # URL/anon key (from .env)
 │   │   └── routes.dart          # All route path strings
 │   ├── theme/
-│   │   ├── app_theme.dart       # Light + dark ThemeData
+│   │   ├── app_theme.dart       # The single light ThemeData
 │   │   ├── app_colors.dart      # Brand color constants
 │   │   └── app_typography.dart  # TextTheme
 │   ├── utils/
@@ -183,8 +183,8 @@ lib/
 
 - All tables have Row Level Security (RLS) **enabled**.
 - Use Supabase **service role** only in Edge Functions (never in Flutter).
-- Auth is OTP (phone) — Supabase Auth handles OTP via SMS.
-- Additional access codes (admin code, teacher code) are stored **hashed** in the DB.
+- Auth is mobile number or email + password. **No SMS.** A student's password is a generated access code (`student_access_codes`, admin-read-only). A teacher's password is a 6-digit access code chosen by the admin (one step, no separate password); the admin logs in with the password only. Accounts are created only by admin RPCs (`create_student_account`, `create_teacher_profile`); "Allow new users to sign up" stays off.
+- A teacher's access code is their Supabase password (stored hashed by Supabase Auth only; the admin sets or resets it with `create_teacher_profile` / `admin_reset_user_password`). Student access codes are stored readable for the admin (`student_access_codes`, admin-read-only RLS).
 - Use Supabase Realtime for chat (`messages` table).
 - Storage buckets: `profile-photos`, `homework-attachments`, `classwork-attachments`, `chat-files`.
 
@@ -285,7 +285,8 @@ dev_dependencies:
 - Do not call Supabase directly in widgets — always through providers → repositories.
 - Do not delete audit log records for any reason.
 - Do not allow teachers to write fee or revenue data — enforce at DB + UI level.
-- Do not skip OTP verification in any auth flow.
+- Do not add self-registration or any client-side account creation; accounts come from the admin RPCs.
+- A policy on `users` must never query `users` (infinite recursion); use `public.is_admin()`.
 - Do not reuse Student IDs.
 - Do not allow students to access data from other academic years.
 - Do not use `flutter_bloc` — this project uses Riverpod exclusively.
@@ -309,8 +310,6 @@ const parchment  = Color(0xFFF5EFE0);
 const gold       = Color(0xFFC68A2D);
 const maroon     = Color(0xFF7B2D26);
 const brown      = Color(0xFF4A2C1A);
-const darkBg     = Color(0xFF1A1208);   // dark mode background
-const darkSurface = Color(0xFF2C1F10);  // dark mode surface
 ```
 
 ---

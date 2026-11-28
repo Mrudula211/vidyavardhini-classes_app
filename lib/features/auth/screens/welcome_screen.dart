@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -19,66 +20,69 @@ class WelcomeScreen extends StatelessWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.maroon, AppColors.brown],
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.maroon, AppColors.brown],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Semantics(
-                            container: true,
-                            label: l10n.language,
-                            child: const LanguageSwitcher(onDark: true),
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Semantics(
+                              container: true,
+                              label: l10n.language,
+                              child: const LanguageSwitcher(onDark: true),
+                            ),
                           ),
                         ),
-                      ),
-                      const Spacer(flex: 2),
-                      const _LogoBadge(),
-                      const SizedBox(height: 20),
-                      Text(
-                        AppConstants.appName,
-                        textAlign: TextAlign.center,
-                        style: AppTypography.cinzel(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.parchment,
-                          letterSpacing: 1.4,
+                        const Spacer(flex: 2),
+                        const _LogoBadge(),
+                        const SizedBox(height: 20),
+                        Text(
+                          AppConstants.appName,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.cinzel(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.parchment,
+                            letterSpacing: 1.4,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        AppConstants.appTaglineSanskrit,
-                        style: AppTypography.mukta(
-                          fontSize: 16,
-                          color: AppColors.goldLight,
+                        const SizedBox(height: 10),
+                        Text(
+                          AppConstants.appTaglineSanskrit,
+                          style: AppTypography.mukta(
+                            fontSize: 16,
+                            color: AppColors.goldLight,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.welcomeTagline,
-                        textAlign: TextAlign.center,
-                        style: AppTypography.poppins(
-                          fontSize: 13,
-                          color: AppColors.parchment.withValues(alpha: 0.75),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.welcomeTagline,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.poppins(
+                            fontSize: 13,
+                            color: AppColors.parchment.withValues(alpha: 0.75),
+                          ),
                         ),
-                      ),
-                      const Spacer(flex: 3),
-                      _ActionSheet(l10n: l10n),
-                    ],
+                        const Spacer(flex: 3),
+                        _ActionSheet(l10n: l10n),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -90,30 +94,16 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
+/// The full badge, large and unclipped (it has its own border and ribbon).
 class _LogoBadge extends StatelessWidget {
   const _LogoBadge();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 148,
-      height: 148,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.parchment,
-        border: Border.all(color: AppColors.gold, width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: Image.asset('images/logo.png', fit: BoxFit.contain),
-      ),
+    return Semantics(
+      label: 'Vidyavardhini Classes logo',
+      image: true,
+      child: Image.asset('images/logo.png', width: 220, height: 220),
     );
   }
 }
@@ -154,30 +144,6 @@ class _ActionSheet extends StatelessWidget {
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                   color: AppColors.parchment,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.maroon,
-                side: const BorderSide(color: AppColors.gold, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              onPressed: () => context.go(Routes.createAccount),
-              child: Text(
-                l10n.welcomeRegister,
-                textAlign: TextAlign.center,
-                style: AppTypography.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.maroon,
                 ),
               ),
             ),

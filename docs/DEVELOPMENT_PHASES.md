@@ -19,7 +19,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [x] Add all dependencies to `pubspec.yaml`
 - [x] Configure `go_router` with placeholder routes (`lib/core/router/app_router.dart`)
 - [x] Set up Riverpod `ProviderScope` in `main.dart`
-- [x] Set up Material 3 theme (light + dark) with brand colours
+- [x] Set up Material 3 theme (light only since 2026-11-22) with brand colours
 - [x] Configure Supabase client initialisation
 - [ ] Set up build flavors (dev / prod)
 - [x] Apply database migration 001 in Supabase SQL Editor
@@ -361,7 +361,7 @@ Phases 1–5 are the MVP needed for launch. Phases 6–10 add the full feature s
 - [ ] Build release APK + AAB
 - [ ] Test on 3+ Android devices (different screen sizes)
 - [ ] Upload to Play Store (internal testing track)
-- [x] App icon + splash screen (branded) — `flutter_launcher_icons` / `flutter_native_splash` configured in `pubspec.yaml`, Android assets generated from `images/logo-icon.png` (parchment light / dark-brown dark splash). Owner may supply a higher-resolution source (current is ~580px).
+- [x] App icon + splash screen (branded) — `flutter_launcher_icons` / `flutter_native_splash` configured in `pubspec.yaml`, Android assets generated from `images/logo-icon.png` (parchment light / dark-brown dark splash). Owner may supply a higher-resolution source (current is ~580px). **Icon fix (2026-11-17):** the launcher icon was cropped by Android's adaptive-icon mask; it is now built from the full badge (`images/logo.png`) inside the 66% safe zone (`images/app_icon_foreground.png`, flat `images/app_icon.png`, parchment background), and the app label reads "Vidyavardhini".
 - [ ] Play Store listing (screenshots, description)
 
 **Deliverable:** App live on Play Store.
@@ -425,6 +425,61 @@ Decision: SMS OTP needs a provider plus India DLT registration; replaced by pass
 - [ ] Contact details are unverified by design (confirmations off); the admin approval gate is the control. Revisit if spam registrations appear.
 - [ ] Email codes need email templates with `{{ .Token }}` and a custom SMTP sender for real volume (Supabase default email is heavily rate-limited).
 
+## Admin creates students; access code = login (2026-10-22)
+
+Decision: no self-registration. The admin adds each student; the generated access code is the student's password.
+- [x] Migration 016: `student_access_codes` (admin-read-only), `create_student_account`, `regenerate_student_access_code`, 8-character code generator; self-registration policies and the auth trigger removed.
+- [x] Admin: **Add Student** screen (Student Management app bar), code dialog with copy, "App login" card + "Generate a new code" on the student page.
+- [x] Removed: create-account, student registration and set-password screens/routes; Welcome shows Login only; login box accepts mobile/email + access code; email codes no longer create accounts.
+- [x] Router: no student profile -> signed out; tests updated; new tests for Add Student and the code card.
+- [ ] Teachers adding students (RPC is admin-only for now).
+- [ ] Turn off "Allow new users to sign up" in Supabase (owner step).
+- [ ] The code is stored readable for the admin (RLS-protected); revisit if that is not acceptable.
+
+## Independent review fixes (2026-11-21)
+
+Three read-only ECC reviewers (Flutter, database, security) audited the code. Fixed:
+- [x] **Router rebuilt on every token refresh** (reset navigation, lost forms): now one GoRouter with a `refreshListenable`; redirect reads state with `ref.read`.
+- [x] **Forgot-password flow redirected away** before the new-password screen: `passwordRecoveryProvider` flag + `decideRedirect(recovering:)`; tests added.
+- [x] OTP screen: resend timer no longer restarts on locale change; double-submit guarded.
+- [x] `getNextStudentId` no longer falls back to a made-up `STU0001`; student-detail load/ban errors handled; access-code change warns on partial failure; promotion label must match the dates and locks after the code is sent; geofence timeout message; PostgREST search input sanitised; client `signUpWithPassword` removed; network errors no longer count as a wrong code; `debugLogDiagnostics` debug-only; offline cache cleared on sign-out; Android `allowBackup=false`.
+- [x] **Migration 018:** self-registration re-closed (older "re-runnable" files reopen it), rate limit that actually accumulates (failures were rolled back by the RAISE), admin access-code change also needs the current code, teacher access-code hashes moved to a private table (a teacher could read and crack their own 6-digit hash), admin `password_hash` emptied, audit log no longer records hashes (existing rows scrubbed), attachment paths must be inside the uploader's folder, chat rooms only with real teachers and frozen members, chat messages immutable except the read flag, teachers limited to assigned classes for attendance/homework/classwork, announcements no longer readable anonymously, student ids immutable, `is_admin()` granted to the auth role, missing indexes.
+- [x] Backup function: credential columns and tokens stripped, chat/timetable tables included; Edge Functions: constant-time secret compare, generic errors.
+
+**Not fixed — needs a decision (see OWNER_TODO section 5):**
+- [ ] **The admin/teacher second step is client-side only.** Anyone holding an admin's password (or its email code) can call the API directly and skip the access code. A proper fix records the verification server-side per session and makes `is_admin()`/teacher policies require it; that touches every admin policy and cannot be tested without the live database.
+- [ ] Banned/inactive accounts keep database access until their session ends (the router signs them out client-side only).
+- [ ] Teacher GPS check-in trusts the position the phone sends (spoofable without device attestation).
+- [ ] Academic-year isolation is not enforced in RLS for students/teachers reading older years.
+- [ ] Fee data: a `waived` fee is recomputed to `pending` on the next write; editing/deleting a payment does not re-sync `paid_amount`; a student added mid-month gets no fee for the current month.
+- [ ] Fresh-database setup: `004_seed_admin.sql` aborts until its placeholders are edited; buckets `profile-photos` and `chat-files` are not created by any migration; backups omit `auth.users`.
+- [ ] Admin/teacher working screens still contain hard-coded English strings; attachment viewer shows raw errors.
+
+## Owner feedback: stay logged in, admin password only (2026-11-21, from Updates.txt)
+
+- [x] **Stay logged in.** Supabase already saved the session; what reset on every restart was the in-memory "second step" flag, so the app asked again. Teacher step now remembered per account (`SessionStore`); logout or an account switch clears it.
+- [x] **Admin: password only.** The admin login page that asked for the password and access code again after the login screen is removed (`AdminLoginScreen`, `/auth/admin-login`, `verifyAdminCredentials`, `changeAdminAccessCode`). Router: no admin gate. Security screen is now "Change Password" (confirms the current password first). 94 tests pass.
+- [x] **Found while checking (not in Updates.txt):** if the role lookup failed (offline or a flaky connection) a logged-in person was sent to the Welcome screen as if logged out. The last known role and status are now cached and used when the lookup fails.
+- [x] **Logo too small / border too big (Updates.txt item 3).** Cause: Android wrapped the launcher icon in a 16% inset. Set `adaptive_icon_foreground_inset: 0`, enlarged the icon badge, native splash now uses the full `images/logo.png`, and the Welcome screen shows the unclipped 220px badge (no circular crop or gold ring). Items in Updates.txt are marked `[DONE date]` when finished.
+- [x] **Login hung on the splash (Updates.txt item 4).** Cause: `login_screen` and `otp_screen` called `ref.invalidate` on the role/status providers right after sign-in. The providers were already refreshing because the user had changed, and the extra invalidate left them loading forever, so the router never left the splash. Removed the invalidates; `test/core/router/login_flow_test.dart` checks the role settles after sign-in.
+- [x] **One light theme for everyone (owner request 2026-11-22).** `MaterialApp` uses only `AppTheme.light` with `ThemeMode.light`, so admin, teacher and student see the same parchment look and the phone's dark mode no longer changes it. Removed `AppTheme.dark`, the dark text-colour branches and the dark native-splash images.
+- [x] **Found from owner screenshots (2026-11-22):** (a) publishing an announcement failed because the table had no `target_type` column and a different priority enum than the app: migration `019_announcement_targets.sql` (owner must run it); (b) Teacher Profile tab label was invisible on the maroon app bar: added a `tabBarTheme`; (c) the class avatar wrapped "CBSE" onto two lines: now scaled to fit.
+- [x] **Teacher login: 6-digit access code only (owner request 2026-11-24).** The code is the teacher's password; the second `TeacherLoginScreen`, the `/auth/teacher-login` route, the router gate, `verifyTeacherAccessCode` and the remembered-step storage are removed. Add Teacher has no password field; the teacher profile has **Reset login access code** (existing teachers need it once).
+- [x] **Fee paid for two months showed -₹2000 pending (owner screenshot 2026-11-26).** A payment was booked only on the opened month, and the app also added it to `paid_amount` after the trigger had (double count risk). Now `record_fee_payment` (migration 022) spreads it over unpaid months, oldest first; the sheet shows which months it covered; Revenue never shows a negative pending. Migration 022 repairs existing records.
+- Database: migration 011/018 functions `verify_my_admin_credentials` and `change_my_admin_access_code` are no longer called by the app (harmless; can be dropped later). The admin's access-code hash column remains unused.
+
+---
+
+## Security audit (2026-11-24, ECC security-reviewer + database-reviewer + own checks)
+
+No Critical findings. Secrets: nothing sensitive is tracked; `supabase_keys.dart`, `google-services.json`, keystore files are git-ignored; release builds are minified.
+
+**Fixed now:** migration 020 (ID sequences locked, audit_logs privileges, sessions revoked on reset, legacy functions removed); migration 021 (server-side block for banned/inactive users via `is_active_user()`, fee sync trigger on UPDATE/DELETE, notification spam prevention by restricting INSERT, teacher scope limits on enrollments and absence reasons); teacher access codes must be 6 digits and not guessable (`TeacherCode`, tests); router-forced sign-out now clears the local cache; FCM text only logged in debug; `usesCleartextTraffic="false"`; `send-push` caps `notification_ids` at 500; extracted reusable `AppValidators` and `AppFormatters` with dedicated unit test suites; fee calculation and `PrimaryButton` widget test suites.
+
+**Open, ranked (owner steps in docs/OWNER_TODO.md section 7):**
+- High: Firebase API key sits in old git history (restrict it in Google Cloud); `profile-photos` and `chat-files` buckets have no migration (verify they are private in Supabase Dashboard); apply migrations 020 and 021 in Supabase SQL editor.
+- Medium: geofence RPC returns distance and trusts client GPS; release build falls back to debug signing without `key.properties`; student access codes stored readable (by design).
+
 ---
 
 ## Milestones
@@ -451,7 +506,7 @@ A phase is complete when:
 2. No crash or unhandled exception for happy path
 3. RLS policies verified for all roles (wrong role = access denied)
 4. Push notification fires for relevant events
-5. Dark mode renders correctly
+5. Light theme renders correctly for all three roles (the app is light-only)
 6. Audit log entry created for any sensitive write
 
 ---

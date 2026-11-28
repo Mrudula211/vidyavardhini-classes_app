@@ -14,8 +14,8 @@ class AppLogoHeader extends StatelessWidget {
       children: [
         Image.asset(
           'images/logo.png',
-          width: compact ? 40 : 52,
-          height: compact ? 40 : 52,
+          width: compact ? 56 : 88,
+          height: compact ? 56 : 88,
         ),
         const SizedBox(width: 12),
         Column(

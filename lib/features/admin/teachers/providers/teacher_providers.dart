@@ -14,12 +14,15 @@ final teacherListProvider = FutureProvider<List<TeacherModel>>((ref) async {
   return repo.fetchTeachers(searchQuery: search);
 });
 
-final teacherDetailProvider = FutureProvider.family<TeacherModel?, String>((ref, id) async {
+final teacherDetailProvider =
+    FutureProvider.family<TeacherModel?, String>((ref, id) async {
   final repo = ref.watch(teacherRepositoryProvider);
   return repo.fetchTeacherDetail(id);
 });
 
-final teacherAssignmentsProvider = FutureProvider.family<List<TeacherAssignmentModel>, String>((ref, teacherId) async {
+final teacherAssignmentsProvider =
+    FutureProvider.family<List<TeacherAssignmentModel>, String>(
+        (ref, teacherId) async {
   final repo = ref.watch(teacherRepositoryProvider);
   return repo.fetchTeacherAssignments(teacherId);
 });

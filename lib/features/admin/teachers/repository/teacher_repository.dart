@@ -30,7 +30,7 @@ class TeacherRepository {
     return TeacherModel.fromJson(data);
   }
 
-  /// Creates a teacher login (password + access code) through the
+  /// Creates a teacher login (the 6-digit access code is the password) through the
   /// `create_teacher_profile` RPC (SECURITY DEFINER — creates the auth account
   /// and the profile rows atomically; admin only). The database rejects
   /// duplicate mobile numbers/emails with a readable message.
@@ -43,7 +43,6 @@ class TeacherRepository {
     String? joiningDate,
     required double monthlySalary,
     required String accessCode,
-    required String password,
   }) async {
     String? clean(String? v) =>
         (v == null || v.trim().isEmpty) ? null : v.trim();
@@ -52,7 +51,8 @@ class TeacherRepository {
       'create_teacher_profile',
       params: {
         'p_full_name': fullName.trim(),
-        'p_password': password,
+        // The 6-digit access code IS the login password (no second step).
+        'p_password': accessCode.trim(),
         'p_access_code': accessCode.trim(),
         'p_phone': clean(phone),
         'p_email': clean(email),
@@ -70,6 +70,15 @@ class TeacherRepository {
     return response;
   }
 
+  /// Sets a new 6-digit access code (= login password) for a teacher
+  /// (`admin_reset_user_password`, admin only).
+  Future<void> resetAccessCode(String teacherId, String newCode) async {
+    await _client.rpc(
+      'admin_reset_user_password',
+      params: {'p_user_id': teacherId, 'p_new_password': newCode.trim()},
+    );
+  }
+
   Future<void> deleteTeacher(String teacherId) async {
     // Delete assignments first
     await _client
@@ -85,7 +94,8 @@ class TeacherRepository {
   }
 
   Future<List<TeacherAssignmentModel>> fetchTeacherAssignments(
-      String teacherId,) async {
+    String teacherId,
+  ) async {
     final data = await _client
         .from('teacher_assignments')
         .select()

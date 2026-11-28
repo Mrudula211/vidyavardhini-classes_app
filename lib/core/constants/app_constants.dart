@@ -36,8 +36,16 @@ class AppConstants {
 
   // Standards
   static const List<String> standards = [
-    '1st', '2nd', '3rd', '4th', '5th',
-    '6th', '7th', '8th', '9th', '10th',
+    '1st',
+    '2nd',
+    '3rd',
+    '4th',
+    '5th',
+    '6th',
+    '7th',
+    '8th',
+    '9th',
+    '10th',
   ];
 
   // Subjects (common)

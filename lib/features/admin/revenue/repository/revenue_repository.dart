@@ -45,8 +45,10 @@ class RevenueRepository {
       final month = row['month'] as int? ?? 1;
       final exp = (row['expected_amount'] as num?)?.toDouble() ?? 0.0;
       final paid = (row['paid_amount'] as num?)?.toDouble() ?? 0.0;
+      // Never negative: an over-paid month has nothing pending.
       final rem =
-          (row['remaining_amount'] as num?)?.toDouble() ?? (exp - paid);
+          ((row['remaining_amount'] as num?)?.toDouble() ?? (exp - paid))
+              .clamp(0.0, double.infinity);
 
       totalExpected += exp;
       totalCollected += paid;
@@ -92,8 +94,10 @@ class RevenueRepository {
     for (final row in data as List) {
       final exp = (row['expected_amount'] as num?)?.toDouble() ?? 0.0;
       final paid = (row['paid_amount'] as num?)?.toDouble() ?? 0.0;
+      // Never negative: an over-paid month has nothing pending.
       final rem =
-          (row['remaining_amount'] as num?)?.toDouble() ?? (exp - paid);
+          ((row['remaining_amount'] as num?)?.toDouble() ?? (exp - paid))
+              .clamp(0.0, double.infinity);
 
       expected += exp;
       collected += paid;

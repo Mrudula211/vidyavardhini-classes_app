@@ -46,7 +46,6 @@ class AdminDashboardScreen extends ConsumerWidget {
             icon: const Icon(Icons.logout_rounded, color: AppColors.gold),
             onPressed: () async {
               await ref.read(authRepositoryProvider).signOut();
-              ref.read(adminAuthenticatedProvider.notifier).state = false;
               if (context.mounted) context.go(Routes.roleSelect);
             },
           ),

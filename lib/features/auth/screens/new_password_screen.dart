@@ -37,7 +37,10 @@ class _NewPasswordScreenState extends ConsumerState<NewPasswordScreen> {
       (GoRouterState.of(context).extra as Map<String, dynamic>?)?['role']
           as String?;
 
-  void _continue() => context.go(roleDestination(_role));
+  void _continue() {
+    ref.read(passwordRecoveryProvider.notifier).state = false;
+    context.go(roleDestination(_role));
+  }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;

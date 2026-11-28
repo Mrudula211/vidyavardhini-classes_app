@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -6,6 +7,7 @@ import '../../../../shared/models/fee_model.dart';
 import '../../../../shared/widgets/offline_banner.dart';
 import '../../../auth/providers/auth_providers.dart';
 import '../../../fees/providers/fee_providers.dart';
+import '../../revenue/providers/revenue_providers.dart';
 
 class AddPaymentSheet extends ConsumerStatefulWidget {
   final MonthlyFeeModel monthlyFee;
@@ -59,22 +61,29 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
 
     try {
       final amount = double.parse(_amountController.text.trim());
-      await ref.read(feeRepositoryProvider).recordFeePayment(
+      final covered = await ref.read(feeRepositoryProvider).recordFeePayment(
             monthlyFeeId: widget.monthlyFee.id,
             amount: amount,
             paymentMethod: _paymentMethod,
             paymentDate: _dateController.text.trim(),
-            referenceNumber: _refController.text.trim().isNotEmpty ? _refController.text.trim() : null,
-            notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
-            collectedBy: currentUser.id,
+            referenceNumber: _refController.text.trim().isNotEmpty
+                ? _refController.text.trim()
+                : null,
+            notes: _notesController.text.trim().isNotEmpty
+                ? _notesController.text.trim()
+                : null,
           );
 
       ref.invalidate(adminFeeOverviewProvider);
+      ref.invalidate(yearlyRevenueProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Payment of ₹${amount.toStringAsFixed(0)} recorded for ${widget.monthlyFee.studentName}!'),
+            content: Text(
+              'Payment of ₹${amount.toStringAsFixed(0)} recorded for ${widget.monthlyFee.studentName}'
+              '${covered.length > 1 ? ' (covers ${covered.map((c) => '${_monthName(c.month)} ₹${c.amount.toStringAsFixed(0)}').join(', ')})' : ''}.',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -83,13 +92,35 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to record payment: $e')),
+          SnackBar(content: Text('Failed to record payment: ${_readable(e)}')),
         );
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
   }
+
+  static const _months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  String _monthName(int m) => (m >= 1 && m <= 12) ? _months[m - 1] : '$m';
+
+  /// The database's own message (e.g. "Amount is more than the total due")
+  /// instead of the raw exception text.
+  String _readable(Object e) =>
+      e is PostgrestException ? e.message : e.toString();
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +143,10 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                 children: [
                   Text(
                     'Record Payment — ${widget.monthlyFee.studentName ?? "Student"}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   IconButton(
                     tooltip: 'Close',
@@ -135,20 +169,44 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                   children: [
                     Column(
                       children: [
-                        const Text('Expected', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                        Text('₹${widget.monthlyFee.expectedAmount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Expected',
+                          style: TextStyle(fontSize: 11, color: Colors.grey),
+                        ),
+                        Text(
+                          '₹${widget.monthlyFee.expectedAmount.toStringAsFixed(0)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                     Column(
                       children: [
-                        const Text('Paid So Far', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                        Text('₹${widget.monthlyFee.paidAmount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                        const Text(
+                          'Paid So Far',
+                          style: TextStyle(fontSize: 11, color: Colors.grey),
+                        ),
+                        Text(
+                          '₹${widget.monthlyFee.paidAmount.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
                       ],
                     ),
                     Column(
                       children: [
-                        const Text('Remaining', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                        Text('₹${widget.monthlyFee.remainingAmount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                        const Text(
+                          'Remaining',
+                          style: TextStyle(fontSize: 11, color: Colors.grey),
+                        ),
+                        Text(
+                          '₹${widget.monthlyFee.remainingAmount.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -161,11 +219,16 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Payment Amount (₹) *',
+                  helperText:
+                      'More than this month? It is applied to the oldest unpaid months first.',
+                  helperMaxLines: 2,
                   prefixIcon: Icon(Icons.currency_rupee),
                   border: OutlineInputBorder(),
                 ),
                 validator: (val) {
-                  if (val == null || double.tryParse(val.trim()) == null || double.parse(val.trim()) <= 0) {
+                  if (val == null ||
+                      double.tryParse(val.trim()) == null ||
+                      double.parse(val.trim()) <= 0) {
                     return 'Enter a valid payment amount';
                   }
                   return null;
@@ -181,9 +244,15 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                   border: OutlineInputBorder(),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'upi', child: Text('UPI / GPay / PhonePe')),
+                  DropdownMenuItem(
+                    value: 'upi',
+                    child: Text('UPI / GPay / PhonePe'),
+                  ),
                   DropdownMenuItem(value: 'cash', child: Text('Cash')),
-                  DropdownMenuItem(value: 'bank_transfer', child: Text('Bank Transfer (NEFT/IMPS)')),
+                  DropdownMenuItem(
+                    value: 'bank_transfer',
+                    child: Text('Bank Transfer (NEFT/IMPS)'),
+                  ),
                   DropdownMenuItem(value: 'cheque', child: Text('Cheque')),
                 ],
                 onChanged: (val) {
@@ -211,7 +280,8 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                       );
                       if (picked != null) {
                         setState(() {
-                          _dateController.text = picked.toIso8601String().split('T').first;
+                          _dateController.text =
+                              picked.toIso8601String().split('T').first;
                         });
                       }
                     },
@@ -249,14 +319,19 @@ class _AddPaymentSheetState extends ConsumerState<AddPaymentSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: _isSubmitting ? null : _submitPayment,
                   child: _isSubmitting
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'SAVE PAYMENT RECORD',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                 ),
               ),
