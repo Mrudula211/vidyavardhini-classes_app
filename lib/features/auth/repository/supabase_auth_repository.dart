@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/services/cache_service.dart';
+import '../../../core/services/session_store.dart';
 import '../../../core/utils/login_identifier.dart';
 import 'auth_repository.dart';
 
@@ -27,19 +29,9 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Session?> signUpWithPassword(
-    LoginIdentifier id,
-    String password,
-  ) async {
-    final response = id.isEmail
-        ? await _client.auth.signUp(email: id.email, password: password)
-        : await _client.auth.signUp(phone: id.phone, password: password);
-    return response.session;
-  }
-
-  @override
   Future<void> sendEmailCode(String email) async {
-    await _client.auth.signInWithOtp(email: email, shouldCreateUser: true);
+    // Accounts are created by the admin only; never create one here.
+    await _client.auth.signInWithOtp(email: email, shouldCreateUser: false);
   }
 
   @override
@@ -63,7 +55,16 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
+    final userId = _client.auth.currentUser?.id;
     await _client.auth.signOut();
+    if (userId != null) await SessionStore.forget(userId);
+    // Cached fees, attendance and announcements belong to the person who
+    // just left; do not show them to the next user of this phone.
+    try {
+      await CacheService.instance.clear();
+    } catch (_) {
+      // Cache not initialised (tests) or already empty.
+    }
   }
 
   @override
@@ -105,51 +106,27 @@ class SupabaseAuthRepository implements AuthRepository {
     return null;
   }
 
-  /// Verified server-side against the signed-in admin's own record
-  /// (`verify_my_admin_credentials`); requires a real Supabase session.
   @override
-  Future<bool> verifyAdminCredentials(
-    String accessCode,
-    String password,
-  ) async {
-    return _verify('verify_my_admin_credentials', {
-      'p_access_code': accessCode,
-      'p_password': password,
-    });
-  }
-
-  /// Verified against the signed-in teacher's own code
-  /// (`verify_my_teacher_access_code`); requires a real Supabase session.
-  @override
-  Future<bool> verifyTeacherAccessCode(String accessCode) async {
-    return _verify('verify_my_teacher_access_code', {
-      'p_access_code': accessCode,
-    });
-  }
-
-  @override
-  Future<void> changeAdminAccessCode({
-    required String currentPassword,
-    required String newCode,
-  }) async {
-    await _client.rpc('change_my_admin_access_code', params: {
-      'p_current_password': currentPassword,
-      'p_new_code': newCode,
-    },);
-  }
-
-  Future<bool> _verify(String function, Map<String, dynamic> params) async {
+  Future<bool> confirmCurrentPassword(String password) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
     try {
-      final response = await _client.rpc(function, params: params);
-      return response == true;
-    } on PostgrestException catch (e) {
-      // Surface the lockout message instead of a generic "invalid code".
-      if (e.message.contains('Too many failed attempts')) {
-        throw Exception(e.message);
+      final email = user.email;
+      final phone = user.phone;
+      if (email != null && email.isNotEmpty) {
+        await _client.auth.signInWithPassword(email: email, password: password);
+      } else if (phone != null && phone.isNotEmpty) {
+        await _client.auth.signInWithPassword(
+          phone: phone.startsWith('+') ? phone : '+$phone',
+          password: password,
+        );
+      } else {
+        return false;
       }
-      return false;
-    } catch (_) {
+      return true;
+    } on AuthException {
       return false;
     }
   }
+
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../auth/providers/auth_providers.dart';
 import '../providers/timetable_providers.dart';
 import '../../../l10n/l10n_context.dart';
@@ -10,7 +11,13 @@ class UserTimetableScreen extends ConsumerWidget {
   const UserTimetableScreen({super.key});
 
   final List<String> _days = const [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
 
   String _dayLabel(BuildContext context, String day) {
@@ -85,11 +92,14 @@ class UserTimetableScreen extends ConsumerWidget {
                     selectedColor: AppColors.primary,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                     onSelected: (selected) {
                       if (selected) {
-                        ref.read(selectedTimetableDayProvider.notifier).state = day;
+                        ref.read(selectedTimetableDayProvider.notifier).state =
+                            day;
                       }
                     },
                   ),
@@ -105,9 +115,27 @@ class UserTimetableScreen extends ConsumerWidget {
               data: (slots) {
                 if (slots.isEmpty) {
                   return Center(
-                    child: Text(
-                      context.l10n.noClassesToday,
-                      style: const TextStyle(color: Colors.grey),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.event_busy_outlined,
+                            size: 64,
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            context.l10n.noClassesToday,
+                            textAlign: TextAlign.center,
+                            style: AppTypography.poppins(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }
@@ -120,33 +148,49 @@ class UserTimetableScreen extends ConsumerWidget {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                          child: const Icon(Icons.schedule, color: AppColors.primary),
+                          backgroundColor: AppColors.primary.withValues(
+                            alpha: 0.1,
+                          ),
+                          child: const Icon(
+                            Icons.schedule,
+                            color: AppColors.primary,
+                          ),
                         ),
                         title: Text(
                           slot.subject,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         subtitle: Text(
                           (slot.roomNumber == null || slot.roomNumber!.isEmpty)
-                            ? context.l10n.slotDetailsNoRoom(
-                                slot.startTime,
-                                slot.endTime,
-                                slot.teacherName ?? context.l10n.tbd,
-                              )
-                            : context.l10n.slotDetails(
-                                slot.startTime,
-                                slot.endTime,
-                                slot.teacherName ?? context.l10n.tbd,
-                                slot.roomNumber!,
-                              ),
-                          style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                              ? context.l10n.slotDetailsNoRoom(
+                                  slot.startTime,
+                                  slot.endTime,
+                                  slot.teacherName ?? context.l10n.tbd,
+                                )
+                              : context.l10n.slotDetails(
+                                  slot.startTime,
+                                  slot.endTime,
+                                  slot.teacherName ?? context.l10n.tbd,
+                                  slot.roomNumber!,
+                                ),
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 12,
+                          ),
                         ),
                         trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),

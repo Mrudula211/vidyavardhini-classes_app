@@ -138,7 +138,7 @@ Shell widgets wrap feature screens with role-appropriate navigation bars.
           Phone → OTP → Supabase OTP verification
                               ↓
           [Admin]  → check access_code hash → check password hash
-          [Teacher]→ check access_code hash
+          [Teacher]→ the 6-digit access code is the password (no second step)
           [Student]→ check pending/active status
                               ↓
           Store Session in Hive (encrypted) for auto-login
@@ -153,11 +153,22 @@ Role is stored in the `users` table and embedded in JWT via a Supabase Auth hook
 
 ### 3.1 Unified login (as built)
 
-There is no role picker and **no SMS**. `WelcomeScreen` -> `LoginScreen` (mobile number or email + password; `LoginIdentifier.parse` decides which) or `CreateAccountScreen` for new students. "Forgot password?" emails a one-time code (`OtpScreen`) and then offers `NewPasswordScreen`. After sign-in the app reads `users.role` (`fetchUserRole`) and `roleDestination()` decides the next step.
+There is no role picker and **no SMS**. `WelcomeScreen` -> `LoginScreen`: mobile number or email (`LoginIdentifier.parse` decides which) + password. For students the password is their **access code**. "Forgot password?" emails a one-time code (`OtpScreen`) and then offers `NewPasswordScreen`. After sign-in the app reads `users.role` and `roleDestination()` decides the next step.
 
-Accounts: students/parents self-register with a password (the database trigger `on_auth_user_created` creates their `users` row as `student`); admin and teacher accounts are created by the admin (`create_teacher_profile` with a password, mobile and/or email, and an access code; `admin_reset_user_password` for forgotten passwords). Supabase must have "Confirm email" and "Enable phone confirmations" **off** so password sign-up works without SMS/email verification — contact details are therefore unverified, and the admin approving every student is the gate.
+**Accounts are created by the admin only** (no self-registration; turn off "Allow new users to sign up" in Supabase):
+- Student: `create_student_account` (admin RPC) creates the login (phone and/or email, password = a generated 8-character access code), the `users` row, the active `student_profiles` row with the next STU id, the enrolment for the current year, the fee structure, and a readable copy of the code in `student_access_codes` (admin-read-only RLS) so the admin can show/share it. `regenerate_student_access_code` replaces a lost code.
+- Teacher: `create_teacher_profile` (the app sends the 6-digit access code as the password; the old hash row in `private.teacher_access_codes` is no longer used) and `admin_reset_user_password` to give a new code. Admin: seeded; logs in with the password only and changes it on the Security screen.
+- `admin_reset_user_password` for any forgotten password.
 
-`appRouterProvider.redirect` is the single gate (pure function `decideRedirect`): no session -> auth screens only; session without a known role -> Welcome (never the splash); student status gates (pending / rejected / banned); **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked; `/auth/new-password` is allowed for any signed-in role. `currentUserIdProvider` makes the user/role/status providers react to login and logout.
+**Trade-off:** the access code is stored readable for the admin (so it can be shown again) — it is protected by RLS, but it is not hashed-only like a normal password. Codes are 8 characters from a 31-symbol alphabet (about 40 bits), regenerated on request.
+
+**Staying logged in:** Supabase persists the session on the device, so people stay logged in across restarts until they log out. The app also remembers (`SessionStore`, Hive box `settings`) the last known role/status, so a restart or a patchy connection never makes a logged-in person look logged out. Logout clears all of it.
+
+**Teachers:** their 6-digit access code is the password, so there is no app-only second step to bypass (this closes the earlier limitation). Trade-off: a 6-digit code has 1,000,000 combinations, so it relies on Supabase's sign-in rate limits; the admin can reset it any time from the teacher's profile.
+
+The router is built once (`refreshListenable`), never rebuilt on provider changes.
+
+`appRouterProvider.redirect` is the single gate (pure function `decideRedirect`): no session -> auth screens only; session without a known role -> Welcome (never the splash); students: no profile / rejected / banned -> signed out, pending (legacy) -> waiting screen, active -> app; **admin and teacher must pass their access-code step** (`adminAuthenticatedProvider` / `teacherAuthenticatedProvider`, cleared on logout or account switch) before reaching any other screen; role-prefixed routes are role-checked; `/auth/new-password` is allowed for any signed-in role. `currentUserIdProvider` makes the user/role/status providers react to login and logout.
 
 ### 3.2 Localization
 
