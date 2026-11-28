@@ -115,7 +115,9 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
                 ),
                 const SizedBox(height: 12),
                 AccessCodeCard(
-                  login: result['login'] as String?,
+                  logins: [
+                    if (result['login'] != null) result['login'] as String,
+                  ],
                   accessCode: result['access_code'] as String?,
                 ),
                 const SizedBox(height: 8),
@@ -189,7 +191,7 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
               Semantics(
                 button: true,
                 label: 'Date of birth',
-                hint: 'Tap to choose a date',
+                hint: 'Tap to select the student\'s date of birth',
                 child: InkWell(
                   onTap: _pickDob,
                   child: InputDecorator(

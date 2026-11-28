@@ -38,7 +38,7 @@ CREATE POLICY "student_access_codes: admin read" ON public.student_access_codes
 CREATE OR REPLACE FUNCTION private.generate_access_code(p_length INTEGER DEFAULT 8)
 RETURNS TEXT AS $$
 DECLARE
-  -- 32 symbols; no 0/O, 1/I/L to avoid reading mistakes.
+  -- 31 symbols (23 letters + digits 2-9); no 0/O, 1/I/L to avoid reading mistakes.
   v_alphabet CONSTANT TEXT := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   v_bytes    BYTEA := gen_random_bytes(p_length);
   v_code     TEXT := '';

@@ -62,9 +62,7 @@ class CacheService {
 
       final data = decoded['data'];
       if (data is! List) return null;
-      return data
-          .map((e) => Map<String, dynamic>.from(e as Map))
-          .toList();
+      return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
     } catch (e) {
       debugPrint('Cache get failed for $key: $e');
       return null;

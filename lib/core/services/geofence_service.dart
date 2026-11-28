@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:geolocator/geolocator.dart';
 
 /// Raised when a position cannot be obtained; [message] is user-facing.
@@ -37,9 +39,15 @@ class GeofenceService {
       );
     }
 
-    return Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 20),
-    );
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 20),
+      );
+    } on TimeoutException {
+      throw LocationUnavailableException(
+        'Could not get your location in time. Go outside or near a window and try again.',
+      );
+    }
   }
 }

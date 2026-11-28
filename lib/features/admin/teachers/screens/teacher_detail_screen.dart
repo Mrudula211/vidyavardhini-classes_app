@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/teacher_code.dart';
 import '../../../../shared/models/teacher_model.dart';
 import '../providers/teacher_providers.dart';
 
@@ -15,7 +17,8 @@ class TeacherDetailScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<TeacherDetailScreen> createState() => _TeacherDetailScreenState();
+  ConsumerState<TeacherDetailScreen> createState() =>
+      _TeacherDetailScreenState();
 }
 
 class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
@@ -80,7 +83,11 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Teacher status updated to ${!currentStatus ? "Active" : "Inactive"}')),
+          SnackBar(
+            content: Text(
+              'Teacher status updated to ${!currentStatus ? "Active" : "Inactive"}',
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -181,7 +188,9 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Class assignments saved successfully!')),
+          const SnackBar(
+            content: Text('Class assignments saved successfully!'),
+          ),
         );
       }
     } catch (e) {
@@ -192,6 +201,87 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
       }
     } finally {
       if (mounted) setState(() => _isSavingAssignments = false);
+    }
+  }
+
+  /// The admin gives the teacher a new 6-digit access code. The code is the
+  /// teacher's login password, so this also replaces a forgotten password.
+  Future<void> _resetAccessCode(TeacherModel teacher) async {
+    final controller = TextEditingController(
+      text: TeacherCode.generate(),
+    );
+    final code = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reset login access code'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'The teacher logs in with their mobile number or email and this 6-digit code. Share the new code with them.',
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                labelText: 'New access code (6 digits)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final problem = TeacherCode.validate(controller.text);
+              if (problem == null) {
+                Navigator.pop(ctx, controller.text.trim());
+              } else {
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  SnackBar(content: Text(problem)),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (code == null || !mounted) return;
+    try {
+      await ref
+          .read(teacherRepositoryProvider)
+          .resetAccessCode(teacher.id, code);
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Access code updated'),
+          content: Text(
+            "New login access code for ${teacher.fullName}: $code\n\nShare it with the teacher now. It is not shown again.",
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not update the access code: $e')),
+      );
     }
   }
 
@@ -222,11 +312,15 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
 
     if (confirm == true) {
       try {
-        await ref.read(teacherRepositoryProvider).deleteTeacher(widget.teacherId);
+        await ref
+            .read(teacherRepositoryProvider)
+            .deleteTeacher(widget.teacherId);
         ref.invalidate(teacherListProvider);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Teacher deleted from database successfully')),
+            const SnackBar(
+              content: Text('Teacher deleted from database successfully'),
+            ),
           );
           context.pop();
         }
@@ -243,7 +337,8 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
   @override
   Widget build(BuildContext context) {
     final teacherAsync = ref.watch(teacherDetailProvider(widget.teacherId));
-    final assignmentsAsync = ref.watch(teacherAssignmentsProvider(widget.teacherId));
+    final assignmentsAsync =
+        ref.watch(teacherAssignmentsProvider(widget.teacherId));
 
     return Scaffold(
       appBar: AppBar(
@@ -251,7 +346,10 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
         actions: [
           IconButton(
             tooltip: 'Delete Teacher',
-            icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+            icon: const Icon(
+              Icons.delete_forever_rounded,
+              color: Colors.redAccent,
+            ),
             onPressed: _deleteTeacher,
           ),
         ],
@@ -298,7 +396,8 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
           // Header Card
           Card(
             elevation: 3,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -307,19 +406,31 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                     radius: 40,
                     backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     child: Text(
-                      teacher.fullName.isNotEmpty ? teacher.fullName[0].toUpperCase() : 'T',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.headingColor),
+                      teacher.fullName.isNotEmpty
+                          ? teacher.fullName[0].toUpperCase()
+                          : 'T',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: context.headingColor,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     teacher.fullName,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Teacher ID: ${teacher.teacherId}',
-                    style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -327,7 +438,10 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                     children: [
                       Text(
                         'Account Status: ',
-                        style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       Switch(
                         value: teacher.isActive,
@@ -352,7 +466,8 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
           // Details Card
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -360,13 +475,23 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                 children: [
                   Text(
                     'Personal & Employment Info',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.headingColor),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: context.headingColor,
+                    ),
                   ),
                   const Divider(),
-                  if (teacher.email != null) _buildDetailRow('Email', teacher.email!),
-                  if (teacher.gender != null) _buildDetailRow('Gender', teacher.gender!),
-                  if (teacher.joiningDate != null) _buildDetailRow('Joining Date', teacher.joiningDate!),
-                  _buildDetailRow('Created At', teacher.createdAt.split('T').first),
+                  if (teacher.email != null)
+                    _buildDetailRow('Email', teacher.email!),
+                  if (teacher.gender != null)
+                    _buildDetailRow('Gender', teacher.gender!),
+                  if (teacher.joiningDate != null)
+                    _buildDetailRow('Joining Date', teacher.joiningDate!),
+                  _buildDetailRow(
+                    'Created At',
+                    teacher.createdAt.split('T').first,
+                  ),
                 ],
               ),
             ),
@@ -376,7 +501,8 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
           // Salary Card
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -384,7 +510,11 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                 children: [
                   Text(
                     'Monthly Salary Structure',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.headingColor),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: context.headingColor,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -406,17 +536,39 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           minimumSize: Size.zero,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                         ),
                         onPressed: _isSavingSalary ? null : _updateSalary,
                         child: _isSavingSalary
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
                             : const Text('Update'),
                       ),
                     ],
                   ),
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.lock_reset_rounded),
+              title: const Text('Reset login access code'),
+              subtitle: const Text(
+                "The 6-digit code is the teacher's login password",
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _resetAccessCode(teacher),
             ),
           ),
         ],
@@ -432,11 +584,13 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
       data: (remoteAssignments) {
         if (_localAssignments.isEmpty && remoteAssignments.isNotEmpty) {
           _localAssignments = remoteAssignments
-              .map((a) => {
-                    'board': a.board,
-                    'standard': a.standard,
-                    'subject': a.subject,
-                  },)
+              .map(
+                (a) => {
+                  'board': a.board,
+                  'standard': a.standard,
+                  'subject': a.subject,
+                },
+              )
               .toList();
         }
 
@@ -455,7 +609,10 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size.zero,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
                     ),
                     onPressed: _showAddAssignmentDialog,
                     icon: const Icon(Icons.add),
@@ -464,7 +621,6 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                 ],
               ),
               const SizedBox(height: 12),
-
               Expanded(
                 child: _localAssignments.isEmpty
                     ? const Center(
@@ -482,14 +638,34 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                                child: Text(a['board'] ?? 'S', style: TextStyle(fontWeight: FontWeight.bold, color: context.headingColor)),
+                                backgroundColor:
+                                    AppColors.primary.withValues(alpha: 0.1),
+                                child: FittedBox(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Text(
+                                      a['board'] ?? 'S',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: context.headingColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              title: Text('${a['board']} • Standard ${a['standard']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              title: Text(
+                                '${a['board']} • Standard ${a['standard']}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               subtitle: Text('Subject: ${a['subject']}'),
                               trailing: IconButton(
                                 tooltip: 'Delete assignment',
-                                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     _localAssignments.removeAt(idx);
@@ -501,7 +677,6 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                         },
                       ),
               ),
-
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -510,14 +685,19 @@ class _TeacherDetailScreenState extends ConsumerState<TeacherDetailScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: _isSavingAssignments ? null : _saveAssignments,
                   child: _isSavingAssignments
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'SAVE CLASS ASSIGNMENTS',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                 ),
               ),

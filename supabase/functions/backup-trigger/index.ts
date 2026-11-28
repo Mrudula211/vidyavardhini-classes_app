@@ -32,10 +32,21 @@ const TABLES = [
   "notifications",
   "geofence_settings",
   "teacher_timetable",
+  "timetable_slots",
+  "chat_messages",
   "audit_logs",
   "promotion_history",
   "backup_logs",
 ];
+
+// Never written to a backup file: credential hashes and device tokens.
+const SENSITIVE_COLUMNS = ["access_code_hash", "password_hash", "fcm_token"];
+
+function scrub(row: Record<string, unknown>): Record<string, unknown> {
+  const copy = { ...row };
+  for (const column of SENSITIVE_COLUMNS) delete copy[column];
+  return copy;
+}
 
 const PAGE = 1000;
 const RETENTION_DAYS = 30;
@@ -54,7 +65,7 @@ Deno.serve(async (req) => {
       error_msg: message.slice(0, 1000),
       completed_at: new Date().toISOString(),
     }).eq("id", backupId);
-    return json({ error: message }, 500);
+    return json({ error: "backup failed" }, 500);
   };
 
   try {
@@ -64,7 +75,7 @@ Deno.serve(async (req) => {
       for (let from = 0;; from += PAGE) {
         const { data, error } = await db.from(table).select("*").range(from, from + PAGE - 1);
         if (error) throw new Error(`${table}: ${error.message}`);
-        rows.push(...data);
+        rows.push(...data.map(scrub));
         if (data.length < PAGE) break;
       }
       dump[table] = rows;
